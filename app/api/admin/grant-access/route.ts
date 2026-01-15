@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/auth'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/admin/grant-access
  * Grant admin access to a user (admin only)

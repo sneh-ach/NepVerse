@@ -5,6 +5,9 @@ import { requireAdmin } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   let admin: { id: string; role: string; email: string | null } | null = null
   try {

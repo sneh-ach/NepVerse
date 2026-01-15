@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { requireAdmin } from '@/lib/auth'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses headers, searchParams and Prisma
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Require admin authentication

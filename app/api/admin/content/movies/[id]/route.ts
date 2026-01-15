@@ -5,6 +5,9 @@ import { handleError, logError } from '@/lib/errorHandler'
 import { storageService } from '@/lib/storage'
 import { logger } from '@/lib/logger'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/admin/content/movies/[id]
  * Get a single movie (admin only)

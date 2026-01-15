@@ -4,6 +4,9 @@ import { requireAdmin, verifyToken } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 async function getAuthUser(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null

@@ -3,6 +3,9 @@ import { verifyToken } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Get token from cookie
