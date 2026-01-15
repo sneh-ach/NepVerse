@@ -80,7 +80,7 @@ export async function POST(
       },
     })
 
-    let review
+    let review: any = null
     let helpful = false
 
     if (existingHelpful) {
@@ -114,6 +114,13 @@ export async function POST(
         })
       })
       helpful = true
+    }
+
+    if (!review) {
+      return NextResponse.json(
+        { message: 'Review not found' },
+        { status: 404 }
+      )
     }
 
     return NextResponse.json({ 
