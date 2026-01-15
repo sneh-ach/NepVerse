@@ -91,7 +91,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     image,
     url,
     type: 'video.movie',
-    publishedTime: movie.releaseDate,
+    publishedTime: movie.releaseDate instanceof Date ? movie.releaseDate.toISOString() : (typeof movie.releaseDate === 'string' ? movie.releaseDate : new Date(movie.releaseDate).toISOString()),
     tags: genreTags,
   })
 }
@@ -111,7 +111,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
     name: movie.title,
     description: movie.description || '',
     image: movie.backdropUrl || movie.posterUrl || `${baseUrl}/og-image.jpg`,
-    datePublished: movie.releaseDate,
+    datePublished: movie.releaseDate instanceof Date ? movie.releaseDate.toISOString() : (typeof movie.releaseDate === 'string' ? movie.releaseDate : new Date(movie.releaseDate).toISOString()),
     rating: movie.rating,
     duration: `PT${movie.duration}M`,
   })

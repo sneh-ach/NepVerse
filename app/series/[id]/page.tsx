@@ -109,7 +109,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     image,
     url,
     type: 'video.tv_show',
-    publishedTime: series.releaseDate,
+    publishedTime: series.releaseDate instanceof Date ? series.releaseDate.toISOString() : (typeof series.releaseDate === 'string' ? series.releaseDate : new Date(series.releaseDate).toISOString()),
     tags: genreTags,
   })
 }
@@ -130,7 +130,7 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
     name: series.title,
     description: series.description || '',
     image: series.backdropUrl || series.posterUrl || `${baseUrl}/og-image.jpg`,
-    datePublished: series.releaseDate,
+    datePublished: series.releaseDate instanceof Date ? series.releaseDate.toISOString() : (typeof series.releaseDate === 'string' ? series.releaseDate : new Date(series.releaseDate).toISOString()),
     rating: series.rating,
   })
 
