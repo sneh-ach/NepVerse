@@ -156,70 +156,99 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
         />
 
         <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              {series.title}
-            </h1>
-            {series.titleNepali && (
-              <h2 className="text-2xl md:text-3xl text-gray-300 mb-4">{series.titleNepali}</h2>
-            )}
-
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-              {series.rating && (
-                <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
-                  <Star size={16} className="fill-white" />
-                  <span>{(series.rating > 5 ? series.rating / 2 : series.rating).toFixed(1)}/5</span>
-                </span>
-              )}
-              <span className="text-white">{new Date(series.releaseDate).getFullYear()}</span>
-              {(series as any).quality && (
-                <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
-                  {(series as any).quality}
-                </span>
-              )}
-              <span className="px-3 py-1 bg-gray-700 rounded-md text-white">{series.ageRating}</span>
-              {genres.map((genre: any) => (
-                <span key={genre.name} className="text-gray-300">
-                  {genre.name}
-                </span>
-              ))}
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            {/* Poster - Left Side */}
+            <div className="lg:col-span-3 flex justify-center lg:justify-start">
+              <div className="relative w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
+                {(series.posterUrl?.includes('r2.cloudflarestorage.com') || series.posterUrl?.includes('/api/storage/proxy')) ? (
+                  <img
+                    src={series.posterUrl}
+                    alt={series.title}
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <Image
+                    src={series.posterUrl}
+                    alt={series.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
+                    priority
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Cast, Mature Themes, Tags */}
-            {(series as any).cast && (
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm">
-                  <span className="font-semibold text-white">Cast:</span> {(series as any).cast}
-                </p>
-              </div>
-            )}
-            {(series as any).matureThemes && (
-              <div className="mb-4">
-                <p className="text-gray-400 text-sm">{(series as any).matureThemes}</p>
-              </div>
-            )}
-            {(series as any).tags && (
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm">
-                  <span className="font-semibold text-white">This Series Is:</span> {(series as any).tags}
-                </p>
-              </div>
-            )}
+            {/* Content - Right Side */}
+            <div className="lg:col-span-9">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+                {series.title}
+              </h1>
+              {series.titleNepali && (
+                <h2 className="text-2xl md:text-3xl text-gray-300 mb-4 drop-shadow-lg">{series.titleNepali}</h2>
+              )}
 
-            <SeriesDetailClient series={{ 
-              id: series.id, 
-              title: series.title, 
-              trailerUrl: (series as any).trailerUrl, 
-              episodes: series.episodes,
-              rating: series.rating ?? undefined,
-              year: new Date(series.releaseDate).getFullYear(),
-              description: series.description
-            }} />
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                {series.rating && (
+                  <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
+                    <Star size={16} className="fill-white" />
+                    <span>{(series.rating > 5 ? series.rating / 2 : series.rating).toFixed(1)}/5</span>
+                  </span>
+                )}
+                <span className="text-white drop-shadow-lg">{new Date(series.releaseDate).getFullYear()}</span>
+                {series.episodes && Array.isArray(series.episodes) && (
+                  <span className="text-white drop-shadow-lg">{series.episodes.length} Episodes</span>
+                )}
+                {(series as any).quality && (
+                  <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
+                    {(series as any).quality}
+                  </span>
+                )}
+                <span className="px-3 py-1 bg-gray-700 rounded-md text-white">{series.ageRating}</span>
+                {genres.map((genre: any) => (
+                  <span key={genre.name} className="text-gray-300 drop-shadow-lg">
+                    {genre.name}
+                  </span>
+                ))}
+              </div>
 
-            <p className="text-lg text-gray-200 mb-4">{series.description}</p>
-            {series.descriptionNepali && (
-              <p className="text-lg text-gray-300">{series.descriptionNepali}</p>
-            )}
+              {/* Cast, Mature Themes, Tags */}
+              {(series as any).cast && (
+                <div className="mb-4">
+                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                    <span className="font-semibold text-white">Cast:</span> {(series as any).cast}
+                  </p>
+                </div>
+              )}
+              {(series as any).matureThemes && (
+                <div className="mb-4">
+                  <p className="text-gray-400 text-sm drop-shadow-lg">{(series as any).matureThemes}</p>
+                </div>
+              )}
+              {(series as any).tags && (
+                <div className="mb-4">
+                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                    <span className="font-semibold text-white">This Series Is:</span> {(series as any).tags}
+                  </p>
+                </div>
+              )}
+
+              <SeriesDetailClient series={{ 
+                id: series.id, 
+                title: series.title, 
+                trailerUrl: (series as any).trailerUrl, 
+                episodes: series.episodes,
+                rating: series.rating ?? undefined,
+                year: new Date(series.releaseDate).getFullYear(),
+                description: series.description
+              }} />
+
+              <p className="text-lg text-gray-200 mb-4 drop-shadow-lg">{series.description}</p>
+              {series.descriptionNepali && (
+                <p className="text-lg text-gray-300 drop-shadow-lg">{series.descriptionNepali}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
