@@ -19,9 +19,16 @@ import { isStrongPassword } from '@/lib/security'
  */
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const clientId = getClientIdentifier(request)
-    const rateLimit = await apiRateLimiter.check(clientId)
+    // Rate limiting - wrapped in try-catch to prevent crashes
+    let rateLimit = { allowed: true, remaining: 100, resetTime: Date.now() + 60000 }
+    try {
+      const clientId = getClientIdentifier(request)
+      rateLimit = await apiRateLimiter.check(clientId)
+    } catch (rateLimitError) {
+      console.error('Rate limiter error (allowing request):', rateLimitError)
+      // Allow request if rate limiter fails
+    }
+    
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { message: 'Too many requests. Please try again later.' },
