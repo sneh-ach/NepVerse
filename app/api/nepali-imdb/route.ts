@@ -3,7 +3,6 @@ import { exec } from 'child_process'
 import { promisify } from 'util'
 import { readFile } from 'fs/promises'
 import { join } from 'path'
-import { simklClient, convertSimklMovieToApp } from '@/lib/simkl'
 
 const execAsync = promisify(exec)
 
@@ -76,98 +75,32 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    // Enrich IMDB data with Simkl/TMDB data (for posters, better metadata)
-    const enrichedMovies = await Promise.allSettled(
-      imdbMovies.map(async (imdbMovie) => {
-        try {
-          // Try to find in Simkl by IMDB ID
-          let simklData = null
-          
-          if (imdbMovie.imdb_id) {
-            // Search Simkl for this movie
-            const searchResults = await simklClient.search(imdbMovie.title, 'movie')
-            const matchingMovie = searchResults.movies?.find((m: any) => {
-              const simklImdb = m.ids?.imdb || ''
-              return simklImdb === imdbMovie.imdb_id || 
-                     simklImdb === `tt${imdbMovie.imdb_id}` ||
-                     simklImdb.replace('tt', '') === imdbMovie.imdb_id.replace('tt', '')
-            })
-            
-            if (matchingMovie) {
-              simklData = matchingMovie
-            }
-          }
-          
-          // If no Simkl match, search by title
-          if (!simklData) {
-            const searchResults = await simklClient.search(imdbMovie.title, 'movie')
-            if (searchResults.movies && searchResults.movies.length > 0) {
-              // Find best match by title similarity
-              const bestMatch = searchResults.movies.find((m: any) => {
-                const simklTitle = (m.title || '').toLowerCase()
-                const imdbTitle = (imdbMovie.title || '').toLowerCase()
-                return simklTitle === imdbTitle || 
-                       simklTitle.includes(imdbTitle) ||
-                       imdbTitle.includes(simklTitle)
-              })
-              simklData = bestMatch || searchResults.movies[0]
-            }
-          }
-          
-          // Convert Simkl data to app format
-          const appMovie = simklData ? convertSimklMovieToApp(simklData) : null
-          
-          // Merge IMDB and Simkl data (IMDB takes priority for some fields)
-          return {
-            id: imdbMovie.imdb_id || appMovie?.id || `imdb-${imdbMovie.imdb_id}`,
-            title: imdbMovie.title,
-            year: imdbMovie.year || (appMovie?.releaseDate ? new Date(appMovie.releaseDate).getFullYear() : undefined),
-            rating: imdbMovie.rating || appMovie?.rating,
-            runtime: imdbMovie.runtime || appMovie?.duration,
-            genres: imdbMovie.genres || appMovie?.genres || [],
-            description: imdbMovie.description || appMovie?.description || '',
-            posterUrl: appMovie?.posterUrl || imdbMovie.poster_url || '',
-            backdropUrl: appMovie?.backdropUrl || '',
-            imdbId: imdbMovie.imdb_id,
-            imdbUrl: imdbMovie.imdb_url,
-            source: 'imdb_crawler',
-            simklEnriched: !!simklData,
-          }
-        } catch (error) {
-          console.error(`Error enriching movie ${imdbMovie.title}:`, error)
-          // Return basic IMDB data if enrichment fails
-          return {
-            id: imdbMovie.imdb_id || `imdb-${Date.now()}`,
-            title: imdbMovie.title,
-            year: imdbMovie.year,
-            rating: imdbMovie.rating,
-            runtime: imdbMovie.runtime,
-            genres: imdbMovie.genres || [],
-            description: imdbMovie.description || '',
-            posterUrl: imdbMovie.poster_url || '',
-            backdropUrl: '',
-            imdbId: imdbMovie.imdb_id,
-            imdbUrl: imdbMovie.imdb_url,
-            source: 'imdb_crawler',
-            simklEnriched: false,
-          }
-        }
-      })
-    )
+    // Convert IMDB data to app format
+    const movies = imdbMovies.map((imdbMovie) => ({
+      id: imdbMovie.imdb_id || `imdb-${imdbMovie.imdb_id}`,
+      title: imdbMovie.title,
+      year: imdbMovie.year,
+      rating: imdbMovie.rating,
+      runtime: imdbMovie.runtime,
+      genres: imdbMovie.genres || [],
+      description: imdbMovie.description || '',
+      posterUrl: imdbMovie.poster_url || '',
+      backdropUrl: '',
+      imdbId: imdbMovie.imdb_id,
+      imdbUrl: imdbMovie.imdb_url,
+      source: 'imdb_crawler',
+    }))
     
-    // Filter successful results
-    const movies = enrichedMovies
-      .filter((result) => result.status === 'fulfilled')
-      .map((result) => (result as PromiseFulfilledResult<any>).value)
+    // Filter and sort movies
+    const filteredMovies = movies
       .filter((movie) => movie.title) // Remove empty titles
       .sort((a, b) => (b.rating || 0) - (a.rating || 0)) // Sort by rating
     
     return NextResponse.json({
-      movies,
-      count: movies.length,
+      movies: filteredMovies,
+      count: filteredMovies.length,
       source: 'imdb_crawler',
       cached: !refresh && imdbMovies.length > 0,
-      enriched: movies.filter(m => m.simklEnriched).length,
     })
   } catch (error: any) {
     console.error('IMDB crawler API error:', error)

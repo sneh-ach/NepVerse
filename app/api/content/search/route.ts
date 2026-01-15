@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { simklClient, convertSimklMovieToApp, convertSimklShowToApp } from '@/lib/simkl'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { handleError, logError } from '@/lib/errorHandler'
 
@@ -30,36 +29,7 @@ export async function GET(request: NextRequest) {
     const genre = searchParams.get('genre')
     const year = searchParams.get('year')
 
-    // If query exists, search Simkl first
-    if (query) {
-      try {
-        const simklResults = await simklClient.search(query, 'all')
-        const results = [
-          ...(simklResults.movies || []).map(convertSimklMovieToApp).map((m: any) => ({
-            id: m.id,
-            title: m.title,
-            posterUrl: m.posterUrl,
-            type: 'movie' as const,
-          })),
-          ...(simklResults.shows || []).map(convertSimklShowToApp).map((s: any) => ({
-            id: s.id,
-            title: s.title,
-            posterUrl: s.posterUrl,
-            type: 'series' as const,
-          })),
-        ]
-        
-        if (results.length > 0) {
-          return NextResponse.json(results.slice(0, 20))
-        }
-      } catch (error) {
-        // Log but don't fail - fall through to database search
-        logError(error, 'Simkl search', undefined, '/api/content/search')
-        // Fall through to database search
-      }
-    }
-
-    // Fallback to database search
+    // Search database
     const where: any = {
       isPublished: true,
     }
