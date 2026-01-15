@@ -230,7 +230,7 @@ export function AutoPlayPreview({
       )}
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/30 to-transparent" />
     </div>
   )
 }

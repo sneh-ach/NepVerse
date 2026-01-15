@@ -269,7 +269,7 @@ export function ContentPreviewModal({ isOpen, onClose, content }: ContentPreview
             className="w-full h-full object-cover"
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
       </div>
 
       {/* Controls Overlay */}

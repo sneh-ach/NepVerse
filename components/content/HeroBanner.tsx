@@ -68,8 +68,8 @@ export function HeroBanner({
             unoptimized={backdropUrl?.startsWith('http://localhost')}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/40 to-transparent" />
       </div>
 
       {/* Content */}
