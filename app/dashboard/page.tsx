@@ -216,16 +216,18 @@ export default function DashboardPage() {
         {/* My List */}
         {watchList.length > 0 ? (
           <div className="mb-8">
-            <ContentCarousel
+            <ContentCarousel 
               title="My List"
-              items={(watchList || []).map((item) => ({
-                id: item.movieId || item.seriesId,
-                title: item.movie?.title || item.series?.title || 'Unknown',
-                posterUrl: item.movie?.posterUrl || item.series?.posterUrl || '',
-                type: item.movieId ? 'movie' : 'series',
-                rating: item.movie?.rating || item.series?.rating,
-                year: item.movie?.year || item.series?.year,
-              }))}
+              items={(watchList || [])
+                .filter((item) => item.movieId || item.seriesId) // Filter out items without IDs
+                .map((item) => ({
+                  id: item.movieId || item.seriesId || '',
+                  title: item.movie?.title || item.series?.title || 'Unknown',
+                  posterUrl: item.movie?.posterUrl || item.series?.posterUrl || '',
+                  type: (item.movieId ? 'movie' : 'series') as 'movie' | 'series',
+                  rating: item.movie?.rating || item.series?.rating,
+                  year: item.movie?.year || item.series?.year,
+                }))}
             />
           </div>
         ) : (
