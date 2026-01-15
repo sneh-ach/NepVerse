@@ -56,17 +56,20 @@ const nextConfig = {
   // output: 'standalone', // Commented out for Vercel - causes Prisma engine issues
   
   // Ensure Prisma engine binaries are included in Vercel deployment
-  // This is available in Next.js 14.1+
-  outputFileTracingIncludes: {
-    '/api/**/*': [
-      './node_modules/.prisma/client/**/*',
-      './node_modules/@prisma/client/**/*',
-    ],
-    '/*': [
-      './node_modules/.prisma/client/**/*',
-      './node_modules/@prisma/client/**/*',
-    ],
-  },
+  // Note: outputFileTracingIncludes may show a warning but still works in Next.js 14.2+
+  // Alternative: Use experimental.outputFileTracingIncludes if top-level doesn't work
+  ...(process.env.NODE_ENV === 'production' ? {
+    outputFileTracingIncludes: {
+      '/api/**/*': [
+        './node_modules/.prisma/client/**/*',
+        './node_modules/@prisma/client/**/*',
+      ],
+      '/*': [
+        './node_modules/.prisma/client/**/*',
+        './node_modules/@prisma/client/**/*',
+      ],
+    },
+  } : {}),
   
   // Experimental features
   experimental: {

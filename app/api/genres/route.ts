@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses Prisma
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/genres
  * Get all genres

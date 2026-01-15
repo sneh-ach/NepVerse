@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses Prisma
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/health/prisma
  * Health check endpoint to test Prisma connection
