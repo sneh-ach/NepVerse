@@ -100,8 +100,8 @@ export default function DashboardPage() {
           ])
           
           // Handle paginated responses
-          setWatchHistory(Array.isArray(history) ? history : (history?.history || []))
-          setWatchList(Array.isArray(list) ? list : (list?.watchList || []))
+          setWatchHistory(Array.isArray(history) ? history : (typeof history === 'object' && history !== null && 'history' in history ? (history as any).history : []))
+          setWatchList(Array.isArray(list) ? list : (typeof list === 'object' && list !== null && 'watchList' in list ? (list as any).watchList : []))
           
           // Load recommended content
           if (recommendedRes.ok) {
