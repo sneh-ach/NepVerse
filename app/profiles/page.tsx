@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { profileStorage, UserProfile } from '@/lib/localStorage'
@@ -16,7 +16,7 @@ const DEFAULT_AVATARS = [
   '🤴', '👸', '🦸‍♀️', '🦸‍♂️', '🧑‍🚀', '👨‍🚀', '👩‍🚀', '👨‍🎤',
 ]
 
-export default function ProfilesPage() {
+function ProfilesPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { user, loading } = useAuth()

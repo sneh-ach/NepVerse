@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
 import { Input } from '@/components/ui/Input'
@@ -9,7 +9,7 @@ import { Dropdown } from '@/components/ui/Dropdown'
 import { Search, Filter } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 
-export default function BrowsePage() {
+function BrowsePageContent() {
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [selectedGenre, setSelectedGenre] = useState<string>('all')
@@ -218,6 +218,18 @@ export default function BrowsePage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <BrowsePageContent />
+    </Suspense>
   )
 }
 
