@@ -35,13 +35,13 @@ export async function GET(request: NextRequest) {
       try {
         const simklResults = await simklClient.search(query, 'all')
         const results = [
-          ...(simklResults.movies || []).map(convertSimklMovieToApp).map((m) => ({
+          ...(simklResults.movies || []).map(convertSimklMovieToApp).map((m: any) => ({
             id: m.id,
             title: m.title,
             posterUrl: m.posterUrl,
             type: 'movie' as const,
           })),
-          ...(simklResults.shows || []).map(convertSimklShowToApp).map((s) => ({
+          ...(simklResults.shows || []).map(convertSimklShowToApp).map((s: any) => ({
             id: s.id,
             title: s.title,
             posterUrl: s.posterUrl,
