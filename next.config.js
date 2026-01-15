@@ -100,8 +100,7 @@ const nextConfig = {
     return config
   },
   
-  // For Next.js 14, we need to ensure Prisma files are traced
-  // This is a workaround since outputFileTracingIncludes isn't available
+  // Don't externalize Prisma packages - we need them bundled
   serverComponentsExternalPackages: [],
 }
 
