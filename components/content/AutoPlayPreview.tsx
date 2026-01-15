@@ -198,14 +198,14 @@ export function AutoPlayPreview({
         (backdropUrl || posterUrl)?.includes('r2.cloudflarestorage.com') ||
         (backdropUrl || posterUrl)?.includes('/api/storage/proxy') ? (
           <img
-            src={backdropUrl || posterUrl}
+            src={backdropUrl || posterUrl || ''}
             alt={title}
             className="w-full h-full object-cover"
             crossOrigin="anonymous"
           />
         ) : (
           <img
-            src={backdropUrl || posterUrl}
+            src={backdropUrl || posterUrl || ''}
             alt={title}
             className="w-full h-full object-cover"
           />

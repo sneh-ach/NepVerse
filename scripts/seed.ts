@@ -13,7 +13,7 @@ async function main() {
     update: {},
     create: {
       email: 'admin@nepverse.com',
-      password: adminPassword,
+      passwordHash: adminPassword,
       role: 'ADMIN',
       profile: {
         create: {
@@ -33,7 +33,7 @@ async function main() {
     update: {},
     create: {
       email: 'user@nepverse.com',
-      password: userPassword,
+      passwordHash: userPassword,
       role: 'USER',
       profile: {
         create: {
@@ -57,7 +57,7 @@ async function main() {
       prisma.genre.upsert({
         where: { name },
         update: {},
-        create: { name },
+        create: { name, slug: name.toLowerCase().replace(/\s+/g, '-') },
       })
     )
   )
@@ -135,30 +135,23 @@ async function main() {
         genres: {
           connect: genreNames.map((name) => ({ name })),
         },
-        seasons: {
-          create: {
-            seasonNumber: 1,
-            episodes: {
-              create: [
-                {
-                  episodeNumber: 1,
-                  title: 'The Beginning',
-                  description: 'The first episode of the series.',
-                  duration: 45,
-                  videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                  releaseDate: new Date('2024-03-01'),
-                },
-                {
-                  episodeNumber: 2,
-                  title: 'The Journey Continues',
-                  description: 'The second episode of the series.',
-                  duration: 45,
-                  videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-                  releaseDate: new Date('2024-03-08'),
-                },
-              ],
+        episodes: {
+          create: [
+            {
+              episodeNumber: 1,
+              title: 'The Beginning',
+              description: 'The first episode of the series.',
+              duration: 45,
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
             },
-          },
+            {
+              episodeNumber: 2,
+              title: 'The Journey Continues',
+              description: 'The second episode of the series.',
+              duration: 45,
+              videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+            },
+          ],
         },
       },
     })
@@ -190,14 +183,15 @@ async function main() {
     },
   ]
 
-  for (const plan of plans) {
-    await prisma.subscriptionPlan.upsert({
-      where: { id: plan.id },
-      update: {},
-      create: plan,
-    })
-    console.log(`✅ Created plan: ${plan.name}`)
-  }
+  // Note: Subscription plans are not in the schema, skipping for now
+  // for (const plan of plans) {
+  //   await prisma.subscriptionPlan.upsert({
+  //     where: { id: plan.id },
+  //     update: {},
+  //     create: plan,
+  //   })
+  //   console.log(`✅ Created plan: ${plan.name}`)
+  // }
 
   console.log('🎉 Seeding completed successfully!')
 }

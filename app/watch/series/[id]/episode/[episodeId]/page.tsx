@@ -317,8 +317,8 @@ export default function EpisodePlayerPage() {
           <h2 className="text-2xl font-bold text-white mb-2">
             Episode {episode.episodeNumber}: {episode.title}
           </h2>
-          {episode.titleNepali && (
-            <p className="text-gray-400 mb-4">{episode.titleNepali}</p>
+          {(episode as any).titleNepali && (
+            <p className="text-gray-400 mb-4">{(episode as any).titleNepali}</p>
           )}
           <p className="text-gray-300">{episode.description}</p>
         </div>

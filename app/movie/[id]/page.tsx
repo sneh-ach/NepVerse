@@ -60,8 +60,8 @@ async function getRecommended(movieId: string) {
       title: movie.title,
       posterUrl: movie.posterUrl,
       type: 'movie' as const,
-      rating: movie.rating,
-      year: new Date(movie.releaseDate).getFullYear(),
+        rating: movie.rating ?? undefined,
+        year: new Date(movie.releaseDate).getFullYear(),
     }))
   } catch (error) {
     console.error('Error fetching recommended movies:', error)
@@ -112,7 +112,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
     description: movie.description || '',
     image: movie.backdropUrl || movie.posterUrl || `${baseUrl}/og-image.jpg`,
     datePublished: movie.releaseDate instanceof Date ? movie.releaseDate.toISOString() : (typeof movie.releaseDate === 'string' ? movie.releaseDate : new Date(movie.releaseDate).toISOString()),
-    rating: movie.rating,
+    rating: movie.rating ?? undefined,
     duration: `PT${movie.duration}M`,
   })
 
@@ -193,7 +193,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
               id: movie.id, 
               title: movie.title, 
               trailerUrl: (movie as any).trailerUrl,
-              rating: movie.rating,
+              rating: movie.rating ?? undefined,
               year: new Date(movie.releaseDate).getFullYear(),
               description: movie.description
             }} />

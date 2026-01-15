@@ -63,7 +63,8 @@ class SearchService {
   private async searchAlgolia(options: SearchOptions): Promise<SearchResult[]> {
     try {
       // Dynamic import to avoid SSR issues
-      const algoliasearch = (await import('algoliasearch')).default
+      const algoliasearchModule = await import('algoliasearch')
+      const algoliasearch = ('default' in algoliasearchModule ? algoliasearchModule.default : algoliasearchModule) as any
       const client = algoliasearch(this.algoliaAppId!, this.algoliaApiKey!)
       const index = client.initIndex(this.algoliaIndexName!)
 
@@ -263,7 +264,8 @@ class SearchService {
   async getSuggestions(query: string, limit: number = 5): Promise<string[]> {
     if (this.algoliaAppId && this.algoliaApiKey) {
       try {
-        const algoliasearch = (await import('algoliasearch')).default
+        const algoliasearchModule = await import('algoliasearch')
+      const algoliasearch = ('default' in algoliasearchModule ? algoliasearchModule.default : algoliasearchModule) as any
         const client = algoliasearch(this.algoliaAppId!, this.algoliaApiKey!)
         const index = client.initIndex(this.algoliaIndexName!)
 

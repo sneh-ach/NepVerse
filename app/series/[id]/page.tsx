@@ -33,8 +33,8 @@ async function getSeries(id: string) {
       ...series,
       genres: series.genres || [],
       episodes: series.episodes || [],
-      videoUrl: series.videoUrl || null,
-      trailerUrl: series.trailerUrl || null,
+      videoUrl: (series as any).videoUrl || null,
+      trailerUrl: (series as any).trailerUrl || null,
     }
   } catch (error) {
     console.error('Error fetching series:', error)
@@ -69,7 +69,7 @@ async function getRecommended(seriesId: string) {
         title: series.title,
         posterUrl: series.posterUrl,
         type: 'series' as const,
-        rating: series.rating,
+        rating: series.rating ?? undefined,
         year: new Date(series.releaseDate).getFullYear(),
       })),
       ...relatedMovies.map((movie) => ({
@@ -77,7 +77,7 @@ async function getRecommended(seriesId: string) {
         title: movie.title,
         posterUrl: movie.posterUrl,
         type: 'movie' as const,
-        rating: movie.rating,
+        rating: movie.rating ?? undefined,
         year: new Date(movie.releaseDate).getFullYear(),
       })),
     ]
@@ -131,7 +131,7 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
     description: series.description || '',
     image: series.backdropUrl || series.posterUrl || `${baseUrl}/og-image.jpg`,
     datePublished: series.releaseDate instanceof Date ? series.releaseDate.toISOString() : (typeof series.releaseDate === 'string' ? series.releaseDate : new Date(series.releaseDate).toISOString()),
-    rating: series.rating,
+    rating: series.rating ?? undefined,
   })
 
   // Sanitize JSON-LD data (JSON.stringify is safe, but validate structure)
@@ -211,7 +211,7 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
               title: series.title, 
               trailerUrl: (series as any).trailerUrl, 
               episodes: series.episodes,
-              rating: series.rating,
+              rating: series.rating ?? undefined,
               year: new Date(series.releaseDate).getFullYear(),
               description: series.description
             }} />

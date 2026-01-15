@@ -314,7 +314,7 @@ export const watchHistoryService = {
       let series = null
       
       // Fetch from API if not already included
-      if (h.movieId && !h.movie) {
+      if (h.movieId && !(h as any).movie) {
         try {
           const res = await fetch(`/api/content/movie/${h.movieId}`)
           if (res.ok) {
@@ -330,7 +330,7 @@ export const watchHistoryService = {
         }
       }
       
-      if (h.seriesId && !h.series) {
+      if (h.seriesId && !(h as any).series) {
         try {
           const res = await fetch(`/api/content/series/${h.seriesId}`)
           if (res.ok) {
@@ -348,12 +348,12 @@ export const watchHistoryService = {
       
       const result = {
         ...h,
-        movie: h.movie || movie || (h.movieId ? {
+        movie: (h as any).movie || movie || (h.movieId ? {
           id: h.movieId,
           title: 'Movie',
           posterUrl: '',
         } : null),
-        series: h.series || series || (h.seriesId ? {
+        series: (h as any).series || series || (h.seriesId ? {
           id: h.seriesId,
           title: 'Series',
           posterUrl: '',
@@ -636,8 +636,8 @@ export const watchListService = {
     for (const item of localList) {
       const key = item.movieId || item.seriesId || ''
       if (key) {
-        let movie = item.movie || null
-        let series = item.series || null
+        let movie = (item as any).movie || null
+        let series = (item as any).series || null
         
         // Fetch from API if not already included
         if (item.movieId && !movie) {
@@ -737,8 +737,8 @@ export const watchListService = {
       return watchListStorage.add({
         userId: user.id,
         profileId: currentProfile.id,
-        movieId: movieId || null,
-        seriesId: seriesId || null,
+        movieId: movieId || undefined,
+        seriesId: seriesId || undefined,
       })
     }
   },
@@ -804,8 +804,13 @@ export const reviewsService = {
       throw new Error('Comment must be at least 10 characters')
     }
     
+    const userName = user.profile?.firstName
+      ? `${user.profile.firstName} ${user.profile.lastName || ''}`.trim()
+      : user.email || 'Anonymous'
+    
     return reviewsStorage.add({
       userId: user.id,
+      userName,
       contentId,
       contentType,
       rating,
@@ -859,7 +864,7 @@ export const preferencesService = {
     const user = userStorage.getCurrentUser()
     if (!user) return null
     
-    return user.profile?.preferences || {
+    return (user.profile as any)?.preferences || {
       autoplay: true,
       autoplayNext: true,
       defaultQuality: 'auto',
@@ -874,8 +879,8 @@ export const preferencesService = {
     const updated = userStorage.updateUser(user.id, {
       profile: {
         ...user.profile,
-        preferences,
-      },
+        preferences: preferences as any,
+      } as any,
     })
     
     if (updated) {

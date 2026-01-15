@@ -129,7 +129,7 @@ class RecommendationService {
       }
     })
 
-    return scored.filter((r): r is Recommendation => r !== null).slice(0, limit)
+    return scored.filter((r): r is NonNullable<typeof r> => r !== null && r !== undefined).slice(0, limit) as Recommendation[]
   }
 
   // Content-based filtering: Similar content based on metadata
@@ -309,7 +309,7 @@ class RecommendationService {
   // ML-based recommendations (if ML endpoint is configured)
   async getMLRecommendations(userId: string, limit: number = 20): Promise<Recommendation[]> {
     if (!this.mlEndpoint) {
-      return this.getHybridRecommendations({ userId, limit })
+      return this.getHybridRecommendations(userId, limit, 'all')
     }
 
     try {
@@ -327,7 +327,7 @@ class RecommendationService {
       return data.recommendations
     } catch (error) {
       console.error('ML recommendation error:', error)
-      return this.getHybridRecommendations({ userId, limit })
+      return this.getHybridRecommendations(userId, limit, 'all')
     }
   }
 

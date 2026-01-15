@@ -71,12 +71,15 @@ class StorageService {
     }
 
     // Initialize S3 client (works for both S3 and R2)
+    if (!this.config) {
+      throw new Error('Storage configuration is not available')
+    }
     this.client = new S3Client({
-      region: this.config.region,
-      endpoint: this.config.provider === 'r2' ? this.config.endpoint : undefined,
+      region: this.config.region || 'us-east-1',
+      endpoint: this.config.provider === 'r2' ? (this.config.endpoint || undefined) : undefined,
       credentials: {
-        accessKeyId: this.config.accessKey,
-        secretAccessKey: this.config.secretKey,
+        accessKeyId: this.config.accessKey || '',
+        secretAccessKey: this.config.secretKey || '',
       },
     })
   }

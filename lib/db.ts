@@ -180,6 +180,7 @@ export const db = {
   // Watch history operations
   watchHistory: {
     async upsert(userId: string, data: {
+      profileId?: string | null
       movieId?: string
       seriesId?: string
       episodeId?: string
@@ -191,9 +192,10 @@ export const db = {
       if (data.movieId) {
         return prisma.watchHistory.upsert({
           where: {
-            userId_movieId: {
+            userId_movieId_profileId: {
               userId,
-              movieId: data.movieId,
+              movieId: data.movieId!,
+              profileId: (data.profileId ?? null) as any,
             },
           },
           update: {
@@ -205,6 +207,7 @@ export const db = {
           },
           create: {
             userId,
+            profileId: data.profileId || null,
             movieId: data.movieId,
             progress: data.progress,
             currentTime: data.currentTime,
@@ -217,10 +220,11 @@ export const db = {
       if (data.seriesId && data.episodeId) {
         return prisma.watchHistory.upsert({
           where: {
-            userId_seriesId_episodeId: {
+            userId_seriesId_episodeId_profileId: {
               userId,
-              seriesId: data.seriesId,
-              episodeId: data.episodeId,
+              seriesId: data.seriesId!,
+              episodeId: data.episodeId!,
+              profileId: (data.profileId ?? null) as any,
             },
           },
           update: {
@@ -232,6 +236,7 @@ export const db = {
           },
           create: {
             userId,
+            profileId: data.profileId || null,
             seriesId: data.seriesId,
             episodeId: data.episodeId,
             progress: data.progress,
@@ -281,9 +286,10 @@ export const db = {
       if (movieId) {
         return prisma.watchList.upsert({
           where: {
-            userId_movieId: {
+            userId_movieId_profileId: {
               userId,
               movieId,
+              profileId: null as any,
             },
           },
           update: {},
@@ -296,9 +302,10 @@ export const db = {
       if (seriesId) {
         return prisma.watchList.upsert({
           where: {
-            userId_seriesId: {
+            userId_seriesId_profileId: {
               userId,
               seriesId,
+              profileId: null as any,
             },
           },
           update: {},

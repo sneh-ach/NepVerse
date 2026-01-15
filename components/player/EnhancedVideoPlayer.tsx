@@ -270,23 +270,6 @@ export function EnhancedVideoPlayer({
                   contentId={contentId}
                   contentType={contentType}
                   episodeId={episodeId}
-                  onSync={(currentTime, isPlaying) => {
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = currentTime
-                      if (isPlaying) {
-                        videoRef.current.play()
-                      } else {
-                        videoRef.current.pause()
-                      }
-                    }
-                  }}
-                  onPlay={() => togglePlay()}
-                  onPause={() => togglePlay()}
-                  onSeek={(currentTime) => {
-                    if (videoRef.current) {
-                      videoRef.current.currentTime = currentTime
-                    }
-                  }}
                 />
               </div>
             )}

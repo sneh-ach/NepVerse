@@ -280,10 +280,10 @@ export default function MoviePlayerPage() {
   return (
     <>
       <VideoPlayer
-        videoUrl={movie.videoUrl}
-        videoUrl360p={movie.videoUrl360p}
-        videoUrl720p={movie.videoUrl720p}
-        videoUrl1080p={movie.videoUrl1080p}
+        videoUrl={movie.videoUrl || ''}
+        videoUrl360p={movie.videoUrl360p || undefined}
+        videoUrl720p={movie.videoUrl720p || undefined}
+        videoUrl1080p={movie.videoUrl1080p || undefined}
         subtitleUrlNepali={movie.subtitleUrlNepali}
         subtitleUrlEnglish={movie.subtitleUrlEnglish}
         title={movie.title}

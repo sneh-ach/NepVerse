@@ -55,7 +55,7 @@ class WatchPartyWebSocketServer {
     }
 
     switch (type) {
-      case 'join':
+      case 'join' as any:
         this.joinParty(ws, partyId, userId)
         break
       case 'sync':

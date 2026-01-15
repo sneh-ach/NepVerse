@@ -63,7 +63,7 @@ export function ShareModal({
 
   // Check for native share API support
   useEffect(() => {
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
       setSupportsNativeShare(true)
     }
   }, [])

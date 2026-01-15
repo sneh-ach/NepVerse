@@ -87,8 +87,8 @@ class Logger {
   }
 
   error(message: string, error?: Error | any, userId?: string, path?: string, requestId?: string) {
-    const errorData = error instanceof Error 
-      ? { message: error.message, stack: error.stack, ...error }
+    const errorData = error instanceof Error
+      ? { errorMessage: error.message, stack: error.stack, ...error }
       : error
     this.log('error', message, errorData, userId, path, requestId)
   }

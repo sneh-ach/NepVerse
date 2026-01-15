@@ -22,7 +22,7 @@ async function grantAdminAccess(email: string) {
       const newAdmin = await prisma.user.create({
         data: {
           email,
-          password,
+          passwordHash: password,
           role: 'ADMIN',
           profile: {
             create: {

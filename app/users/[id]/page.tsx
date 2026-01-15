@@ -85,13 +85,21 @@ export default function UserProfilePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {watchlist.map((item) => (
-                    <ContentCard
-                      key={item.id}
-                      content={item.movie || item.series}
-                      type={item.movie ? 'movie' : 'series'}
-                    />
-                  ))}
+                  {watchlist.map((item) => {
+                    const content = item.movie || item.series
+                    if (!content) return null
+                    return (
+                      <ContentCard
+                        key={item.id}
+                        id={content.id}
+                        title={content.title || 'Unknown'}
+                        posterUrl={content.posterUrl || ''}
+                        type={item.movie ? 'movie' : 'series'}
+                        rating={content.rating ?? undefined}
+                        year={content.releaseDate ? new Date(content.releaseDate).getFullYear() : undefined}
+                      />
+                    )
+                  })}
                 </div>
               )}
             </TabsContent>
@@ -108,13 +116,22 @@ export default function UserProfilePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {watchHistory.map((item) => (
-                    <ContentCard
-                      key={item.id}
-                      content={item.movie || item.series}
-                      type={item.movie ? 'movie' : 'series'}
-                    />
-                  ))}
+                  {watchHistory.map((item) => {
+                    const content = item.movie || item.series
+                    if (!content) return null
+                    return (
+                      <ContentCard
+                        key={item.id}
+                        id={content.id}
+                        title={content.title || 'Unknown'}
+                        posterUrl={content.posterUrl || ''}
+                        type={item.movie ? 'movie' : 'series'}
+                        rating={content.rating ?? undefined}
+                        year={content.releaseDate ? new Date(content.releaseDate).getFullYear() : undefined}
+                        progress={item.progress}
+                      />
+                    )
+                  })}
                 </div>
               )}
             </TabsContent>

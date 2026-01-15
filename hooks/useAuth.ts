@@ -182,8 +182,8 @@ export function useAuth() {
     signup,
     logout,
     updateProfile,
-    mutate: () => {
-      const currentUser = authService.getCurrentUser()
+    mutate: async () => {
+      const currentUser = await authService.getCurrentUser()
       setUser(currentUser as User | null)
     },
   }

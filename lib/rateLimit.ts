@@ -32,7 +32,7 @@ class RateLimiter {
   private async initializeRedis() {
     const redisUrl = process.env.REDIS_URL
     if (!redisUrl) {
-      if (process.env.NODE_ENV === 'production' && process.env.NODE_ENV !== 'test') {
+      if (process.env.NODE_ENV === 'production') {
         console.warn('⚠️  REDIS_URL not set in production. Rate limiting will use in-memory store (not suitable for multi-instance deployments)')
       }
       return

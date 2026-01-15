@@ -124,7 +124,7 @@ export function QuickInfo({
               <p className="text-sm text-gray-400 mb-2 font-medium">Genres</p>
               <div className="flex flex-wrap gap-2">
                 {genres.map((genre, index) => (
-                  <Badge key={`${genre}-${index}`} variant="outline">
+                  <Badge key={`${genre}-${index}`} variant="default">
                     {genre}
                   </Badge>
                 ))}
