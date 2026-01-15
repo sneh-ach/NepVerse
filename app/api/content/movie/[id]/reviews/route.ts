@@ -81,8 +81,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  let userId: string | null = null
   try {
-    const userId = await getUserId(request)
+    userId = await getUserId(request)
     if (!userId) {
       return NextResponse.json(
         { message: 'Not authenticated' },
