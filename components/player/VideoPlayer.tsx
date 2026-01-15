@@ -5,7 +5,6 @@ import { usePlayer } from '@/hooks/usePlayer'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, X, SkipForward, SkipBack } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { formatDuration } from '@/lib/utils'
-import { CastControls } from './CastControls'
 import { WatchPartyControls } from './WatchPartyControls'
 import { watchPartyService } from '@/lib/watchParty'
 

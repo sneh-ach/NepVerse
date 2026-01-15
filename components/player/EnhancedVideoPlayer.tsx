@@ -21,7 +21,6 @@ import {
 import { Button } from '@/components/ui/Button'
 import { formatDuration } from '@/lib/utils'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
-import { CastControls } from './CastControls'
 import { WatchPartyControls } from './WatchPartyControls'
 
 interface EnhancedVideoPlayerProps {
