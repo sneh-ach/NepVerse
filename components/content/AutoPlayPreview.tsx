@@ -229,8 +229,10 @@ export function AutoPlayPreview({
         </div>
       )}
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/30 to-transparent" />
+      {/* Gradient Overlay - Stronger for better text visibility on detail pages */}
+      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/60" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/70 via-background/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 to-transparent" />
     </div>
   )
 }
