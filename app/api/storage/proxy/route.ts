@@ -106,7 +106,10 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      return new NextResponse(buffer, {
+      // Convert buffer to Uint8Array for NextResponse
+      const uint8Array = new Uint8Array(buffer)
+      
+      return new NextResponse(uint8Array, {
         headers: {
           'Content-Type': contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
