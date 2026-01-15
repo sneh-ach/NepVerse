@@ -159,7 +159,7 @@ export async function POST(request: NextRequest) {
       progress: sanitizedProgress,
       currentTime: sanitizedCurrentTime,
       duration: sanitizedDuration,
-      completed: completed === true || completed === 'true',
+      completed: Boolean(completed),
     }
 
     if (movieId) {
