@@ -5,14 +5,32 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // Configure Prisma with production-ready settings
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    // Connection pool settings (also configurable via DATABASE_URL)
-    // Example DATABASE_URL: postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=20
-    // Query timeout: 30 seconds (configurable via DATABASE_URL query parameter)
-  })
+let prismaInstance: PrismaClient
+
+try {
+  prismaInstance =
+    globalForPrisma.prisma ??
+    new PrismaClient({
+      log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+      // Connection pool settings (also configurable via DATABASE_URL)
+      // Example DATABASE_URL: postgresql://user:pass@host:5432/db?connection_limit=10&pool_timeout=20
+      // Query timeout: 30 seconds (configurable via DATABASE_URL query parameter)
+    })
+} catch (error) {
+  console.error('Failed to initialize Prisma Client:', error)
+  // In production, we want to know about this immediately
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Prisma initialization error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      nodeVersion: process.version,
+      platform: process.platform,
+    })
+  }
+  throw error
+}
+
+export const prisma = prismaInstance
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 

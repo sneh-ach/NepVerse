@@ -54,6 +54,13 @@ export async function GET(request: NextRequest) {
       },
       take: limit,
       skip: offset,
+    }).catch((prismaError: any) => {
+      console.error('Prisma query error in GET /api/content/movies:', prismaError)
+      // Check if it's the engine error
+      if (prismaError?.message?.includes('Query Engine') || prismaError?.message?.includes('libquery_engine')) {
+        throw new Error('Database connection error. Please check Prisma engine configuration.')
+      }
+      throw prismaError
     })
 
     return NextResponse.json(movies)
