@@ -69,53 +69,54 @@ async function getFeaturedContent() {
 
     // Trending (most viewed)
     const trending = [...allMovies, ...allSeries]
+      .filter((item: any) => item && item.id) // Filter out any invalid items
       .sort((a: any, b: any) => (b.viewCount || 0) - (a.viewCount || 0))
       .slice(0, 10)
       .map((item: any) => ({
         id: item.id,
-        title: item.title,
+        title: item.title || 'Untitled',
         titleNepali: item.titleNepali,
-        description: item.description,
+        description: item.description || '',
         descriptionNepali: item.descriptionNepali,
-        posterUrl: item.posterUrl,
+        posterUrl: item.posterUrl || '',
         backdropUrl: item.backdropUrl,
         videoUrl: item.videoUrl,
         trailerUrl: item.trailerUrl,
-        rating: item.rating,
-        year: new Date(item.releaseDate).getFullYear(),
+        rating: item.rating ?? undefined,
+        year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : undefined,
         duration: item.duration,
         quality: item.quality,
         ageRating: item.ageRating,
         cast: item.cast,
         matureThemes: item.matureThemes,
         tags: item.tags,
-        genres: item.genres || [],
-        type: 'episodeCount' in item || item.episodes ? ('series' as const) : ('movie' as const),
+        genres: Array.isArray(item.genres) ? item.genres : [],
+        type: (item.episodes && Array.isArray(item.episodes)) || 'episodeCount' in item ? ('series' as const) : ('movie' as const),
       }))
 
     // Originals (featured series, or all series if no featured)
-    const featuredSeries = series.filter((s: any) => s.isFeatured)
-    const seriesToUse = featuredSeries.length > 0 ? featuredSeries : series
+    const featuredSeries = series.filter((s: any) => s && s.isFeatured)
+    const seriesToUse = featuredSeries.length > 0 ? featuredSeries : series.filter((s: any) => s && s.id)
     const originals = seriesToUse
       .slice(0, 10)
       .map((item: any) => ({
         id: item.id,
-        title: item.title,
+        title: item.title || 'Untitled',
         titleNepali: item.titleNepali,
-        description: item.description,
+        description: item.description || '',
         descriptionNepali: item.descriptionNepali,
-        posterUrl: item.posterUrl,
+        posterUrl: item.posterUrl || '',
         backdropUrl: item.backdropUrl,
         videoUrl: item.videoUrl,
         trailerUrl: item.trailerUrl,
-        rating: item.rating,
-        year: new Date(item.releaseDate).getFullYear(),
+        rating: item.rating ?? undefined,
+        year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : undefined,
         quality: item.quality,
         ageRating: item.ageRating,
         cast: item.cast,
         matureThemes: item.matureThemes,
         tags: item.tags,
-        genres: item.genres || [],
+        genres: Array.isArray(item.genres) ? item.genres : [],
         type: 'series' as const,
       }))
 
