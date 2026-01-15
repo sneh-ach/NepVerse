@@ -47,37 +47,53 @@ export async function GET(request: NextRequest) {
       }
 
       // Convert stream to buffer
-      // AWS SDK v3 returns a Readable stream
+      // AWS SDK v3 returns a Readable stream in Node.js
       const stream = response.Body as any
       
       let buffer: Buffer
       
-      // Handle Readable stream (Node.js) - AWS SDK v3 returns Readable
-      if (stream && typeof stream.on === 'function') {
-        buffer = await new Promise<Buffer>((resolve, reject) => {
-          const chunks: Buffer[] = []
-          stream.on('data', (chunk: Buffer) => chunks.push(chunk))
-          stream.on('end', () => resolve(Buffer.concat(chunks)))
-          stream.on('error', reject)
-        })
-      } else if (stream && typeof stream.arrayBuffer === 'function') {
-        // Handle ReadableStream or Blob
-        const arrayBuffer = await stream.arrayBuffer()
-        buffer = Buffer.from(arrayBuffer)
-      } else if (stream instanceof Buffer) {
-        buffer = stream
-      } else if (stream instanceof Uint8Array) {
-        buffer = Buffer.from(stream)
-      } else {
-        // Fallback: try to convert to buffer
-        try {
+      try {
+        // Handle Readable stream (Node.js) - AWS SDK v3 returns Readable
+        if (stream && typeof stream.on === 'function') {
+          buffer = await new Promise<Buffer>((resolve, reject) => {
+            const chunks: Buffer[] = []
+            stream.on('data', (chunk: Buffer) => chunks.push(chunk))
+            stream.on('end', () => resolve(Buffer.concat(chunks)))
+            stream.on('error', (err: Error) => {
+              console.error('Stream error:', err)
+              reject(err)
+            })
+            // Set a timeout to prevent hanging
+            setTimeout(() => {
+              if (!chunks.length) {
+                reject(new Error('Stream timeout'))
+              }
+            }, 30000) // 30 second timeout
+          })
+        } else if (stream && typeof stream.arrayBuffer === 'function') {
+          // Handle ReadableStream or Blob (browser/edge runtime)
+          const arrayBuffer = await stream.arrayBuffer()
+          buffer = Buffer.from(arrayBuffer)
+        } else if (stream instanceof Buffer) {
+          buffer = stream
+        } else if (stream instanceof Uint8Array) {
+          buffer = Buffer.from(stream)
+        } else {
+          // Fallback: try to convert to buffer
           buffer = Buffer.from(stream as any)
-        } catch (e) {
-          return NextResponse.json(
-            { message: 'Failed to read file stream' },
-            { status: 500 }
-          )
         }
+      } catch (streamError: any) {
+        console.error('Stream conversion error:', {
+          message: streamError.message,
+          key: decodedKey,
+          streamType: typeof stream,
+          hasOn: typeof stream?.on,
+          hasArrayBuffer: typeof stream?.arrayBuffer,
+        })
+        return NextResponse.json(
+          { message: 'Failed to read file stream', error: streamError.message },
+          { status: 500 }
+        )
       }
       
       // Determine content type from file extension if not provided
@@ -112,20 +128,30 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
       // Handle S3/R2 errors
       if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
+        console.error(`Storage proxy: File not found - key: ${decodedKey}`)
         return NextResponse.json(
-          { message: 'File not found' },
+          { message: 'File not found', key: decodedKey },
           { status: 404 }
         )
       }
 
-      console.error('Storage proxy error:', error)
+      console.error('Storage proxy error:', {
+        message: error.message,
+        name: error.name,
+        key: decodedKey,
+        stack: error.stack,
+        metadata: error.$metadata,
+      })
       return NextResponse.json(
-        { message: 'Failed to retrieve file', error: error.message },
+        { message: 'Failed to retrieve file', error: error.message, key: decodedKey },
         { status: 500 }
       )
     }
   } catch (error: any) {
-    console.error('Storage proxy error:', error)
+    console.error('Storage proxy outer error:', {
+      message: error.message,
+      stack: error.stack,
+    })
     return NextResponse.json(
       { message: 'Internal server error', error: error.message },
       { status: 500 }
