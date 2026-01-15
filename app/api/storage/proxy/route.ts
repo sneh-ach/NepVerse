@@ -57,37 +57,36 @@ export async function GET(request: NextRequest) {
       // AWS SDK v3 returns a Readable stream
       const stream = response.Body as any
       
-      // Convert stream to buffer
-      const chunks: Buffer[] = []
+      let buffer: Buffer
       
       // Handle Readable stream (Node.js)
       if (stream && typeof stream.on === 'function') {
-        const buffer = await new Promise<Buffer>((resolve, reject) => {
+        buffer = await new Promise<Buffer>((resolve, reject) => {
+          const chunks: Buffer[] = []
           stream.on('data', (chunk: Buffer) => chunks.push(chunk))
           stream.on('end', () => resolve(Buffer.concat(chunks)))
           stream.on('error', reject)
         })
-        
-        return new NextResponse(buffer, {
-          headers: {
-            'Content-Type': response.ContentType || 'application/octet-stream',
-            'Cache-Control': 'public, max-age=31536000, immutable',
-            'Content-Disposition': `inline; filename="${decodedKey.split('/').pop()}"`,
-          },
-        })
-      } else {
-        // Fallback: try to read as array buffer
+      } else if (stream && typeof stream.arrayBuffer === 'function') {
+        // Handle ReadableStream or Blob
         const arrayBuffer = await stream.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
-        
-        return new NextResponse(buffer, {
-          headers: {
-            'Content-Type': response.ContentType || 'application/octet-stream',
-            'Cache-Control': 'public, max-age=31536000, immutable',
-            'Content-Disposition': `inline; filename="${decodedKey.split('/').pop()}"`,
-          },
-        })
+        buffer = Buffer.from(arrayBuffer)
+      } else if (stream instanceof Buffer) {
+        buffer = stream
+      } else if (stream instanceof Uint8Array) {
+        buffer = Buffer.from(stream)
+      } else {
+        // Fallback: try to convert to buffer
+        buffer = Buffer.from(stream as any)
       }
+      
+      return new NextResponse(buffer as any, {
+        headers: {
+          'Content-Type': response.ContentType || 'application/octet-stream',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Content-Disposition': `inline; filename="${decodedKey.split('/').pop()}"`,
+        },
+      })
     } catch (error: any) {
       // Handle S3/R2 errors
       if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
