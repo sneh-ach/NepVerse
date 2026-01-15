@@ -9,7 +9,8 @@ if (!envValidated) {
   const validation = validateEnv()
   if (process.env.NODE_ENV === 'production' && !validation.valid) {
     console.error('❌ Environment validation failed. Server cannot start.')
-    process.exit(1)
+    // Don't use process.exit in Edge Runtime - let it fail naturally
+    // process.exit(1)
   }
   envValidated = true
 }
