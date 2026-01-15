@@ -19,13 +19,23 @@ async function getFeaturedContent() {
     const [moviesRes, seriesRes] = await Promise.all([
       fetch(`${baseUrl}/api/content/movies?featured=true&limit=10`).catch(err => {
         console.error('Error fetching featured movies:', err)
-        return { ok: false, json: async () => [] }
+        return { ok: false, status: 500, json: async () => ({ error: err.message }) }
       }),
       fetch(`${baseUrl}/api/content/series?featured=true&limit=10`).catch(err => {
         console.error('Error fetching featured series:', err)
-        return { ok: false, json: async () => [] }
+        return { ok: false, status: 500, json: async () => ({ error: err.message }) }
       }),
     ])
+
+    // Log response status for debugging
+    if (!moviesRes.ok) {
+      const errorData = await moviesRes.json().catch(() => ({}))
+      console.error('Movies API error:', moviesRes.status, errorData)
+    }
+    if (!seriesRes.ok) {
+      const errorData = await seriesRes.json().catch(() => ({}))
+      console.error('Series API error:', seriesRes.status, errorData)
+    }
 
     const movies = moviesRes.ok ? await moviesRes.json() : []
     const series = seriesRes.ok ? await seriesRes.json() : []
@@ -38,13 +48,23 @@ async function getFeaturedContent() {
     const [allMoviesRes, allSeriesRes] = await Promise.all([
       fetch(`${baseUrl}/api/content/movies?limit=50`).catch(err => {
         console.error('Error fetching all movies:', err)
-        return { ok: false, json: async () => [] }
+        return { ok: false, status: 500, json: async () => ({ error: err.message }) }
       }),
       fetch(`${baseUrl}/api/content/series?limit=50`).catch(err => {
         console.error('Error fetching all series:', err)
-        return { ok: false, json: async () => [] }
+        return { ok: false, status: 500, json: async () => ({ error: err.message }) }
       }),
     ])
+
+    // Log response status for debugging
+    if (!allMoviesRes.ok) {
+      const errorData = await allMoviesRes.json().catch(() => ({}))
+      console.error('All Movies API error:', allMoviesRes.status, errorData)
+    }
+    if (!allSeriesRes.ok) {
+      const errorData = await allSeriesRes.json().catch(() => ({}))
+      console.error('All Series API error:', allSeriesRes.status, errorData)
+    }
 
     const allMovies = allMoviesRes.ok ? await allMoviesRes.json() : []
     const allSeries = allSeriesRes.ok ? await allSeriesRes.json() : []
