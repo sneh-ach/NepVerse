@@ -74,6 +74,7 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
   },
   
+  
   // Webpack optimizations
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -100,8 +101,6 @@ const nextConfig = {
     return config
   },
   
-  // Don't externalize Prisma packages - we need them bundled
-  serverComponentsExternalPackages: [],
 }
 
 module.exports = nextConfig
