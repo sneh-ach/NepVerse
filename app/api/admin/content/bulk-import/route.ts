@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { requireAdmin } from '@/lib/auth'
+import { requireAdmin, verifyToken } from '@/lib/auth'
 import { logger } from '@/lib/logger'
 import { handleError, logError } from '@/lib/errorHandler'
 
