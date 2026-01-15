@@ -48,38 +48,121 @@ export async function GET(request: NextRequest) {
 
       // Convert stream to buffer
       // AWS SDK v3 returns a Readable stream in Node.js
+      // In Vercel serverless, we need to handle this carefully
       const stream = response.Body as any
       
       let buffer: Buffer
       
       try {
-        // Handle Readable stream (Node.js) - AWS SDK v3 returns Readable
+        // Try multiple methods to read the stream
+        // Method 1: Node.js Readable stream (most common)
         if (stream && typeof stream.on === 'function') {
           buffer = await new Promise<Buffer>((resolve, reject) => {
             const chunks: Buffer[] = []
-            stream.on('data', (chunk: Buffer) => chunks.push(chunk))
-            stream.on('end', () => resolve(Buffer.concat(chunks)))
-            stream.on('error', (err: Error) => {
-              console.error('Stream error:', err)
-              reject(err)
+            let hasResolved = false
+            
+            const cleanup = () => {
+              if (hasResolved) return
+              hasResolved = true
+              stream.removeAllListeners?.()
+            }
+            
+            stream.on('data', (chunk: Buffer) => {
+              chunks.push(chunk)
             })
+            
+            stream.on('end', () => {
+              if (!hasResolved) {
+                cleanup()
+                resolve(Buffer.concat(chunks))
+              }
+            })
+            
+            stream.on('error', (err: Error) => {
+              if (!hasResolved) {
+                cleanup()
+                console.error('Stream error:', err)
+                reject(err)
+              }
+            })
+            
             // Set a timeout to prevent hanging
-            setTimeout(() => {
-              if (!chunks.length) {
-                reject(new Error('Stream timeout'))
+            const timeout = setTimeout(() => {
+              if (!hasResolved && chunks.length === 0) {
+                cleanup()
+                reject(new Error('Stream timeout - no data received'))
               }
             }, 30000) // 30 second timeout
+            
+            // Clear timeout when done
+            stream.once('end', () => clearTimeout(timeout))
+            stream.once('error', () => clearTimeout(timeout))
           })
-        } else if (stream && typeof stream.arrayBuffer === 'function') {
-          // Handle ReadableStream or Blob (browser/edge runtime)
+        } 
+        // Method 2: ReadableStream (browser/edge runtime)
+        else if (stream && typeof stream.getReader === 'function') {
+          const reader = stream.getReader()
+          const chunks: Uint8Array[] = []
+          
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            if (value) chunks.push(value)
+          }
+          
+          // Combine all chunks
+          const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0)
+          const combined = new Uint8Array(totalLength)
+          let offset = 0
+          for (const chunk of chunks) {
+            combined.set(chunk, offset)
+            offset += chunk.length
+          }
+          buffer = Buffer.from(combined)
+        }
+        // Method 3: arrayBuffer method
+        else if (stream && typeof stream.arrayBuffer === 'function') {
           const arrayBuffer = await stream.arrayBuffer()
           buffer = Buffer.from(arrayBuffer)
-        } else if (stream instanceof Buffer) {
+        }
+        // Method 4: Already a Buffer
+        else if (stream instanceof Buffer) {
           buffer = stream
-        } else if (stream instanceof Uint8Array) {
+        }
+        // Method 5: Uint8Array
+        else if (stream instanceof Uint8Array) {
           buffer = Buffer.from(stream)
-        } else {
-          // Fallback: try to convert to buffer
+        }
+        // Method 6: Try to transform to web stream and read
+        else if (stream && typeof stream.transformToWebStream === 'function') {
+          const webStream = stream.transformToWebStream()
+          const reader = webStream.getReader()
+          const chunks: Uint8Array[] = []
+          
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            if (value) chunks.push(value)
+          }
+          
+          const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0)
+          const combined = new Uint8Array(totalLength)
+          let offset = 0
+          for (const chunk of chunks) {
+            combined.set(chunk, offset)
+            offset += chunk.length
+          }
+          buffer = Buffer.from(combined)
+        }
+        // Fallback: try to convert directly
+        else {
+          console.warn('Unknown stream type, attempting direct conversion:', {
+            type: typeof stream,
+            constructor: stream?.constructor?.name,
+            hasOn: typeof stream?.on,
+            hasGetReader: typeof stream?.getReader,
+            hasArrayBuffer: typeof stream?.arrayBuffer,
+          })
           buffer = Buffer.from(stream as any)
         }
       } catch (streamError: any) {
@@ -87,11 +170,15 @@ export async function GET(request: NextRequest) {
           message: streamError.message,
           key: decodedKey,
           streamType: typeof stream,
+          streamConstructor: stream?.constructor?.name,
           hasOn: typeof stream?.on,
+          hasGetReader: typeof stream?.getReader,
           hasArrayBuffer: typeof stream?.arrayBuffer,
+          hasTransformToWebStream: typeof stream?.transformToWebStream,
+          stack: streamError.stack,
         })
         return NextResponse.json(
-          { message: 'Failed to read file stream', error: streamError.message },
+          { message: 'Failed to read file stream', error: streamError.message, key: decodedKey },
           { status: 500 }
         )
       }
