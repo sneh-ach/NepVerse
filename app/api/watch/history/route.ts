@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     const profileId = await getProfileId(request)
     if (!profileId) {
       return NextResponse.json(
-        { message: 'No profile selected' },
+        { message: 'No profile selected. Please select a profile first.' },
         { status: 400 }
       )
     }

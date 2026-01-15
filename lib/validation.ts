@@ -30,18 +30,39 @@ export const passwordResetConfirmSchema = z.object({
 })
 
 // Profile validation
+// Avatar can be: URL, data URL (data:image/...), emoji string, or empty
+const avatarSchema = z.string()
+  .max(2000, 'Avatar too long')
+  .refine(
+    (val) => {
+      if (!val || val.trim() === '') return true // Empty is OK
+      // Allow data URLs
+      if (val.startsWith('data:')) return true
+      // Allow valid URLs
+      try {
+        new URL(val)
+        return true
+      } catch {
+        // Not a URL, might be emoji or other string - allow it
+        return true
+      }
+    },
+    { message: 'Invalid avatar format' }
+  )
+  .optional()
+
 export const profileCreateSchema = z.object({
   name: z.string().min(1, 'Profile name is required').max(50, 'Profile name must be 50 characters or less'),
-  avatar: z.string().url('Invalid avatar URL').max(2000, 'Avatar URL too long').optional(),
-  avatarType: z.enum(['emoji', 'image', 'default']).optional(),
+  avatar: avatarSchema,
+  avatarType: z.enum(['emoji', 'image', 'default', 'uploaded']).optional(),
   pin: z.string().regex(/^\d{4}$/, 'PIN must be exactly 4 digits').optional(),
   isKidsProfile: z.boolean().optional(),
 })
 
 export const profileUpdateSchema = z.object({
   name: z.string().min(1, 'Profile name cannot be empty').max(50, 'Profile name must be 50 characters or less').optional(),
-  avatar: z.string().url('Invalid avatar URL').max(2000, 'Avatar URL too long').optional(),
-  avatarType: z.enum(['emoji', 'image', 'default']).optional(),
+  avatar: avatarSchema,
+  avatarType: z.enum(['emoji', 'image', 'default', 'uploaded']).optional(),
   pin: z.string().regex(/^\d{4}$/, 'PIN must be exactly 4 digits').nullable().optional(),
   isKidsProfile: z.boolean().optional(),
 })

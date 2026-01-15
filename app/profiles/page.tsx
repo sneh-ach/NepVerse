@@ -644,7 +644,7 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
         // If creating a new profile, automatically set it as current
         if (!profile && savedProfile && savedProfile.id) {
           try {
-            await fetch('/api/profiles/current', {
+            const setCurrentResponse = await fetch('/api/profiles/current', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -652,10 +652,16 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
               credentials: 'include',
               body: JSON.stringify({ profileId: savedProfile.id }),
             })
-            // Dispatch event to notify other components
-            window.dispatchEvent(new Event('profile-change'))
+            
+            if (setCurrentResponse.ok) {
+              // Dispatch event to notify other components
+              window.dispatchEvent(new Event('profile-change'))
+            } else {
+              console.warn('Failed to set current profile, but profile was created')
+            }
           } catch (error) {
             console.error('Failed to set current profile:', error)
+            // Don't fail the whole operation if setting current profile fails
           }
         }
         
