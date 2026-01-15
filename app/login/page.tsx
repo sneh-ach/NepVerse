@@ -8,6 +8,9 @@ import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 
+// Force dynamic rendering - this page uses useSearchParams
+export const dynamic = 'force-dynamic'
+
 function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()

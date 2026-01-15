@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 
+// Force dynamic rendering - this page uses useSearchParams
+export const dynamic = 'force-dynamic'
+
 function ResetPasswordPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()

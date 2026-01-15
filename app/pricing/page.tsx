@@ -10,6 +10,9 @@ import { PaymentModal } from '@/components/payment/PaymentModal'
 import { subscriptionService } from '@/lib/clientStorage'
 import toast from 'react-hot-toast'
 
+// Force dynamic rendering - this page uses useSearchParams
+export const dynamic = 'force-dynamic'
+
 const plans = [
   {
     id: 'basic',

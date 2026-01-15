@@ -10,6 +10,9 @@ import Image from 'next/image'
 import toast from 'react-hot-toast'
 import Link from 'next/link'
 
+// Force dynamic rendering - this page uses useSearchParams
+export const dynamic = 'force-dynamic'
+
 const DEFAULT_AVATARS = [
   '👤', '👨', '👩', '👧', '👦', '🧑', '👴', '👵',
   '🎭', '🦸', '🦹', '🧙', '🧚', '🧛', '🧜', '🧝',

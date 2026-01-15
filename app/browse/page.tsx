@@ -9,6 +9,9 @@ import { Dropdown } from '@/components/ui/Dropdown'
 import { Search, Filter } from 'lucide-react'
 import { useDebounce } from '@/hooks/useDebounce'
 
+// Force dynamic rendering - this page uses useSearchParams
+export const dynamic = 'force-dynamic'
+
 function BrowsePageContent() {
   const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
