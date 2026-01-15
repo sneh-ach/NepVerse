@@ -69,6 +69,15 @@ const nextConfig = {
         ...config.optimization,
         moduleIds: 'deterministic',
       }
+    } else {
+      // Server-side: Ensure Prisma engine is included
+      config.externals = config.externals || []
+      // Don't externalize Prisma - we need the engine
+      if (Array.isArray(config.externals)) {
+        config.externals = config.externals.filter(
+          (external) => typeof external !== 'string' || !external.includes('@prisma')
+        )
+      }
     }
     return config
   },

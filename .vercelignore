@@ -1,0 +1,4 @@
+# Don't ignore Prisma files - we need them for the build
+!.prisma
+!prisma
+!node_modules/.prisma
