@@ -3,6 +3,9 @@ import { db } from '@/lib/db'
 import { verifyToken } from '@/lib/auth'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 
+// Force dynamic rendering - this route uses searchParams and headers
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     const clientId = getClientIdentifier(request)

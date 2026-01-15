@@ -4,6 +4,9 @@ import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { cacheService } from '@/lib/cache'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 async function getAuthUser(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null

@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses searchParams and headers
+export const dynamic = 'force-dynamic'
+
 /**
  * GET /api/content/search
  * Search for movies and series (public endpoint with rate limiting)

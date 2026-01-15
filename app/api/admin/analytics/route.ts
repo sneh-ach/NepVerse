@@ -4,6 +4,9 @@ import { requireAdmin } from '@/lib/auth'
 import { cacheService } from '@/lib/cache'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses searchParams and headers
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Require admin authentication
