@@ -39,7 +39,14 @@ class RateLimiter {
     }
 
     try {
-      const Redis = (await import('ioredis')).default
+      // Dynamically import ioredis to avoid build errors if not installed
+      const redisModule = await import('ioredis').catch(() => null)
+      if (!redisModule) {
+        console.warn('⚠️  ioredis not installed. Rate limiting will use in-memory store.')
+        this.isRedisAvailable = false
+        return
+      }
+      const Redis = redisModule.default
       this.redisClient = new Redis(redisUrl)
       this.isRedisAvailable = true
       if (process.env.NODE_ENV !== 'test') {

@@ -15,9 +15,16 @@ import { prisma } from '@/lib/prisma'
  */
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting (stricter for auth)
-    const clientId = getClientIdentifier(request)
-    const rateLimit = await authRateLimiter.check(clientId)
+    // Rate limiting (stricter for auth) - wrapped in try-catch to prevent crashes
+    let rateLimit = { allowed: true, remaining: 5, resetTime: Date.now() + 60000 }
+    try {
+      const clientId = getClientIdentifier(request)
+      rateLimit = await authRateLimiter.check(clientId)
+    } catch (rateLimitError) {
+      console.error('Rate limiter error (allowing request):', rateLimitError)
+      // Allow request if rate limiter fails
+    }
+    
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { message: 'Too many login attempts. Please try again later.' },
@@ -98,9 +105,18 @@ export async function POST(request: NextRequest) {
     return response
   } catch (error) {
     console.error('Login error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Login error details:', { errorMessage, errorStack })
+    
+    // Import error handler dynamically to avoid circular dependencies
+    const { logError, handleError } = await import('@/lib/errorHandler')
+    logError(error, 'Login', undefined, '/api/auth/login')
+    const errorInfo = handleError(error)
+    
     return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
+      { message: errorInfo.message || 'Internal server error', code: errorInfo.code },
+      { status: errorInfo.statusCode || 500 }
     )
   }
 }

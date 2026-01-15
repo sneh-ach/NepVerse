@@ -6,9 +6,16 @@ import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const clientId = getClientIdentifier(request)
-    const rateLimit = await apiRateLimiter.check(clientId)
+    // Rate limiting - wrapped in try-catch to prevent crashes
+    let rateLimit = { allowed: true, remaining: 100, resetTime: Date.now() + 60000 }
+    try {
+      const clientId = getClientIdentifier(request)
+      rateLimit = await apiRateLimiter.check(clientId)
+    } catch (rateLimitError) {
+      console.error('Rate limiter error (allowing request):', rateLimitError)
+      // Allow request if rate limiter fails
+    }
+    
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { message: 'Too many requests. Please try again later.' },
@@ -44,19 +51,22 @@ export async function POST(request: NextRequest) {
     console.log('[Password Reset] ✅ Token created')
     console.log('[Password Reset] Reset URL generated')
     
-    // Send email
+    // Send email (wrapped in try-catch to prevent crashes)
     console.log('[Password Reset] 📧 Attempting to send email...')
-    const emailSent = await emailService.sendPasswordResetEmail(user.email!, token)
-    console.log('[Password Reset] Email send result:', emailSent ? '✅ SUCCESS' : '❌ FAILED')
-    
-    if (!emailSent) {
-      console.error('[Password Reset] ❌ Failed to send email. Check:')
+    let emailSent = false
+    try {
+      emailSent = await emailService.sendPasswordResetEmail(user.email!, token)
+      console.log('[Password Reset] Email send result:', emailSent ? '✅ SUCCESS' : '❌ FAILED')
+    } catch (emailError) {
+      console.error('[Password Reset] ❌ Email service error:', emailError)
+      console.error('[Password Reset] Check:')
       console.error('   1. RESEND_API_KEY is set in .env')
       console.error('   2. Email service is properly configured')
-      console.error('   3. Check server console above for detailed error messages')
       // Still return success to user (security best practice)
-    } else {
-      console.log('[Password Reset] ✅ Email sent successfully!')
+    }
+    
+    if (!emailSent) {
+      console.warn('[Password Reset] ⚠️ Email not sent, but returning success to user (security best practice)')
     }
 
     return NextResponse.json({
@@ -64,9 +74,20 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Password reset error:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Password reset error details:', { errorMessage, errorStack })
+    
+    // Import error handler dynamically to avoid circular dependencies
+    const { logError, handleError } = await import('@/lib/errorHandler')
+    logError(error, 'Password reset', undefined, '/api/auth/password-reset')
+    const errorInfo = handleError(error)
+    
+    // Still return success message to user (security best practice)
+    // But log the actual error for debugging
     return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
+      { message: 'If an account with that email exists, we\'ve sent a password reset link.' },
+      { status: 200 }
     )
   }
 }
