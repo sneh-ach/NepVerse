@@ -61,7 +61,7 @@ export function Dropdown({ options, value, onChange, placeholder, className }: D
 
       {isOpen && (
         <div
-          className="absolute z-50 w-full mt-1 bg-card border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto"
+          className="absolute z-50 w-full mt-1 bg-card border border-gray-700 rounded-md shadow-lg max-h-60 overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
         >
           {options.map((option) => (
             <button
