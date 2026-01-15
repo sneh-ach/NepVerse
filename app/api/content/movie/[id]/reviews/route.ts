@@ -3,6 +3,9 @@ import { verifyToken } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'
 
+// Force dynamic rendering - this route uses headers, cookies and Prisma
+export const dynamic = 'force-dynamic'
+
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
     const authHeader = request.headers.get('authorization')

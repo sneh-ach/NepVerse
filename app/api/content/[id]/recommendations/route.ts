@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { recommendationService } from '@/lib/recommendations'
 import { cacheService } from '@/lib/cache'
 
+// Force dynamic rendering - this route uses searchParams
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
