@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { storageService } from '@/lib/storage'
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 
 // Force dynamic rendering - this route uses searchParams
 export const dynamic = 'force-dynamic'
@@ -27,11 +26,9 @@ export async function GET(request: NextRequest) {
     // Decode the key in case it's URL encoded
     const decodedKey = decodeURIComponent(key)
 
-    // Get the file from storage
-    const s3Client = (storageService as any).client as S3Client | null
-    const config = (storageService as any).config as any
-
-    if (!s3Client || !config) {
+    // Check if storage is configured
+    if (!storageService.isConfigured()) {
+      console.error('Storage proxy: Storage not configured')
       return NextResponse.json(
         { message: 'Storage not configured' },
         { status: 500 }
@@ -39,12 +36,8 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      const command = new GetObjectCommand({
-        Bucket: config.bucket,
-        Key: decodedKey,
-      })
-
-      const response = await s3Client.send(command)
+      // Use the public method to get the file
+      const response = await storageService.getFile(decodedKey)
 
       if (!response.Body) {
         return NextResponse.json(

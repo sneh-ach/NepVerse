@@ -155,6 +155,30 @@ class StorageService {
   isConfigured(): boolean {
     return this.config !== null && this.client !== null
   }
+
+  /**
+   * Get a file from storage (for proxy endpoint)
+   * Returns the GetObjectCommandOutput response
+   */
+  async getFile(key: string) {
+    if (!this.client || !this.config) {
+      throw new Error('Storage not configured')
+    }
+
+    const command = new GetObjectCommand({
+      Bucket: this.config.bucket,
+      Key: key,
+    })
+
+    return this.client.send(command)
+  }
+
+  /**
+   * Get the storage configuration (for proxy endpoint)
+   */
+  getConfig() {
+    return this.config
+  }
 }
 
 export const storageService = new StorageService()
