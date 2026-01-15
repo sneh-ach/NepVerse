@@ -4,6 +4,9 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/auth'
 import { getPaymentProvider } from '@/lib/payment'
 import { stripe } from '@/lib/payment'
 
+// Force dynamic rendering - this route uses headers, cookies and Prisma
+export const dynamic = 'force-dynamic'
+
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
     const authHeader = request.headers.get('authorization')

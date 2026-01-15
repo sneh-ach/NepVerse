@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserId } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserId(request)

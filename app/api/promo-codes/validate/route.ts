@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { handleError, logError } from '@/lib/errorHandler'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/promo-codes/validate
  * Validate a promo code (public endpoint with rate limiting)

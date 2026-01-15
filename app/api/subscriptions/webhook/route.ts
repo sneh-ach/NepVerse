@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/payment'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses headers and Prisma
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyToken } from '@/lib/auth'
 
+// Force dynamic rendering - this route uses headers, cookies and Prisma
+export const dynamic = 'force-dynamic'
+
 async function getAuthUser(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null

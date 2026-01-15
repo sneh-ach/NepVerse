@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { watchPartyStore } from '../../store'
 
+// Force dynamic rendering - this route uses headers and cookies
+export const dynamic = 'force-dynamic'
+
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
     const authHeader = request.headers.get('authorization')
