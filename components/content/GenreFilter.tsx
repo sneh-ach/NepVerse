@@ -1,9 +1,14 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { mockGenres } from '@/lib/mockData'
+
+interface Genre {
+  id: string
+  name: string
+  slug: string
+}
 
 interface GenreFilterProps {
   activeGenre?: string
@@ -11,6 +16,19 @@ interface GenreFilterProps {
 }
 
 export function GenreFilter({ activeGenre, className }: GenreFilterProps) {
+  const [genres, setGenres] = useState<Genre[]>([])
+
+  useEffect(() => {
+    fetch('/api/genres')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setGenres(data)
+        }
+      })
+      .catch(err => console.error('Failed to load genres:', err))
+  }, [])
+
   return (
     <div className={cn('flex flex-wrap gap-2', className)}>
       <Link
@@ -24,7 +42,7 @@ export function GenreFilter({ activeGenre, className }: GenreFilterProps) {
       >
         All
       </Link>
-      {mockGenres.map((genre) => (
+      {genres.map((genre) => (
         <Link
           key={genre.id}
           href={`/browse?genre=${genre.slug}`}
