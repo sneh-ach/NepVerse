@@ -65,7 +65,7 @@ export async function POST(
       },
     })
 
-    let comment
+    let comment: any = null
     let liked = false
 
     if (existingLike) {
@@ -101,7 +101,14 @@ export async function POST(
       liked = true
     }
 
-    return NextResponse.json({ ...(comment as object), liked })
+    if (!comment) {
+      return NextResponse.json(
+        { message: 'Comment not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ ...comment, liked })
   } catch (error) {
     console.error('Like comment error:', error)
     return NextResponse.json(
