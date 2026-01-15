@@ -35,11 +35,13 @@ async function getFeaturedContent() {
     
     console.log('All movies:', allMovies.length, 'All series:', allSeries.length)
 
-    // Featured content (first featured movie or series)
+    // Featured content (first featured movie or series, or any published content)
     const featured = movies.find((m: any) => m.isFeatured) || 
                     series.find((s: any) => s.isFeatured) ||
                     movies[0] || 
-                    series[0] || 
+                    series[0] ||
+                    allMovies[0] ||
+                    allSeries[0] ||
                     null
     
     console.log('Featured content:', featured ? featured.title : 'none')
@@ -70,10 +72,15 @@ async function getFeaturedContent() {
         type: 'episodeCount' in item || item.episodes ? ('series' as const) : ('movie' as const),
       }))
 
-    // Originals (featured series)
+    // Originals (featured series, or all series if no featured)
     const originals = series
       .filter((s: any) => s.isFeatured)
       .slice(0, 10)
+    
+    // If no featured series, use all series
+    if (originals.length === 0 && series.length > 0) {
+      originals.push(...series.slice(0, 10))
+    }
       .map((item: any) => ({
         id: item.id,
         title: item.title,
