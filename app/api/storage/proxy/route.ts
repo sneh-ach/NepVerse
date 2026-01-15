@@ -59,15 +59,25 @@ export async function GET(request: NextRequest) {
 
       // Convert stream to buffer
       // AWS SDK v3 returns a Readable stream in Node.js
-      // In Vercel serverless, we need to handle this carefully
+      // The recommended approach is to use transformToByteArray() if available
       const stream = response.Body as any
       
       let buffer: Buffer
       
       try {
-        // Try multiple methods to read the stream
-        // Method 1: Node.js Readable stream (most common)
-        if (stream && typeof stream.on === 'function') {
+        // Method 1: Use AWS SDK's built-in transformToByteArray() (recommended)
+        if (stream && typeof stream.transformToByteArray === 'function') {
+          try {
+            const bytes = await stream.transformToByteArray()
+            buffer = Buffer.from(bytes)
+          } catch (transformError: any) {
+            console.warn('transformToByteArray failed, falling back to manual stream:', transformError.message)
+            // Fall through to manual stream handling
+            throw transformError // Will be caught and handled by manual stream code
+          }
+        }
+        // Method 2: Node.js Readable stream (most common fallback)
+        else if (stream && typeof stream.on === 'function') {
           buffer = await new Promise<Buffer>((resolve, reject) => {
             const chunks: Buffer[] = []
             let hasResolved = false
@@ -110,7 +120,7 @@ export async function GET(request: NextRequest) {
             stream.once('error', () => clearTimeout(timeout))
           })
         } 
-        // Method 2: ReadableStream (browser/edge runtime)
+        // Method 3: ReadableStream (browser/edge runtime)
         else if (stream && typeof stream.getReader === 'function') {
           const reader = stream.getReader()
           const chunks: Uint8Array[] = []
@@ -131,20 +141,20 @@ export async function GET(request: NextRequest) {
           }
           buffer = Buffer.from(combined)
         }
-        // Method 3: arrayBuffer method
+        // Method 4: arrayBuffer method
         else if (stream && typeof stream.arrayBuffer === 'function') {
           const arrayBuffer = await stream.arrayBuffer()
           buffer = Buffer.from(arrayBuffer)
         }
-        // Method 4: Already a Buffer
+        // Method 5: Already a Buffer
         else if (stream instanceof Buffer) {
           buffer = stream
         }
-        // Method 5: Uint8Array
+        // Method 6: Uint8Array
         else if (stream instanceof Uint8Array) {
           buffer = Buffer.from(stream)
         }
-        // Method 6: Try to transform to web stream and read
+        // Method 7: Try to transform to web stream and read
         else if (stream && typeof stream.transformToWebStream === 'function') {
           const webStream = stream.transformToWebStream()
           const reader = webStream.getReader()
