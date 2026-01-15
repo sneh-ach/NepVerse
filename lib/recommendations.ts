@@ -217,7 +217,7 @@ class RecommendationService {
   }
 
   // Trending: Popular content right now
-  private async getTrendingRecommendations(limit: number, type: string): Promise<Recommendation[]> {
+  async getTrendingRecommendations(limit: number, type: string): Promise<Recommendation[]> {
     const movies =
       type !== 'series'
         ? await prisma.movie.findMany({
