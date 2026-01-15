@@ -384,7 +384,27 @@ function ContentUploadForm({
   })
   const [isUploading, setIsUploading] = useState(false)
   const [detectingDuration, setDetectingDuration] = useState(false)
+  const [availableGenres, setAvailableGenres] = useState<Array<{ id: string; name: string }>>([])
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([])
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  // Load genres on mount
+  useEffect(() => {
+    const loadGenres = async () => {
+      try {
+        const res = await fetch('/api/genres')
+        if (res.ok) {
+          const data = await res.json()
+          if (Array.isArray(data) && data.length > 0) {
+            setAvailableGenres(data)
+          }
+        }
+      } catch (error) {
+        console.error('Error loading genres:', error)
+      }
+    }
+    loadGenres()
+  }, [])
 
   // Auto-detect video duration
   const detectVideoDuration = (file: File): Promise<number> => {
@@ -450,6 +470,11 @@ function ContentUploadForm({
       
       formDataToSend.append('contentType', contentType)
       
+      // Add genres as JSON array
+      if (selectedGenres.length > 0) {
+        formDataToSend.append('genres', JSON.stringify(selectedGenres))
+      }
+      
       // Add files
       if (files.poster) formDataToSend.append('poster', files.poster)
       if (files.backdrop) formDataToSend.append('backdrop', files.backdrop)
@@ -497,6 +522,7 @@ function ContentUploadForm({
         video: '',
         trailer: '',
       })
+      setSelectedGenres([])
       onSuccess()
     } catch (error: any) {
       toast.error(error.message || 'Upload failed')
@@ -649,12 +675,13 @@ function ContentUploadForm({
                 onChange={(e) => setFormData({ ...formData, quality: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary"
               >
-                <option value="SD">SD</option>
-                <option value="HD">HD</option>
-                <option value="Full HD">Full HD</option>
-                <option value="4K">4K</option>
-                <option value="8K">8K</option>
+                <option value="">Select Quality</option>
+                <option value="480p">480p SD</option>
+                <option value="720p">720p HD</option>
+                <option value="1080p">1080p Full HD</option>
+                <option value="4K">4K Ultra HD</option>
               </select>
+              <p className="text-xs text-gray-500 mt-1">Required for quality filtering</p>
             </div>
             <div>
               <label className="block text-white font-semibold mb-2">Age Rating</label>
@@ -663,13 +690,13 @@ function ContentUploadForm({
                 onChange={(e) => setFormData({ ...formData, ageRating: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary"
               >
-                <option value="G">G</option>
-                <option value="PG">PG</option>
+                <option value="G">G - General</option>
+                <option value="PG">PG - Parental Guidance</option>
                 <option value="PG-13">PG-13</option>
-                <option value="R">R</option>
-                <option value="TV-14">TV-14</option>
-                <option value="TV-MA">TV-MA</option>
+                <option value="R">R - Restricted</option>
+                <option value="18+">18+</option>
               </select>
+              <p className="text-xs text-gray-500 mt-1">Required for age rating filtering</p>
             </div>
             <div>
               <label className="block text-white font-semibold mb-2 flex items-center space-x-2">
@@ -708,6 +735,44 @@ function ContentUploadForm({
               <p className="text-xs text-gray-500 mt-1">Comma-separated tags (e.g., "This Movie Is: Irreverent")</p>
             </div>
           </div>
+        </div>
+
+        {/* Genres Selection */}
+        <div className="border-t border-gray-800 pt-6">
+          <h3 className="text-white font-semibold mb-4 flex items-center space-x-2">
+            <Tag size={20} />
+            <span>Genres *</span>
+          </h3>
+          <div className="flex flex-wrap gap-2 p-3 bg-gray-900 border border-gray-700 rounded-lg min-h-[60px]">
+            {availableGenres.length === 0 ? (
+              <p className="text-gray-500 text-sm">Loading genres...</p>
+            ) : (
+              availableGenres.map((genre) => {
+                const isSelected = selectedGenres.includes(genre.id)
+                return (
+                  <button
+                    key={genre.id}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedGenres(selectedGenres.filter((id) => id !== genre.id))
+                      } else {
+                        setSelectedGenres([...selectedGenres, genre.id])
+                      }
+                    }}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
+                      isSelected
+                        ? 'bg-primary text-white border-2 border-primary'
+                        : 'bg-gray-800 text-gray-300 border-2 border-gray-700 hover:border-primary/50'
+                    }`}
+                  >
+                    {genre.name}
+                  </button>
+                )
+              })
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Select one or more genres (required for filtering)</p>
         </div>
 
         {/* File Uploads with Size Display */}

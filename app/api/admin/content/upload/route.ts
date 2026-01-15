@@ -44,6 +44,18 @@ export async function POST(request: NextRequest) {
     const isPublished = formData.get('isPublished') === 'true'
     const isFeatured = formData.get('isFeatured') === 'true'
     const publishDate = formData.get('publishDate') as string
+    const genresStr = formData.get('genres') as string | null
+    let genres: string[] = []
+    
+    // Parse genres from JSON string
+    if (genresStr) {
+      try {
+        genres = JSON.parse(genresStr)
+      } catch (e) {
+        logger.warn('Failed to parse genres JSON', { genresStr })
+        genres = []
+      }
+    }
 
     if (!title || !description || !releaseDate) {
       return NextResponse.json(
@@ -162,6 +174,9 @@ export async function POST(request: NextRequest) {
           isPublished,
           isFeatured,
           videoUrl: videoUrl || '/videos/sample.m3u8', // Fallback
+          genres: {
+            connect: genres.map((genreId: string) => ({ id: genreId })),
+          },
         },
       })
 
@@ -194,6 +209,9 @@ export async function POST(request: NextRequest) {
           tags: tags || null,
           isPublished,
           isFeatured,
+          genres: {
+            connect: genres.map((genreId: string) => ({ id: genreId })),
+          },
         },
       })
 

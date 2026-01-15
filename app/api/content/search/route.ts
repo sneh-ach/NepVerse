@@ -13,6 +13,10 @@ export const dynamic = 'force-dynamic'
  * @param searchParams.q - Search query (optional)
  * @param searchParams.genre - Filter by genre (optional)
  * @param searchParams.year - Filter by year (optional)
+ * @param searchParams.rating - Filter by minimum rating (optional, e.g., "4.5")
+ * @param searchParams.ageRating - Filter by age rating (optional, e.g., "PG", "PG-13")
+ * @param searchParams.quality - Filter by quality (optional, e.g., "4K", "1080p")
+ * @param searchParams.type - Filter by content type (optional, "movie" or "series")
  * @returns Array of search results
  */
 export async function GET(request: NextRequest) {
@@ -31,63 +35,113 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q')
     const genre = searchParams.get('genre')
     const year = searchParams.get('year')
+    const rating = searchParams.get('rating')
+    const ageRating = searchParams.get('ageRating')
+    const quality = searchParams.get('quality')
+    const contentType = searchParams.get('type')
 
-    // Search database
-    const where: any = {
+    // Build where clause for movies
+    const movieWhere: any = {
       isPublished: true,
     }
 
-    if (query) {
-      where.OR = [
-        { title: { contains: query, mode: 'insensitive' } },
-        { titleNepali: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-      ]
+    // Build where clause for series
+    const seriesWhere: any = {
+      isPublished: true,
     }
 
-    if (genre && genre !== 'all') {
-      where.genres = {
-        some: {
-          slug: genre,
+    // Apply filters that apply to both
+    const applyCommonFilters = (whereClause: any) => {
+      if (query) {
+        whereClause.OR = [
+          { title: { contains: query, mode: 'insensitive' } },
+          { titleNepali: { contains: query, mode: 'insensitive' } },
+          { description: { contains: query, mode: 'insensitive' } },
+        ]
+      }
+
+      if (genre && genre !== 'all') {
+        whereClause.genres = {
+          some: {
+            slug: genre,
+          },
+        }
+      }
+
+      if (year && year !== 'all') {
+        whereClause.releaseDate = {
+          gte: new Date(`${year}-01-01`),
+          lt: new Date(`${parseInt(year) + 1}-01-01`),
+        }
+      }
+
+      if (rating && rating !== 'all') {
+        const minRating = parseFloat(rating)
+        whereClause.rating = {
+          gte: minRating,
+        }
+      }
+
+      if (ageRating && ageRating !== 'all') {
+        whereClause.ageRating = ageRating
+      }
+
+      if (quality && quality !== 'all') {
+        whereClause.quality = quality
+      }
+    }
+
+    applyCommonFilters(movieWhere)
+    applyCommonFilters(seriesWhere)
+
+    // Fetch movies and series based on content type filter
+    let movies: any[] = []
+    let series: any[] = []
+
+    if (!contentType || contentType === 'all' || contentType === 'movie') {
+      movies = await prisma.movie.findMany({
+        where: movieWhere,
+        include: {
+          genres: true,
         },
-      }
+        take: 50,
+        orderBy: {
+          viewCount: 'desc',
+        },
+      })
     }
 
-    if (year && year !== 'all') {
-      where.releaseDate = {
-        gte: new Date(`${year}-01-01`),
-        lt: new Date(`${parseInt(year) + 1}-01-01`),
-      }
+    if (!contentType || contentType === 'all' || contentType === 'series') {
+      series = await prisma.series.findMany({
+        where: seriesWhere,
+        include: {
+          genres: true,
+        },
+        take: 50,
+        orderBy: {
+          viewCount: 'desc',
+        },
+      })
     }
-
-    const movies = await prisma.movie.findMany({
-      where,
-      include: {
-        genres: true,
-      },
-      take: 20,
-    })
-
-    const series = await prisma.series.findMany({
-      where,
-      include: {
-        genres: true,
-      },
-      take: 20,
-    })
 
     const results = [
       ...movies.map((m) => ({
         id: m.id,
         title: m.title,
         posterUrl: m.posterUrl,
+        backdropUrl: m.backdropUrl,
         type: 'movie' as const,
+        rating: m.rating ?? undefined,
+        year: new Date(m.releaseDate).getFullYear(),
       })),
       ...series.map((s) => ({
         id: s.id,
         title: s.title,
         posterUrl: s.posterUrl,
+        backdropUrl: s.backdropUrl,
         type: 'series' as const,
+        rating: s.rating ?? undefined,
+        year: new Date(s.releaseDate).getFullYear(),
       })),
     ]
 

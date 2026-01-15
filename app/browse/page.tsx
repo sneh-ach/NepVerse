@@ -17,6 +17,10 @@ function BrowsePageContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [selectedGenre, setSelectedGenre] = useState<string>('all')
   const [selectedYear, setSelectedYear] = useState<string>('all')
+  const [selectedRating, setSelectedRating] = useState<string>('all')
+  const [selectedAgeRating, setSelectedAgeRating] = useState<string>('all')
+  const [selectedQuality, setSelectedQuality] = useState<string>('all')
+  const [selectedContentType, setSelectedContentType] = useState<string>('all')
   const [results, setResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [genreSections, setGenreSections] = useState<Record<string, any[]>>({})
@@ -27,7 +31,46 @@ function BrowsePageContent() {
   // Debounce search query for better performance
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i)
+  // Generate years from 1970 to current year
+  const currentYear = new Date().getFullYear()
+  const years = Array.from({ length: currentYear - 1969 }, (_, i) => currentYear - i)
+  
+  // Rating options (out of 5)
+  const ratingOptions = [
+    { value: 'all', label: 'All Ratings' },
+    { value: '4.5', label: '4.5+ Stars' },
+    { value: '4.0', label: '4.0+ Stars' },
+    { value: '3.5', label: '3.5+ Stars' },
+    { value: '3.0', label: '3.0+ Stars' },
+    { value: '2.5', label: '2.5+ Stars' },
+    { value: '2.0', label: '2.0+ Stars' },
+  ]
+  
+  // Age rating options
+  const ageRatingOptions = [
+    { value: 'all', label: 'All Ages' },
+    { value: 'G', label: 'G - General' },
+    { value: 'PG', label: 'PG - Parental Guidance' },
+    { value: 'PG-13', label: 'PG-13' },
+    { value: 'R', label: 'R - Restricted' },
+    { value: '18+', label: '18+' },
+  ]
+  
+  // Quality options
+  const qualityOptions = [
+    { value: 'all', label: 'All Quality' },
+    { value: '4K', label: '4K Ultra HD' },
+    { value: '1080p', label: '1080p Full HD' },
+    { value: '720p', label: '720p HD' },
+    { value: '480p', label: '480p SD' },
+  ]
+  
+  // Content type options
+  const contentTypeOptions = [
+    { value: 'all', label: 'All Content' },
+    { value: 'movie', label: 'Movies Only' },
+    { value: 'series', label: 'Series Only' },
+  ]
 
   // Load genres from API
   useEffect(() => {
@@ -78,22 +121,34 @@ function BrowsePageContent() {
 
   useEffect(() => {
     // Fetch filtered results with debounced search
-    if (debouncedSearchQuery || selectedGenre !== 'all' || selectedYear !== 'all') {
+    const hasFilters = debouncedSearchQuery || 
+      selectedGenre !== 'all' || 
+      selectedYear !== 'all' || 
+      selectedRating !== 'all' || 
+      selectedAgeRating !== 'all' || 
+      selectedQuality !== 'all' || 
+      selectedContentType !== 'all'
+    
+    if (hasFilters) {
       setIsSearching(true)
       fetchResults()
     } else {
       setResults([])
       setIsSearching(false)
     }
-  }, [debouncedSearchQuery, selectedGenre, selectedYear])
+  }, [debouncedSearchQuery, selectedGenre, selectedYear, selectedRating, selectedAgeRating, selectedQuality, selectedContentType])
 
   const fetchResults = async () => {
     try {
-      // Build search URL
+      // Build search URL with all filters
       const params = new URLSearchParams()
       if (debouncedSearchQuery) params.set('q', debouncedSearchQuery)
       if (selectedGenre !== 'all') params.set('genre', selectedGenre)
       if (selectedYear !== 'all') params.set('year', selectedYear)
+      if (selectedRating !== 'all') params.set('rating', selectedRating)
+      if (selectedAgeRating !== 'all') params.set('ageRating', selectedAgeRating)
+      if (selectedQuality !== 'all') params.set('quality', selectedQuality)
+      if (selectedContentType !== 'all') params.set('type', selectedContentType)
 
       const res = await fetch(`/api/content/search?${params.toString()}`)
       if (res.ok) {
@@ -136,7 +191,7 @@ function BrowsePageContent() {
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center space-x-2">
               <Filter size={20} className="text-gray-400" />
-              <span className="text-gray-400">Filters:</span>
+              <span className="text-gray-400 font-semibold">Filters:</span>
             </div>
 
             <Dropdown
@@ -144,6 +199,7 @@ function BrowsePageContent() {
               value={selectedGenre}
               onChange={setSelectedGenre}
               className="min-w-[150px]"
+              placeholder="All Genres"
             />
 
             <Dropdown
@@ -154,6 +210,39 @@ function BrowsePageContent() {
               value={selectedYear}
               onChange={setSelectedYear}
               className="min-w-[120px]"
+              placeholder="All Years"
+            />
+
+            <Dropdown
+              options={ratingOptions}
+              value={selectedRating}
+              onChange={setSelectedRating}
+              className="min-w-[140px]"
+              placeholder="All Ratings"
+            />
+
+            <Dropdown
+              options={ageRatingOptions}
+              value={selectedAgeRating}
+              onChange={setSelectedAgeRating}
+              className="min-w-[140px]"
+              placeholder="All Ages"
+            />
+
+            <Dropdown
+              options={qualityOptions}
+              value={selectedQuality}
+              onChange={setSelectedQuality}
+              className="min-w-[140px]"
+              placeholder="All Quality"
+            />
+
+            <Dropdown
+              options={contentTypeOptions}
+              value={selectedContentType}
+              onChange={setSelectedContentType}
+              className="min-w-[140px]"
+              placeholder="All Content"
             />
           </div>
         </div>
@@ -179,33 +268,43 @@ function BrowsePageContent() {
         <div className="text-center py-16 bg-card rounded-lg">
           <Search size={64} className="text-gray-600 mx-auto mb-4" />
           <h3 className="text-white font-semibold text-xl mb-2">
-            {searchQuery || selectedGenre !== 'all' || selectedYear !== 'all'
+            {searchQuery || selectedGenre !== 'all' || selectedYear !== 'all' || selectedRating !== 'all' || selectedAgeRating !== 'all' || selectedQuality !== 'all' || selectedContentType !== 'all'
               ? 'No Results Found'
               : 'Start Exploring'}
           </h3>
           <p className="text-gray-400 text-lg mb-6 max-w-md mx-auto">
-            {searchQuery || selectedGenre !== 'all' || selectedYear !== 'all'
+            {searchQuery || selectedGenre !== 'all' || selectedYear !== 'all' || selectedRating !== 'all' || selectedAgeRating !== 'all' || selectedQuality !== 'all' || selectedContentType !== 'all'
               ? 'Try adjusting your search or filters to find what you\'re looking for.'
               : 'Search for movies and series or browse by genre to discover amazing Nepali content.'}
           </p>
-          {(searchQuery || selectedGenre !== 'all' || selectedYear !== 'all') && (
+          {(searchQuery || selectedGenre !== 'all' || selectedYear !== 'all' || selectedRating !== 'all' || selectedAgeRating !== 'all' || selectedQuality !== 'all' || selectedContentType !== 'all') && (
             <Button
               variant="outline"
               onClick={() => {
                 setSearchQuery('')
                 setSelectedGenre('all')
                 setSelectedYear('all')
+                setSelectedRating('all')
+                setSelectedAgeRating('all')
+                setSelectedQuality('all')
+                setSelectedContentType('all')
               }}
               className="group/btn"
             >
-              <span className="group-hover/btn:scale-110 transition-transform duration-300 inline-block">Clear Filters</span>
+              <span className="group-hover/btn:scale-110 transition-transform duration-300 inline-block">Clear All Filters</span>
             </Button>
           )}
         </div>
       )}
 
-      {/* Genre Sections */}
-      {!searchQuery && selectedGenre === 'all' && (
+      {/* Genre Sections - Only show when no filters are active */}
+      {!searchQuery && 
+       selectedGenre === 'all' && 
+       selectedYear === 'all' && 
+       selectedRating === 'all' && 
+       selectedAgeRating === 'all' && 
+       selectedQuality === 'all' && 
+       selectedContentType === 'all' && (
         <div className="space-y-8 mt-8">
           {genres.slice(1).map((genre) => {
             const genreContent = genreSections[genre.id] || []
