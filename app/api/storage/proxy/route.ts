@@ -40,11 +40,22 @@ export async function GET(request: NextRequest) {
       const response = await storageService.getFile(decodedKey)
 
       if (!response.Body) {
+        console.error(`Storage proxy: Response body is null for key: ${decodedKey}`)
         return NextResponse.json(
-          { message: 'File not found' },
+          { message: 'File not found or empty', key: decodedKey },
           { status: 404 }
         )
       }
+
+      // Log response metadata for debugging
+      console.log('Storage proxy response:', {
+        key: decodedKey,
+        contentLength: response.ContentLength,
+        contentType: response.ContentType,
+        lastModified: response.LastModified,
+        bodyType: typeof response.Body,
+        bodyConstructor: response.Body?.constructor?.name,
+      })
 
       // Convert stream to buffer
       // AWS SDK v3 returns a Readable stream in Node.js
