@@ -699,24 +699,6 @@ export function VideoPlayer({
                 className="relative flex-shrink-0"
                 style={{ pointerEvents: 'auto', display: 'block', maxWidth: '100%', zIndex: 70 }}
               >
-                <CastControls
-                  mediaUrl={videoUrl}
-                  metadata={{
-                    title,
-                    description: description || '',
-                    posterUrl: posterUrl || '',
-                    duration: state.duration,
-                  }}
-                  onCastStart={() => {
-                    // Pause local playback when casting starts
-                    if (videoRef.current && state.playing) {
-                      togglePlay()
-                    }
-                  }}
-                  onCastStop={() => {
-                    // Resume local playback if needed
-                  }}
-                />
               </div>
             </div>
           </div>

@@ -291,24 +291,6 @@ export function EnhancedVideoPlayer({
               </div>
             )}
             <div onClick={(e) => e.stopPropagation()}>
-              <CastControls
-                mediaUrl={videoUrl}
-                metadata={{
-                  title,
-                  description,
-                  posterUrl,
-                  duration: state.duration,
-                }}
-                onCastStart={() => {
-                  // Pause local playback when casting starts
-                  if (videoRef.current && state.playing) {
-                    togglePlay()
-                  }
-                }}
-                onCastStop={() => {
-                  // Resume local playback if needed
-                }}
-              />
             </div>
           </div>
         </div>
