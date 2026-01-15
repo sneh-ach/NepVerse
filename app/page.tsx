@@ -257,6 +257,9 @@ export default function HomePage() {
           trending: data.trending.length,
           originals: data.originals.length,
           newReleases: data.newReleases.length,
+          drama: data.drama.length,
+          comedy: data.comedy.length,
+          thriller: data.thriller.length,
         })
         setContent(data)
       } catch (error) {
