@@ -52,8 +52,8 @@ const nextConfig = {
   // Production optimizations
   swcMinify: true,
   
-  // Output
-  output: 'standalone', // For Docker deployments
+  // Output - remove standalone for Vercel compatibility
+  // output: 'standalone', // Commented out for Vercel - causes Prisma engine issues
   
   // Experimental features
   experimental: {
