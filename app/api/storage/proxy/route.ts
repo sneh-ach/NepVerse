@@ -67,14 +67,8 @@ export async function GET(request: NextRequest) {
       try {
         // Method 1: Use AWS SDK's built-in transformToByteArray() (recommended)
         if (stream && typeof stream.transformToByteArray === 'function') {
-          try {
-            const bytes = await stream.transformToByteArray()
-            buffer = Buffer.from(bytes)
-          } catch (transformError: any) {
-            console.warn('transformToByteArray failed, falling back to manual stream:', transformError.message)
-            // Fall through to manual stream handling
-            throw transformError // Will be caught and handled by manual stream code
-          }
+          const bytes = await stream.transformToByteArray()
+          buffer = Buffer.from(bytes)
         }
         // Method 2: Node.js Readable stream (most common fallback)
         else if (stream && typeof stream.on === 'function') {
