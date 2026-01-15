@@ -58,8 +58,14 @@ const nextConfig = {
   
   // Ensure Prisma engine binaries are included in Vercel deployment
   outputFileTracingIncludes: {
-    '/api/**/*': ['./node_modules/.prisma/client/**/*'],
-    '/*': ['./node_modules/.prisma/client/**/*'],
+    '/api/**/*': [
+      './node_modules/.prisma/client/**/*',
+      './node_modules/@prisma/client/**/*',
+    ],
+    '/*': [
+      './node_modules/.prisma/client/**/*',
+      './node_modules/@prisma/client/**/*',
+    ],
   },
   
   // Experimental features
