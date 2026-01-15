@@ -101,7 +101,7 @@ export async function POST(
       liked = true
     }
 
-    return NextResponse.json({ ...comment, liked })
+    return NextResponse.json({ ...(comment as object), liked })
   } catch (error) {
     console.error('Like comment error:', error)
     return NextResponse.json(
