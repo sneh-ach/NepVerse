@@ -1,6 +1,8 @@
 // Rate limiter with Redis support for production
 // Falls back to in-memory cache if Redis is not configured
 
+import type { NextRequest } from 'next/server'
+
 interface RateLimitStore {
   [key: string]: {
     count: number
@@ -159,13 +161,19 @@ export const authRateLimiter = new RateLimiter(5, 60000) // 5 requests per minut
 export const emailRateLimiter = new RateLimiter(3, 3600000) // 3 emails per hour
 
 // Helper function to get client identifier
-export function getClientIdentifier(request: Request): string {
-  // Try to get IP from various headers (for proxies)
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-  const ip = forwarded?.split(',')[0] || realIp || 'unknown'
-  
-  return ip
+export function getClientIdentifier(request: Request | NextRequest): string {
+  try {
+    // Try to get IP from various headers (for proxies)
+    const headers = 'headers' in request ? request.headers : (request as any).headers || new Headers()
+    const forwarded = headers.get('x-forwarded-for')
+    const realIp = headers.get('x-real-ip')
+    const ip = forwarded?.split(',')[0]?.trim() || realIp || 'unknown'
+    
+    return ip
+  } catch (error) {
+    console.error('Error getting client identifier:', error)
+    return 'unknown'
+  }
 }
 
 

@@ -14,9 +14,16 @@ import { handleError, logError } from '@/lib/errorHandler'
  */
 export async function GET(request: NextRequest) {
   try {
-    // Rate limiting
-    const clientId = getClientIdentifier(request)
-    const rateLimit = await apiRateLimiter.check(clientId)
+    // Rate limiting - wrapped in try-catch to prevent crashes
+    let rateLimit = { allowed: true, remaining: 100, resetTime: Date.now() + 60000 }
+    try {
+      const clientId = getClientIdentifier(request)
+      rateLimit = await apiRateLimiter.check(clientId)
+    } catch (rateLimitError) {
+      console.error('Rate limiter error (allowing request):', rateLimitError)
+      // Allow request if rate limiter fails
+    }
+    
     if (!rateLimit.allowed) {
       return NextResponse.json(
         { message: 'Too many requests. Please try again later.', code: 'RATE_LIMIT_EXCEEDED' },
@@ -55,11 +62,16 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(series)
   } catch (error) {
-    logError(error, 'Get series')
+    console.error('Error in GET /api/content/series:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : undefined
+    console.error('Error details:', { errorMessage, errorStack })
+    
+    logError(error, 'Get series', undefined, '/api/content/series')
     const errorInfo = handleError(error)
     return NextResponse.json(
-      { message: errorInfo.message, code: errorInfo.code },
-      { status: errorInfo.statusCode }
+      { message: errorInfo.message || 'Failed to fetch series', code: errorInfo.code },
+      { status: errorInfo.statusCode || 500 }
     )
   }
 }
