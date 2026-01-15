@@ -8,6 +8,9 @@ import { handleError, logError } from '@/lib/errorHandler'
 // Force dynamic rendering - this route uses headers and Prisma
 export const dynamic = 'force-dynamic'
 
+// Increase max duration for file uploads (Vercel allows up to 300s for Pro plans)
+export const maxDuration = 300
+
 export async function POST(request: NextRequest) {
   let admin: { id: string; role: string; email: string | null } | null = null
   try {

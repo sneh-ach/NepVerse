@@ -59,15 +59,34 @@ export async function GET(request: NextRequest) {
     try {
       // Try with normalized key first, fallback to original if needed
       let response
+      let usedKey = keyToUse
+      
       try {
         response = await storageService.getFile(keyToUse)
       } catch (normalizedError: any) {
         // If normalized key fails, try original key (for backwards compatibility)
         if (normalizedKey !== decodedKey) {
-          console.warn(`Normalized key failed, trying original: ${decodedKey}`, normalizedError.message)
+          console.warn(`Normalized key failed, trying original: ${decodedKey}`, {
+            normalizedKey: keyToUse,
+            originalKey: decodedKey,
+            error: normalizedError.message,
+          })
           try {
             response = await storageService.getFile(decodedKey)
+            usedKey = decodedKey
           } catch (originalError: any) {
+            // If both fail, check if it's a character encoding issue
+            if (originalError.message?.includes('ByteString') || originalError.message?.includes('character')) {
+              console.error('Character encoding error - file may need to be re-uploaded with sanitized filename')
+              return NextResponse.json(
+                { 
+                  message: 'File contains invalid characters. Please re-upload the file with a different filename.',
+                  error: 'Invalid filename encoding',
+                  originalKey: decodedKey,
+                },
+                { status: 400 }
+              )
+            }
             throw originalError // Throw the original error if both fail
           }
         } else {

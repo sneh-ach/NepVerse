@@ -8,6 +8,9 @@ import { logger } from '@/lib/logger'
 // Force dynamic rendering - this route uses headers and Prisma
 export const dynamic = 'force-dynamic'
 
+// Increase max duration for file uploads (Vercel allows up to 300s for Pro plans)
+export const maxDuration = 300
+
 /**
  * GET /api/admin/content/movies/[id]
  * Get a single movie (admin only)
@@ -59,13 +62,43 @@ export async function PATCH(
     // Check if request is FormData (file upload) or JSON
     const contentType = request.headers.get('content-type') || ''
     const isFormData = contentType.includes('multipart/form-data')
+    
+    // Check content-length header to warn about large payloads
+    const contentLength = request.headers.get('content-length')
+    const maxBodySize = 4.5 * 1024 * 1024 // 4.5MB Vercel limit
+    if (contentLength && parseInt(contentLength) > maxBodySize) {
+      return NextResponse.json(
+        { 
+          message: 'Request body too large. Maximum size is 4.5MB. Please upload files separately or use smaller files.',
+          maxSize: '4.5MB',
+          yourSize: `${(parseInt(contentLength) / 1024 / 1024).toFixed(2)}MB`
+        },
+        { status: 413 }
+      )
+    }
 
     let updateData: any = {}
     let genres: string[] = []
 
     if (isFormData) {
       // Handle FormData (with files)
-      const formData = await request.formData()
+      let formData: FormData
+      try {
+        formData = await request.formData()
+      } catch (formDataError: any) {
+        // Handle 413 Payload Too Large error
+        if (formDataError.message?.includes('413') || formDataError.message?.includes('too large')) {
+          return NextResponse.json(
+            { 
+              message: 'Request body too large. Maximum size is 4.5MB. Please upload files separately or compress images before uploading.',
+              maxSize: '4.5MB',
+              tip: 'Try uploading poster and backdrop separately, or use smaller file sizes'
+            },
+            { status: 413 }
+          )
+        }
+        throw formDataError
+      }
       
       // Extract text fields
       const title = formData.get('title') as string
@@ -114,6 +147,35 @@ export async function PATCH(
       const backdropFile = formData.get('backdrop') as File | null
       const videoFile = formData.get('video') as File | null
       const trailerFile = formData.get('trailer') as File | null
+
+      // Validate file sizes before processing
+      const MAX_IMAGE_SIZE = 10 * 1024 * 1024 // 10MB for images
+      const MAX_VIDEO_SIZE = 500 * 1024 * 1024 // 500MB for videos
+      
+      if (posterFile && posterFile.size > MAX_IMAGE_SIZE) {
+        return NextResponse.json(
+          { message: `Poster file is too large. Maximum size is ${MAX_IMAGE_SIZE / 1024 / 1024}MB.` },
+          { status: 400 }
+        )
+      }
+      if (backdropFile && backdropFile.size > MAX_IMAGE_SIZE) {
+        return NextResponse.json(
+          { message: `Backdrop file is too large. Maximum size is ${MAX_IMAGE_SIZE / 1024 / 1024}MB.` },
+          { status: 400 }
+        )
+      }
+      if (videoFile && videoFile.size > MAX_VIDEO_SIZE) {
+        return NextResponse.json(
+          { message: `Video file is too large. Maximum size is ${MAX_VIDEO_SIZE / 1024 / 1024}MB.` },
+          { status: 400 }
+        )
+      }
+      if (trailerFile && trailerFile.size > MAX_VIDEO_SIZE) {
+        return NextResponse.json(
+          { message: `Trailer file is too large. Maximum size is ${MAX_VIDEO_SIZE / 1024 / 1024}MB.` },
+          { status: 400 }
+        )
+      }
 
       if (storageService.isConfigured()) {
         if (posterFile && posterFile.size > 0) {
