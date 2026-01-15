@@ -56,7 +56,7 @@ function BrowsePageContent() {
     { value: '18+', label: '18+' },
   ]
   
-  // Quality options
+  // Quality options - must match upload form values
   const qualityOptions = [
     { value: 'all', label: 'All Quality' },
     { value: '4K', label: '4K Ultra HD' },

@@ -455,6 +455,18 @@ function ContentUploadForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Validate required fields
+    if (selectedGenres.length === 0) {
+      toast.error('Please select at least one genre')
+      return
+    }
+    
+    if (!formData.quality) {
+      toast.error('Please select a quality')
+      return
+    }
+    
     setIsUploading(true)
     setUploadProgress(0)
 
@@ -470,10 +482,8 @@ function ContentUploadForm({
       
       formDataToSend.append('contentType', contentType)
       
-      // Add genres as JSON array
-      if (selectedGenres.length > 0) {
-        formDataToSend.append('genres', JSON.stringify(selectedGenres))
-      }
+      // Add genres as JSON array (required)
+      formDataToSend.append('genres', JSON.stringify(selectedGenres))
       
       // Add files
       if (files.poster) formDataToSend.append('poster', files.poster)
@@ -669,11 +679,12 @@ function ContentUploadForm({
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-white font-semibold mb-2">Quality</label>
+              <label className="block text-white font-semibold mb-2">Quality *</label>
               <select
                 value={formData.quality}
                 onChange={(e) => setFormData({ ...formData, quality: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary"
+                required
               >
                 <option value="">Select Quality</option>
                 <option value="480p">480p SD</option>
@@ -684,11 +695,12 @@ function ContentUploadForm({
               <p className="text-xs text-gray-500 mt-1">Required for quality filtering</p>
             </div>
             <div>
-              <label className="block text-white font-semibold mb-2">Age Rating</label>
+              <label className="block text-white font-semibold mb-2">Age Rating *</label>
               <select
                 value={formData.ageRating}
                 onChange={(e) => setFormData({ ...formData, ageRating: e.target.value })}
                 className="w-full px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary"
+                required
               >
                 <option value="G">G - General</option>
                 <option value="PG">PG - Parental Guidance</option>
@@ -772,7 +784,10 @@ function ContentUploadForm({
               })
             )}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Select one or more genres (required for filtering)</p>
+          <p className="text-xs text-gray-500 mt-1">Select one or more genres * (required for filtering and discovery)</p>
+          {selectedGenres.length === 0 && (
+            <p className="text-xs text-yellow-500 mt-1">⚠️ At least one genre is required</p>
+          )}
         </div>
 
         {/* File Uploads with Size Display */}
