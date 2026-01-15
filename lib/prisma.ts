@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+
 // Force include Prisma engine by importing these modules
 import './prisma-import'
 import './force-prisma-include'
@@ -28,6 +30,13 @@ try {
       stack: error instanceof Error ? error.stack : undefined,
       nodeVersion: process.version,
       platform: process.platform,
+      // Log Prisma engine search paths
+      prismaPaths: [
+        process.cwd() + '/node_modules/.prisma/client',
+        process.cwd() + '/node_modules/@prisma/client',
+        __dirname + '/../node_modules/.prisma/client',
+        __dirname + '/../node_modules/@prisma/client',
+      ],
     })
   }
   throw error

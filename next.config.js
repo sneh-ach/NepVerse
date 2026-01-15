@@ -56,16 +56,19 @@ const nextConfig = {
   // output: 'standalone', // Commented out for Vercel - causes Prisma engine issues
   
   // Ensure Prisma engine binaries are included in Vercel deployment
-  // Note: This may show a warning in Next.js 14.2 but still functions correctly
-  // The warning is a false positive - the feature works as intended
+  // This is critical for Prisma to work on Vercel serverless functions
   outputFileTracingIncludes: {
     '/api/**/*': [
       './node_modules/.prisma/client/**/*',
       './node_modules/@prisma/client/**/*',
+      './node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node',
+      './node_modules/.prisma/client/query_engine-rhel-openssl-3.0.x',
     ],
     '/*': [
       './node_modules/.prisma/client/**/*',
       './node_modules/@prisma/client/**/*',
+      './node_modules/.prisma/client/libquery_engine-rhel-openssl-3.0.x.so.node',
+      './node_modules/.prisma/client/query_engine-rhel-openssl-3.0.x',
     ],
   },
   
