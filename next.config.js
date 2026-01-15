@@ -55,6 +55,12 @@ const nextConfig = {
   // Output - remove standalone for Vercel compatibility
   // output: 'standalone', // Commented out for Vercel - causes Prisma engine issues
   
+  // Ensure Prisma engine binaries are included in Vercel deployment
+  outputFileTracingIncludes: {
+    '/api/**/*': ['./node_modules/.prisma/client/**/*'],
+    '/*': ['./node_modules/.prisma/client/**/*'],
+  },
+  
   // Experimental features
   experimental: {
     // Optimize server components
