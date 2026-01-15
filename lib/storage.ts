@@ -4,6 +4,31 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 
+/**
+ * Sanitize filename to remove special characters that can cause issues with S3/R2
+ * Replaces non-ASCII characters and special characters with safe alternatives
+ */
+function sanitizeFileName(fileName: string): string {
+  // Remove or replace problematic Unicode characters
+  // Replace non-breaking spaces and other invisible characters with regular spaces
+  let sanitized = fileName
+    .replace(/[\u200B-\u200D\uFEFF\u00A0]/g, ' ') // Replace non-breaking spaces and zero-width characters
+    .replace(/[\u2000-\u200F]/g, ' ') // Replace various space characters
+    .replace(/[^\x20-\x7E\u00A0-\uFFFF]/g, '') // Remove control characters but keep printable Unicode
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .trim()
+  
+  // Replace remaining problematic characters with underscores
+  sanitized = sanitized.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_')
+  
+  // Ensure the filename is not empty
+  if (!sanitized || sanitized.trim().length === 0) {
+    sanitized = 'file'
+  }
+  
+  return sanitized
+}
+
 interface UploadOptions {
   file: Buffer | Uint8Array
   fileName: string
@@ -89,9 +114,12 @@ class StorageService {
       throw new Error('Storage not configured. Please set STORAGE_PROVIDER and credentials.')
     }
 
+    // Sanitize the filename to remove special characters
+    const sanitizedFileName = sanitizeFileName(options.fileName)
+    
     const key = options.folder 
-      ? `${options.folder}/${options.fileName}`
-      : options.fileName
+      ? `${options.folder}/${sanitizedFileName}`
+      : sanitizedFileName
 
     const command = new PutObjectCommand({
       Bucket: this.config.bucket,

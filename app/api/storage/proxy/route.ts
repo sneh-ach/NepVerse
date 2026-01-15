@@ -24,7 +24,28 @@ export async function GET(request: NextRequest) {
     }
 
     // Decode the key in case it's URL encoded
-    const decodedKey = decodeURIComponent(key)
+    let decodedKey: string
+    try {
+      decodedKey = decodeURIComponent(key)
+    } catch (decodeError: any) {
+      console.error('Failed to decode key:', { key, error: decodeError.message })
+      return NextResponse.json(
+        { message: 'Invalid key encoding', key },
+        { status: 400 }
+      )
+    }
+
+    // Normalize the key to handle any special Unicode characters that might cause issues
+    // This is important for files that were uploaded before sanitization was added
+    // Replace non-breaking spaces and other problematic Unicode characters
+    const normalizedKey = decodedKey
+      .replace(/[\u200B-\u200D\uFEFF]/g, '') // Remove zero-width characters
+      .replace(/[\u00A0\u2000-\u200F]/g, ' ') // Replace non-breaking spaces and various space characters with regular space
+      .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+      .trim()
+    
+    // Use normalized key for the actual request
+    const keyToUse = normalizedKey
 
     // Check if storage is configured
     if (!storageService.isConfigured()) {
@@ -36,8 +57,23 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-      // Use the public method to get the file
-      const response = await storageService.getFile(decodedKey)
+      // Try with normalized key first, fallback to original if needed
+      let response
+      try {
+        response = await storageService.getFile(keyToUse)
+      } catch (normalizedError: any) {
+        // If normalized key fails, try original key (for backwards compatibility)
+        if (normalizedKey !== decodedKey) {
+          console.warn(`Normalized key failed, trying original: ${decodedKey}`, normalizedError.message)
+          try {
+            response = await storageService.getFile(decodedKey)
+          } catch (originalError: any) {
+            throw originalError // Throw the original error if both fail
+          }
+        } else {
+          throw normalizedError
+        }
+      }
 
       if (!response.Body) {
         console.error(`Storage proxy: Response body is null for key: ${decodedKey}`)
@@ -49,7 +85,8 @@ export async function GET(request: NextRequest) {
 
       // Log response metadata for debugging
       console.log('Storage proxy response:', {
-        key: decodedKey,
+        originalKey: decodedKey,
+        normalizedKey: keyToUse,
         contentLength: response.ContentLength,
         contentType: response.ContentType,
         lastModified: response.LastModified,
@@ -183,7 +220,8 @@ export async function GET(request: NextRequest) {
       } catch (streamError: any) {
         console.error('Stream conversion error:', {
           message: streamError.message,
-          key: decodedKey,
+          originalKey: decodedKey,
+          normalizedKey: keyToUse,
           streamType: typeof stream,
           streamConstructor: stream?.constructor?.name,
           hasOn: typeof stream?.on,
@@ -193,7 +231,7 @@ export async function GET(request: NextRequest) {
           stack: streamError.stack,
         })
         return NextResponse.json(
-          { message: 'Failed to read file stream', error: streamError.message, key: decodedKey },
+          { message: 'Failed to read file stream', error: streamError.message, originalKey: decodedKey, normalizedKey: keyToUse },
           { status: 500 }
         )
       }
@@ -201,7 +239,7 @@ export async function GET(request: NextRequest) {
       // Determine content type from file extension if not provided
       let contentType = response.ContentType || 'application/octet-stream'
       if (!response.ContentType) {
-        const ext = decodedKey.split('.').pop()?.toLowerCase()
+        const ext = keyToUse.split('.').pop()?.toLowerCase()
         const contentTypes: Record<string, string> = {
           jpg: 'image/jpeg',
           jpeg: 'image/jpeg',
@@ -224,15 +262,15 @@ export async function GET(request: NextRequest) {
         headers: {
           'Content-Type': contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
-          'Content-Disposition': `inline; filename="${decodedKey.split('/').pop()}"`,
+          'Content-Disposition': `inline; filename="${keyToUse.split('/').pop()}"`,
         },
       })
     } catch (error: any) {
       // Handle S3/R2 errors
       if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
-        console.error(`Storage proxy: File not found - key: ${decodedKey}`)
+        console.error(`Storage proxy: File not found - originalKey: ${decodedKey}, normalizedKey: ${keyToUse}`)
         return NextResponse.json(
-          { message: 'File not found', key: decodedKey },
+          { message: 'File not found', originalKey: decodedKey, normalizedKey: keyToUse },
           { status: 404 }
         )
       }
@@ -240,12 +278,13 @@ export async function GET(request: NextRequest) {
       console.error('Storage proxy error:', {
         message: error.message,
         name: error.name,
-        key: decodedKey,
+        originalKey: decodedKey,
+        normalizedKey: keyToUse,
         stack: error.stack,
         metadata: error.$metadata,
       })
       return NextResponse.json(
-        { message: 'Failed to retrieve file', error: error.message, key: decodedKey },
+        { message: 'Failed to retrieve file', error: error.message, originalKey: decodedKey, normalizedKey: keyToUse },
         { status: 500 }
       )
     }
