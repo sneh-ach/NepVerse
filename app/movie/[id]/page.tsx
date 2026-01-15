@@ -138,70 +138,96 @@ export default async function MovieDetailPage({ params }: { params: { id: string
         />
 
         <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-              {movie.title}
-            </h1>
-            {movie.titleNepali && (
-              <h2 className="text-2xl md:text-3xl text-gray-300 mb-4">{movie.titleNepali}</h2>
-            )}
-
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-              {movie.rating && (
-                <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
-                  <Star size={16} className="fill-white" />
-                  <span>{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
-                </span>
-              )}
-              <span className="text-white">{new Date(movie.releaseDate).getFullYear()}</span>
-              <span className="text-white">{formatDuration(movie.duration * 60)}</span>
-              {(movie as any).quality && (
-                <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
-                  {(movie as any).quality}
-                </span>
-              )}
-              <span className="px-3 py-1 bg-gray-700 rounded-md text-white">{movie.ageRating}</span>
-              {genres.map((genre: any) => (
-                <span key={genre.name} className="text-gray-300">
-                  {genre.name}
-                </span>
-              ))}
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            {/* Poster - Left Side */}
+            <div className="lg:col-span-3 flex justify-center lg:justify-start">
+              <div className="relative w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
+                {(movie.posterUrl?.includes('r2.cloudflarestorage.com') || movie.posterUrl?.includes('/api/storage/proxy')) ? (
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="w-full h-full object-cover"
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  <Image
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
+                    priority
+                  />
+                )}
+              </div>
             </div>
 
-            {/* Cast, Mature Themes, Tags */}
-            {(movie as any).cast && (
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm">
-                  <span className="font-semibold text-white">Cast:</span> {(movie as any).cast}
-                </p>
-              </div>
-            )}
-            {(movie as any).matureThemes && (
-              <div className="mb-4">
-                <p className="text-gray-400 text-sm">{(movie as any).matureThemes}</p>
-              </div>
-            )}
-            {(movie as any).tags && (
-              <div className="mb-4">
-                <p className="text-gray-300 text-sm">
-                  <span className="font-semibold text-white">This Movie Is:</span> {(movie as any).tags}
-                </p>
-              </div>
-            )}
+            {/* Content - Right Side */}
+            <div className="lg:col-span-9">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+                {movie.title}
+              </h1>
+              {movie.titleNepali && (
+                <h2 className="text-2xl md:text-3xl text-gray-300 mb-4 drop-shadow-lg">{movie.titleNepali}</h2>
+              )}
 
-            <MovieDetailClient movie={{ 
-              id: movie.id, 
-              title: movie.title, 
-              trailerUrl: (movie as any).trailerUrl,
-              rating: movie.rating ?? undefined,
-              year: new Date(movie.releaseDate).getFullYear(),
-              description: movie.description
-            }} />
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                {movie.rating && (
+                  <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
+                    <Star size={16} className="fill-white" />
+                    <span>{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
+                  </span>
+                )}
+                <span className="text-white drop-shadow-lg">{new Date(movie.releaseDate).getFullYear()}</span>
+                <span className="text-white drop-shadow-lg">{formatDuration(movie.duration * 60)}</span>
+                {(movie as any).quality && (
+                  <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
+                    {(movie as any).quality}
+                  </span>
+                )}
+                <span className="px-3 py-1 bg-gray-700 rounded-md text-white">{movie.ageRating}</span>
+                {genres.map((genre: any) => (
+                  <span key={genre.name} className="text-gray-300 drop-shadow-lg">
+                    {genre.name}
+                  </span>
+                ))}
+              </div>
 
-            <p className="text-lg text-gray-200 mb-4">{movie.description}</p>
-            {movie.descriptionNepali && (
-              <p className="text-lg text-gray-300">{movie.descriptionNepali}</p>
-            )}
+              {/* Cast, Mature Themes, Tags */}
+              {(movie as any).cast && (
+                <div className="mb-4">
+                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                    <span className="font-semibold text-white">Cast:</span> {(movie as any).cast}
+                  </p>
+                </div>
+              )}
+              {(movie as any).matureThemes && (
+                <div className="mb-4">
+                  <p className="text-gray-400 text-sm drop-shadow-lg">{(movie as any).matureThemes}</p>
+                </div>
+              )}
+              {(movie as any).tags && (
+                <div className="mb-4">
+                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                    <span className="font-semibold text-white">This Movie Is:</span> {(movie as any).tags}
+                  </p>
+                </div>
+              )}
+
+              <MovieDetailClient movie={{ 
+                id: movie.id, 
+                title: movie.title, 
+                trailerUrl: (movie as any).trailerUrl,
+                rating: movie.rating ?? undefined,
+                year: new Date(movie.releaseDate).getFullYear(),
+                description: movie.description
+              }} />
+
+              <p className="text-lg text-gray-200 mb-4 drop-shadow-lg">{movie.description}</p>
+              {movie.descriptionNepali && (
+                <p className="text-lg text-gray-300 drop-shadow-lg">{movie.descriptionNepali}</p>
+              )}
+            </div>
           </div>
         </div>
       </div>
