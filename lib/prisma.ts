@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+// Force include Prisma engine by importing this module
+import './prisma-import'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined

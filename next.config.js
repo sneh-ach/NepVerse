@@ -77,9 +77,19 @@ const nextConfig = {
           (external) => typeof external !== 'string' || !external.includes('@prisma')
         )
       }
+      
+      // Ensure Prisma engine files are not excluded
+      config.resolve = config.resolve || {}
+      config.resolve.alias = {
+        ...config.resolve.alias,
+      }
     }
     return config
   },
+  
+  // For Next.js 14, we need to ensure Prisma files are traced
+  // This is a workaround since outputFileTracingIncludes isn't available
+  serverComponentsExternalPackages: [],
 }
 
 module.exports = nextConfig
