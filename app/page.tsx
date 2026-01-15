@@ -73,14 +73,10 @@ async function getFeaturedContent() {
       }))
 
     // Originals (featured series, or all series if no featured)
-    const originals = series
-      .filter((s: any) => s.isFeatured)
+    const featuredSeries = series.filter((s: any) => s.isFeatured)
+    const seriesToUse = featuredSeries.length > 0 ? featuredSeries : series
+    const originals = seriesToUse
       .slice(0, 10)
-    
-    // If no featured series, use all series
-    if (originals.length === 0 && series.length > 0) {
-      originals.push(...series.slice(0, 10))
-    }
       .map((item: any) => ({
         id: item.id,
         title: item.title,
