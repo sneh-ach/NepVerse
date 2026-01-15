@@ -62,8 +62,9 @@ export async function GET(request: NextRequest) {
  * @returns Created profile object
  */
 export async function POST(request: NextRequest) {
+  let userId: string | null = null
   try {
-    const userId = await getUserId(request)
+    userId = await getUserId(request)
     if (!userId) {
       return NextResponse.json(
         { message: 'Not authenticated' },
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(profile, { status: 201 })
   } catch (error) {
     const { logError, handleError } = await import('@/lib/errorHandler')
-    logError(error, 'Create profile', userId)
+    logError(error, 'Create profile', userId || undefined)
     const errorInfo = handleError(error)
     return NextResponse.json(
       { message: errorInfo.message, code: errorInfo.code },
