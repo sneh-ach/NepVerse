@@ -5,6 +5,9 @@ import { validate, loginSchema } from '@/lib/validation'
 import { apiRateLimiter, authRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/auth/login
  * Authenticate user and return JWT token

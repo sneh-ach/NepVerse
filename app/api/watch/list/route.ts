@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { verifyToken, extractTokenFromHeader } from '@/lib/auth'
 import { getProfileId } from '@/lib/getProfileId'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 async function getUserId(request: NextRequest): Promise<string | null> {
   const authHeader = request.headers.get('authorization')
   const token = extractTokenFromHeader(authHeader) || request.cookies.get('auth-token')?.value || request.cookies.get('token')?.value

@@ -5,6 +5,9 @@ import { hashToken, verifyToken as verifyTokenHash, isStrongPassword } from '@/l
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { prisma } from '@/lib/prisma'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const clientId = getClientIdentifier(request)

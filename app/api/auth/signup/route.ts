@@ -6,6 +6,9 @@ import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { generateToken } from '@/lib/auth'
 import { isStrongPassword } from '@/lib/security'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 /**
  * POST /api/auth/signup
  * Register a new user account

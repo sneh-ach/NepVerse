@@ -4,6 +4,9 @@ import { emailService } from '@/lib/email'
 import { validate, passwordResetSchema } from '@/lib/validation'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting - wrapped in try-catch to prevent crashes
