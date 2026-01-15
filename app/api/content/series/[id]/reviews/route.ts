@@ -167,7 +167,7 @@ export async function POST(
     })
   } catch (error: any) {
     const { logError, handleError } = await import('@/lib/errorHandler')
-    logError(error, 'Submit series review', userId, `/api/content/series/${params.id}/reviews`)
+    logError(error, 'Submit series review', userId || undefined, `/api/content/series/${params.id}/reviews`)
     
     // Provide more specific error messages
     if (error.code === 'P2003') {
