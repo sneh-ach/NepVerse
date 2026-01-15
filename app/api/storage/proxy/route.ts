@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       
       let buffer: Buffer
       
-      // Handle Readable stream (Node.js)
+      // Handle Readable stream (Node.js) - AWS SDK v3 returns Readable
       if (stream && typeof stream.on === 'function') {
         buffer = await new Promise<Buffer>((resolve, reject) => {
           const chunks: Buffer[] = []
@@ -77,12 +77,38 @@ export async function GET(request: NextRequest) {
         buffer = Buffer.from(stream)
       } else {
         // Fallback: try to convert to buffer
-        buffer = Buffer.from(stream as any)
+        try {
+          buffer = Buffer.from(stream as any)
+        } catch (e) {
+          return NextResponse.json(
+            { message: 'Failed to read file stream' },
+            { status: 500 }
+          )
+        }
       }
       
-      return new NextResponse(buffer as any, {
+      // Determine content type from file extension if not provided
+      let contentType = response.ContentType || 'application/octet-stream'
+      if (!response.ContentType) {
+        const ext = decodedKey.split('.').pop()?.toLowerCase()
+        const contentTypes: Record<string, string> = {
+          jpg: 'image/jpeg',
+          jpeg: 'image/jpeg',
+          png: 'image/png',
+          gif: 'image/gif',
+          webp: 'image/webp',
+          svg: 'image/svg+xml',
+          mp4: 'video/mp4',
+          webm: 'video/webm',
+        }
+        if (ext && contentTypes[ext]) {
+          contentType = contentTypes[ext]
+        }
+      }
+      
+      return new NextResponse(buffer, {
         headers: {
-          'Content-Type': response.ContentType || 'application/octet-stream',
+          'Content-Type': contentType,
           'Cache-Control': 'public, max-age=31536000, immutable',
           'Content-Disposition': `inline; filename="${decodedKey.split('/').pop()}"`,
         },
