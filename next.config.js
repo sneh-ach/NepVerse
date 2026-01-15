@@ -1,0 +1,81 @@
+/** @type {import('next').NextConfig} */
+const isProduction = process.env.NODE_ENV === 'production'
+
+const nextConfig = {
+  // ESLint - don't fail build on linting errors (warnings only)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // TypeScript - don't fail build on type errors (warnings only)
+  typescript: {
+    ignoreBuildErrors: false, // Keep type checking, but allow lint warnings
+  },
+  // Image optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'nepverse-storage.s3.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.r2.cloudflarestorage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fbdee46a9b838de85e14cf5a4ef887b8.r2.cloudflarestorage.com',
+      },
+      // Only allow localhost in development
+      ...(isProduction ? [] : [{
+        protocol: 'http',
+        hostname: 'localhost',
+      }]),
+    ],
+    // Optimize images in production
+    minimumCacheTTL: isProduction ? 60 : 0,
+  },
+  
+  // Compression
+  compress: true,
+  
+  // Security
+  poweredByHeader: false,
+  
+  // React
+  reactStrictMode: true,
+  
+  // Production optimizations
+  swcMinify: true,
+  
+  // Output
+  output: 'standalone', // For Docker deployments
+  
+  // Experimental features
+  experimental: {
+    // Optimize server components
+    optimizePackageImports: ['lucide-react', '@prisma/client'],
+  },
+  
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Optimize client bundle
+      config.optimization = {
+        ...config.optimization,
+        moduleIds: 'deterministic',
+      }
+    }
+    return config
+  },
+}
+
+module.exports = nextConfig
+
+
+
+
