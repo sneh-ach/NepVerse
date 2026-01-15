@@ -31,7 +31,7 @@ export const authService = {
         sessionStorage.setItem('auth-checked', 'true')
       }
       
-      // Try API once
+      // Try API once (silently - 401 is expected when not logged in)
       try {
         const response = await fetch('/api/auth/me', {
           credentials: 'include',
@@ -50,6 +50,12 @@ export const authService = {
           }
         }
         
+        // 401 (Unauthorized) is expected when not logged in - not an error
+        // Only log actual errors (500, network failures, etc.)
+        if (response.status !== 401 && response.status !== 404) {
+          console.warn('Unexpected auth check response:', response.status)
+        }
+        
         // 401 or no user - clear check flag and return null
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('auth-checked')
@@ -57,6 +63,12 @@ export const authService = {
         return null
       } catch (error) {
         // Network error - clear check flag and return null
+        // Only log if it's not a network error (which is expected in some cases)
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          // Network error - expected in some cases, don't log
+        } else {
+          console.warn('Auth check error:', error)
+        }
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('auth-checked')
         }
