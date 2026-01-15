@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+
+// Force dynamic rendering - this route uses headers
+export const dynamic = 'force-dynamic'
 import { verifyToken, extractTokenFromHeader } from '@/lib/auth'
 
 async function getUserId(request: NextRequest): Promise<string | null> {
