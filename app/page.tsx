@@ -25,7 +25,6 @@ async function getFeaturedContent() {
     console.log('Fetched movies:', movies.length, 'series:', series.length)
 
     // Get all published content for other sections
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
     const [allMoviesRes, allSeriesRes] = await Promise.all([
       fetch(`${baseUrl}/api/content/movies?limit=50`),
       fetch(`${baseUrl}/api/content/series?limit=50`),
@@ -33,6 +32,8 @@ async function getFeaturedContent() {
 
     const allMovies = allMoviesRes.ok ? await allMoviesRes.json() : []
     const allSeries = allSeriesRes.ok ? await allSeriesRes.json() : []
+    
+    console.log('All movies:', allMovies.length, 'All series:', allSeries.length)
 
     // Featured content (first featured movie or series)
     const featured = movies.find((m: any) => m.isFeatured) || 
@@ -40,6 +41,8 @@ async function getFeaturedContent() {
                     movies[0] || 
                     series[0] || 
                     null
+    
+    console.log('Featured content:', featured ? featured.title : 'none')
 
     // Trending (most viewed)
     const trending = [...allMovies, ...allSeries]
