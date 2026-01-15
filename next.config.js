@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-const { PrismaPlugin } = require('@prisma/nextjs-monorepo-workaround-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 
 const nextConfig = {
@@ -83,8 +82,13 @@ const nextConfig = {
         moduleIds: 'deterministic',
       }
     } else {
-      // Server-side: Add Prisma plugin to ensure engine binaries are included
-      config.plugins = [...(config.plugins || []), new PrismaPlugin()]
+      // Server-side: Ensure Prisma engine is included (not externalized)
+      config.externals = config.externals || []
+      if (Array.isArray(config.externals)) {
+        config.externals = config.externals.filter(
+          (external) => typeof external !== 'string' || !external.includes('@prisma')
+        )
+      }
     }
     return config
   },
