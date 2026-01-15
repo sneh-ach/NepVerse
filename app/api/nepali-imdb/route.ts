@@ -121,7 +121,7 @@ export async function GET(request: NextRequest) {
           return {
             id: imdbMovie.imdb_id || appMovie?.id || `imdb-${imdbMovie.imdb_id}`,
             title: imdbMovie.title,
-            year: imdbMovie.year || appMovie?.year,
+            year: imdbMovie.year || (appMovie?.releaseDate ? new Date(appMovie.releaseDate).getFullYear() : undefined),
             rating: imdbMovie.rating || appMovie?.rating,
             runtime: imdbMovie.runtime || appMovie?.duration,
             genres: imdbMovie.genres || appMovie?.genres || [],
