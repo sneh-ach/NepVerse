@@ -13,27 +13,48 @@ async function getFeaturedContent() {
     // Use relative URLs for API calls (works in both dev and production)
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
     
+    console.log('Fetching content from:', baseUrl)
+    
     // Fetch real data from database
     const [moviesRes, seriesRes] = await Promise.all([
-      fetch(`${baseUrl}/api/content/movies?featured=true&limit=10`),
-      fetch(`${baseUrl}/api/content/series?featured=true&limit=10`),
+      fetch(`${baseUrl}/api/content/movies?featured=true&limit=10`).catch(err => {
+        console.error('Error fetching featured movies:', err)
+        return { ok: false, json: async () => [] }
+      }),
+      fetch(`${baseUrl}/api/content/series?featured=true&limit=10`).catch(err => {
+        console.error('Error fetching featured series:', err)
+        return { ok: false, json: async () => [] }
+      }),
     ])
 
     const movies = moviesRes.ok ? await moviesRes.json() : []
     const series = seriesRes.ok ? await seriesRes.json() : []
     
-    console.log('Fetched movies:', movies.length, 'series:', series.length)
+    console.log('Fetched featured movies:', movies.length, 'featured series:', series.length)
+    if (movies.length > 0) console.log('Sample movie:', movies[0]?.title)
+    if (series.length > 0) console.log('Sample series:', series[0]?.title)
 
     // Get all published content for other sections
     const [allMoviesRes, allSeriesRes] = await Promise.all([
-      fetch(`${baseUrl}/api/content/movies?limit=50`),
-      fetch(`${baseUrl}/api/content/series?limit=50`),
+      fetch(`${baseUrl}/api/content/movies?limit=50`).catch(err => {
+        console.error('Error fetching all movies:', err)
+        return { ok: false, json: async () => [] }
+      }),
+      fetch(`${baseUrl}/api/content/series?limit=50`).catch(err => {
+        console.error('Error fetching all series:', err)
+        return { ok: false, json: async () => [] }
+      }),
     ])
 
     const allMovies = allMoviesRes.ok ? await allMoviesRes.json() : []
     const allSeries = allSeriesRes.ok ? await allSeriesRes.json() : []
     
-    console.log('All movies:', allMovies.length, 'All series:', allSeries.length)
+    console.log('All published movies:', allMovies.length, 'All published series:', allSeries.length)
+    
+    // Log if no content is published
+    if (allMovies.length === 0 && allSeries.length === 0) {
+      console.warn('⚠️ No published content found in database. Make sure content is marked as "Published" in the admin panel.')
+    }
 
     // Featured content (first featured movie or series, or any published content)
     const featured = movies.find((m: any) => m.isFeatured) || 
@@ -221,6 +242,7 @@ async function getFeaturedContent() {
     }
   } catch (error) {
     console.error('Error fetching content:', error)
+    console.error('Error details:', error instanceof Error ? error.message : String(error))
     // Return empty data on error
     return {
       featured: null,
