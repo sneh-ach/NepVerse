@@ -10,19 +10,25 @@ import { watchHistoryService } from '@/lib/clientStorage'
 
 async function getFeaturedContent() {
   try {
+    // Use relative URLs for API calls (works in both dev and production)
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+    
     // Fetch real data from database
     const [moviesRes, seriesRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/content/movies?featured=true&limit=10`),
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/content/series?featured=true&limit=10`),
+      fetch(`${baseUrl}/api/content/movies?featured=true&limit=10`),
+      fetch(`${baseUrl}/api/content/series?featured=true&limit=10`),
     ])
 
     const movies = moviesRes.ok ? await moviesRes.json() : []
     const series = seriesRes.ok ? await seriesRes.json() : []
+    
+    console.log('Fetched movies:', movies.length, 'series:', series.length)
 
     // Get all published content for other sections
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
     const [allMoviesRes, allSeriesRes] = await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/content/movies?limit=50`),
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/content/series?limit=50`),
+      fetch(`${baseUrl}/api/content/movies?limit=50`),
+      fetch(`${baseUrl}/api/content/series?limit=50`),
     ])
 
     const allMovies = allMoviesRes.ok ? await allMoviesRes.json() : []
@@ -243,9 +249,25 @@ export default function HomePage() {
       try {
         setContentLoading(true)
         const data = await getFeaturedContent()
+        console.log('Loaded content:', {
+          featured: !!data.featured,
+          trending: data.trending.length,
+          originals: data.originals.length,
+          newReleases: data.newReleases.length,
+        })
         setContent(data)
       } catch (error) {
         console.error('Failed to load content:', error)
+        // Set empty content on error
+        setContent({
+          featured: null,
+          trending: [],
+          originals: [],
+          newReleases: [],
+          drama: [],
+          comedy: [],
+          thriller: [],
+        })
       } finally {
         setContentLoading(false)
       }
@@ -415,46 +437,88 @@ export default function HomePage() {
           alwaysShow={true}
           emptyMessage="Start watching movies or series to see your progress here."
         />
-        <ContentCarousel 
-          title="Popular Nepali Movies" 
-          items={content.trending} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Nepali Originals" 
-          items={content.originals} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="New Nepali Releases" 
-          items={content.newReleases} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Trending Now" 
-          items={content.trending.slice(0, 10)} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Nepali Drama & Romance" 
-          items={content.drama} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Nepali Comedy" 
-          items={content.comedy} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Nepali Thriller & Suspense" 
-          items={content.thriller} 
-          showLoading={false}
-        />
-        <ContentCarousel 
-          title="Recently Added" 
-          items={content.newReleases.slice(0, 10)} 
-          showLoading={false}
-        />
+        {content.trending.length > 0 && (
+          <ContentCarousel 
+            title="Popular Nepali Movies" 
+            items={content.trending} 
+            showLoading={false}
+          />
+        )}
+        {content.originals.length > 0 && (
+          <ContentCarousel 
+            title="Nepali Originals" 
+            items={content.originals} 
+            showLoading={false}
+          />
+        )}
+        {content.newReleases.length > 0 && (
+          <ContentCarousel 
+            title="New Nepali Releases" 
+            items={content.newReleases} 
+            showLoading={false}
+          />
+        )}
+        {content.trending.length > 0 && (
+          <ContentCarousel 
+            title="Trending Now" 
+            items={content.trending.slice(0, 10)} 
+            showLoading={false}
+          />
+        )}
+        {content.drama.length > 0 && (
+          <ContentCarousel 
+            title="Nepali Drama & Romance" 
+            items={content.drama} 
+            showLoading={false}
+          />
+        )}
+        {content.comedy.length > 0 && (
+          <ContentCarousel 
+            title="Nepali Comedy" 
+            items={content.comedy} 
+            showLoading={false}
+          />
+        )}
+        {content.thriller.length > 0 && (
+          <ContentCarousel 
+            title="Nepali Thriller & Suspense" 
+            items={content.thriller} 
+            showLoading={false}
+          />
+        )}
+        {content.newReleases.length > 0 && (
+          <ContentCarousel 
+            title="Recently Added" 
+            items={content.newReleases.slice(0, 10)} 
+            showLoading={false}
+          />
+        )}
+        
+        {/* Show message if no content at all */}
+        {!contentLoading && 
+         content.trending.length === 0 && 
+         content.originals.length === 0 && 
+         content.newReleases.length === 0 && 
+         content.drama.length === 0 && 
+         content.comedy.length === 0 && 
+         content.thriller.length === 0 && (
+          <div className="px-4 lg:px-8 py-12 text-center">
+            <div className="bg-card/50 rounded-lg p-8 border border-gray-800 max-w-2xl mx-auto">
+              <h3 className="text-2xl font-bold text-white mb-4">No Content Available</h3>
+              <p className="text-gray-400 mb-6">
+                There's no content in the database yet. Add movies and series through the admin panel to see them here.
+              </p>
+              {user && (user as any).role === 'ADMIN' && (
+                <a 
+                  href="/admin/content" 
+                  className="inline-block bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  Go to Admin Panel
+                </a>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
