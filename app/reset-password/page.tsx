@@ -90,8 +90,8 @@ function ResetPasswordPageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <div className="w-full max-w-md mx-auto">
+    <div className="min-h-screen flex items-start sm:items-center justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-y-auto">
+      <div className="w-full max-w-md mx-auto my-auto sm:my-0">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2">NepVerse</h1>
           <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">Reset Password</h2>

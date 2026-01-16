@@ -104,10 +104,10 @@ export default function RootLayout({
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
       </head>
-      <body className="bg-background text-foreground antialiased">
+      <body className="bg-background text-foreground antialiased overflow-x-hidden">
         <ErrorBoundary>
           <Header />
-          <main className="min-h-screen pt-16">
+          <main className="min-h-screen pt-16 overflow-x-hidden">
             {children}
           </main>
           <Footer />

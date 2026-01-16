@@ -84,8 +84,8 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-        <div className="w-full max-w-md mx-auto">
+      <div className="min-h-screen flex items-start sm:items-center justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-y-auto">
+        <div className="w-full max-w-md mx-auto my-auto sm:my-0">
           <div className="bg-card p-6 sm:p-8 rounded-lg text-center">
             <Mail size={48} className="sm:w-16 sm:h-16 text-primary mx-auto mb-3 sm:mb-4" />
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
@@ -135,8 +135,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-      <div className="w-full max-w-md mx-auto">
+    <div className="min-h-screen flex items-start sm:items-center justify-center px-4 sm:px-6 py-8 sm:py-12 overflow-y-auto">
+      <div className="w-full max-w-md mx-auto my-auto sm:my-0">
         <Link href="/login" className="inline-flex items-center text-sm sm:text-base text-gray-400 hover:text-primary mb-4 sm:mb-6">
           <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" />
           Back to Sign In

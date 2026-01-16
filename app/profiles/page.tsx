@@ -58,12 +58,14 @@ function ProfilesPageContent() {
     try {
       const response = await fetch('/api/profiles', {
         credentials: 'include',
+        cache: 'no-store', // Ensure fresh data
       })
       if (response.ok) {
         const data = await response.json()
         // API returns array directly, not wrapped in { profiles: [...] }
         const profilesList = Array.isArray(data) ? data : (data.profiles || [])
-        setProfiles(profilesList)
+        // Force state update
+        setProfiles([...profilesList])
         
         // Sync profiles to localStorage for consistency
         if (profilesList.length > 0) {
@@ -89,13 +91,13 @@ function ProfilesPageContent() {
       } else {
         // Fallback to localStorage if API fails
         const userProfiles = profileStorage.getByUser(user.id)
-        setProfiles(userProfiles)
+        setProfiles([...userProfiles])
       }
     } catch (error) {
       console.error('Failed to load profiles from API:', error)
       // Fallback to localStorage
       const userProfiles = profileStorage.getByUser(user.id)
-      setProfiles(userProfiles)
+      setProfiles([...userProfiles])
     }
   }
 
@@ -170,10 +172,12 @@ function ProfilesPageContent() {
     // Redirect to original destination or homepage
     const redirect = searchParams.get('redirect')
     // Prevent redirect loops - don't redirect back to profiles page
-    if (redirect && redirect !== '/profiles' && !redirect.startsWith('/profiles?')) {
+    // Also check if redirect is valid and not empty
+    if (redirect && redirect !== '/profiles' && !redirect.startsWith('/profiles?') && redirect !== '/profiles/') {
       // Use replace instead of push to avoid back button issues
       router.replace(redirect)
     } else {
+      // Always redirect to home after selecting profile
       router.replace('/')
     }
   }
@@ -285,8 +289,8 @@ function ProfilesPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-8 sm:py-12 md:py-16">
-      <div className="container mx-auto px-4 lg:px-8">
+    <div className="min-h-screen bg-background py-8 sm:py-12 md:py-16 overflow-y-auto overflow-x-hidden">
+      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3 sm:mb-4">
           Who's watching?
         </h1>
@@ -373,8 +377,8 @@ function ProfilesPageContent() {
 
       {/* PIN Input Modal */}
       {showPinModal && selectedProfile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-8 animate-scale-in border border-white/10 glass">
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-4 sm:p-6 md:p-8 my-4 sm:my-auto animate-scale-in border border-white/10 glass max-h-[90vh] overflow-y-auto">
             <div className="text-center mb-6">
               <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-4 border-2 border-primary/30">
                 <Lock size={32} className="text-primary" />
@@ -505,13 +509,37 @@ function ProfilesPageContent() {
           }}
           profile={editingProfile}
           userId={user?.id || ''}
-          onSuccess={(savedProfile) => {
-            loadProfiles()
+          onSuccess={async (savedProfile) => {
+            if (!savedProfile) return
+            
+            // Close modal first
             setShowCreateModal(false)
             setEditingProfile(null)
-            // If a new profile was created, automatically select it
-            if (savedProfile && !editingProfile) {
-              proceedWithProfile(savedProfile)
+            
+            // Reload profiles list and wait for it to complete
+            await loadProfiles()
+            
+            // Small delay to ensure UI updates and state is refreshed
+            await new Promise(resolve => setTimeout(resolve, 300))
+            
+            // If a new profile was created (not editing), automatically select it
+            if (!editingProfile && savedProfile.id) {
+              // Re-fetch the profile to ensure we have the latest data
+              try {
+                const profileResponse = await fetch(`/api/profiles/${savedProfile.id}`, {
+                  credentials: 'include',
+                })
+                if (profileResponse.ok) {
+                  const latestProfile = await profileResponse.json()
+                  proceedWithProfile(latestProfile)
+                } else {
+                  // Fallback to saved profile
+                  proceedWithProfile(savedProfile)
+                }
+              } catch (error) {
+                // Fallback to saved profile
+                proceedWithProfile(savedProfile)
+              }
             }
           }}
         />
@@ -637,9 +665,6 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
 
       if (response.ok) {
         const savedProfile = await response.json()
-        toast.success(profile ? 'Profile updated successfully!' : 'Profile created successfully!', {
-          duration: 3000,
-        })
         
         // If creating a new profile, automatically set it as current
         if (!profile && savedProfile && savedProfile.id) {
@@ -665,7 +690,14 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
           }
         }
         
-        onSuccess(savedProfile)
+        toast.success(profile ? 'Profile updated successfully!' : 'Profile created successfully!', {
+          duration: 2000,
+        })
+        
+        // Call onSuccess after a brief delay to ensure toast is shown
+        setTimeout(() => {
+          onSuccess(savedProfile)
+        }, 100)
       } else {
         const error = await response.json()
         throw new Error(error.message || 'Failed to save profile')
@@ -693,9 +725,12 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
           savedProfile = profileStorage.create(profileData)
         }
         toast.success(profile ? 'Profile updated successfully!' : 'Profile created successfully!', {
-          duration: 3000,
+          duration: 2000,
         })
-        onSuccess(savedProfile)
+        // Call onSuccess after a brief delay to ensure toast is shown
+        setTimeout(() => {
+          onSuccess(savedProfile)
+        }, 100)
       } catch (fallbackError: any) {
         toast.error(error.message || 'Failed to save profile. Please try again.', {
           duration: 4000,
@@ -710,13 +745,13 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
-      <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-6 animate-scale-in border border-white/10">
-        <h2 className="text-2xl font-bold text-white mb-6">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-4 sm:p-6 my-4 sm:my-auto animate-scale-in border border-white/10 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">
           {profile ? 'Edit Profile' : 'Create Profile'}
         </h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Avatar Selection */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-3">Avatar</label>
@@ -737,21 +772,21 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
                     }}
                   />
                 ) : (
-                  <span className="text-5xl">{selectedAvatar}</span>
+                  <span className="text-4xl sm:text-5xl">{selectedAvatar}</span>
                 )}
               </div>
-              <div className="flex-1 space-y-2">
+              <div className="flex-1 w-full sm:w-auto space-y-2">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Upload Image</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">Upload Image</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleAvatarUpload}
-                    className="text-sm text-white file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light"
+                    className="text-xs sm:text-sm text-white file:mr-2 sm:file:mr-4 file:py-1 sm:file:py-2 file:px-2 sm:file:px-4 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light w-full"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Or Enter Image URL</label>
+                  <label className="block text-xs sm:text-sm text-gray-400 mb-1 sm:mb-2">Or Enter Image URL</label>
                   <input
                     type="url"
                     placeholder="https://example.com/image.jpg"
@@ -763,12 +798,12 @@ function ProfileModal({ isOpen, onClose, profile, userId, onSuccess }: ProfileMo
                         setAvatarType('uploaded')
                       }
                     }}
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white text-sm focus:outline-none focus:border-primary"
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white text-xs sm:text-sm focus:outline-none focus:border-primary"
                   />
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-8 gap-2 max-h-32 overflow-y-auto">
+            <div className="grid grid-cols-6 sm:grid-cols-8 gap-1.5 sm:gap-2 max-h-32 overflow-y-auto">
               {DEFAULT_AVATARS.map((avatar) => (
                 <button
                   key={avatar}
