@@ -39,14 +39,23 @@ export async function POST(request: NextRequest) {
     const { email } = validation.data
 
     // Find user by email
+    console.log('[Password Reset] 🔍 Looking up user with email:', email)
     const user = await db.user.findByEmail(email)
     
     // Don't reveal if user exists (security best practice)
     if (!user) {
+      console.log('[Password Reset] ⚠️ User not found in database for email:', email)
+      console.log('[Password Reset] 💡 No email will be sent (security best practice - don\'t reveal if email exists)')
+      console.log('[Password Reset] 💡 If this email should exist, check:')
+      console.log('[Password Reset]    1. Email spelling/typos')
+      console.log('[Password Reset]    2. User account exists in database')
+      console.log('[Password Reset]    3. Email matches exactly (case-sensitive in some cases)')
       return NextResponse.json({
         message: 'If an account with that email exists, we\'ve sent a password reset link.',
       })
     }
+
+    console.log('[Password Reset] ✅ User found in database')
 
     // Generate and store reset token
     const { token } = await db.user.createPasswordResetToken(user.id)

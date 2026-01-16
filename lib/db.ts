@@ -8,7 +8,16 @@ export const db = {
   // User operations
   user: {
     async findByEmail(email: string) {
-      return prisma.user.findUnique({ where: { email } })
+      // Use case-insensitive search for email
+      // PostgreSQL is case-sensitive by default, so we need to handle this
+      return prisma.user.findFirst({
+        where: {
+          email: {
+            equals: email,
+            mode: 'insensitive', // Case-insensitive search
+          },
+        },
+      })
     },
     
     async findByPhone(phone: string) {
