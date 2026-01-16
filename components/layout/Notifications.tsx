@@ -35,17 +35,27 @@ export function Notifications() {
 
     try {
       setLoading(true)
+      console.log('[Notifications UI] 🔔 Loading notifications for user:', user.id)
       const response = await fetch('/api/notifications?limit=20', {
         credentials: 'include',
       })
       
       if (response.ok) {
         const data = await response.json()
+        console.log('[Notifications UI] 📬 Received notifications:', {
+          count: data.notifications?.length || 0,
+          unreadCount: data.unreadCount || 0,
+          total: data.total || 0,
+        })
         setNotifications(data.notifications || [])
         setUnreadCount(data.unreadCount || 0)
+      } else {
+        console.error('[Notifications UI] ❌ Failed to load notifications:', response.status, response.statusText)
+        const errorData = await response.json().catch(() => ({}))
+        console.error('[Notifications UI] Error details:', errorData)
       }
     } catch (error) {
-      console.error('Error loading notifications:', error)
+      console.error('[Notifications UI] ❌ Error loading notifications:', error)
     } finally {
       setLoading(false)
     }

@@ -12,6 +12,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log('[Notifications API] 📬 Fetching notifications for user:', user.id, user.email)
+
     const { searchParams } = new URL(request.url)
     const unreadOnly = searchParams.get('unread') === 'true'
     const limit = parseInt(searchParams.get('limit') || '50')
@@ -36,13 +38,20 @@ export async function GET(request: NextRequest) {
       where: { userId: user.id, read: false },
     })
 
+    console.log('[Notifications API] 📊 Found notifications:', {
+      total,
+      unreadCount,
+      returned: notifications.length,
+      userId: user.id,
+    })
+
     return NextResponse.json({
       notifications,
       total,
       unreadCount,
     })
   } catch (error) {
-    console.error('Get notifications error:', error)
+    console.error('[Notifications API] ❌ Get notifications error:', error)
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
