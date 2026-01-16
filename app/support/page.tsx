@@ -78,10 +78,9 @@ export default function SupportPage() {
             <Input
               type="text"
               placeholder="Search for help articles..."
-              className="text-sm sm:text-base"
+              className="w-full pl-12 text-sm sm:text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12"
             />
             <MessageSquare className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
