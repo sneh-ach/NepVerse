@@ -471,13 +471,13 @@ export default function HomePage() {
       {/* Content Carousels - ALL NEPALI CONTENT */}
       <div className="py-8 space-y-8">
         {/* Continue Watching - Always show, even if empty */}
-        <ContentCarousel 
+        {/* <ContentCarousel 
           title="Continue Watching" 
           items={continueWatching} 
           showLoading={false}
           alwaysShow={true}
           emptyMessage="Start watching movies or series to see your progress here."
-        />
+        /> */}
         {content.trending.length > 0 && (
           <ContentCarousel 
             title="Popular Nepali Movies" 
@@ -485,55 +485,55 @@ export default function HomePage() {
             showLoading={false}
           />
         )}
-        {content.originals.length > 0 && (
+        {/* {content.originals.length > 0 && (
           <ContentCarousel 
             title="Nepali Originals" 
             items={content.originals} 
             showLoading={false}
           />
-        )}
-        {content.newReleases.length > 0 && (
+        )} */}
+        {/* {content.newReleases.length > 0 && (
           <ContentCarousel 
             title="New Nepali Releases" 
             items={content.newReleases} 
             showLoading={false}
           />
-        )}
-        {content.trending.length > 0 && (
+        )} */}
+        {/* {content.trending.length > 0 && (
           <ContentCarousel 
             title="Trending Now" 
             items={content.trending.slice(0, 10)} 
             showLoading={false}
           />
-        )}
-        {content.drama.length > 0 && (
+        )} */}
+        {/* {content.drama.length > 0 && (
           <ContentCarousel 
             title="Nepali Drama & Romance" 
             items={content.drama} 
             showLoading={false}
           />
-        )}
-        {content.comedy.length > 0 && (
+        )} */}
+        {/* {content.comedy.length > 0 && (
           <ContentCarousel 
             title="Nepali Comedy" 
             items={content.comedy} 
             showLoading={false}
           />
-        )}
-        {content.thriller.length > 0 && (
+        )} */}
+        {/* {content.thriller.length > 0 && (
           <ContentCarousel 
             title="Nepali Thriller & Suspense" 
             items={content.thriller} 
             showLoading={false}
           />
-        )}
-        {content.newReleases.length > 0 && (
+        )} */}
+        {/* {content.newReleases.length > 0 && (
           <ContentCarousel 
             title="Recently Added" 
             items={content.newReleases.slice(0, 10)} 
             showLoading={false}
           />
-        )}
+        )} */}
         
         {/* Show message if no content at all */}
         {!contentLoading && 
