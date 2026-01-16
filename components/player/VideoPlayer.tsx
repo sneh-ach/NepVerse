@@ -590,19 +590,29 @@ export function VideoPlayer({
         // Handle clicks on the container/video area
         const target = e.target as HTMLElement
         
-        // Don't toggle if clicking on any button, input, or control element
+        // Don't toggle if clicking directly on interactive elements
         if (
           target.tagName === 'BUTTON' ||
           target.tagName === 'INPUT' ||
-          target.closest('button') ||
-          target.closest('input') ||
-          target.closest('[role="button"]') ||
-          target.closest('[aria-label]') ||
-          // Don't toggle if clicking on progress bar or controls
-          target.closest('.cursor-pointer') ||
-          target.closest('[class*="pointer-events-auto"]')
+          target.tagName === 'SELECT' ||
+          // Only check closest if we're actually inside a button/input (not just if one exists in DOM)
+          (target.closest('button') && target.closest('button') !== target) ||
+          (target.closest('input') && target.closest('input') !== target) ||
+          (target.closest('select') && target.closest('select') !== target) ||
+          // Don't toggle if clicking on progress bar itself
+          (target.closest('.cursor-pointer') && target.closest('.cursor-pointer')?.classList.contains('cursor-pointer'))
         ) {
           return
+        }
+        
+        // Check if we're clicking on the bottom controls area specifically
+        const bottomControls = target.closest('[style*="zIndex: 60"]')
+        if (bottomControls && bottomControls !== e.currentTarget) {
+          // Only prevent if clicking on actual control buttons, not the container
+          const isControlButton = target.tagName === 'BUTTON' || target.closest('button')
+          if (isControlButton) {
+            return
+          }
         }
         
         // Toggle play/pause on any click on the screen (video, container, or overlay background)
@@ -722,7 +732,19 @@ export function VideoPlayer({
         {/* Bottom Controls */}
         <div 
           className="absolute bottom-0 left-0 right-0 p-4 space-y-2 pointer-events-auto"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            // Only stop propagation if clicking on actual control elements
+            const target = e.target as HTMLElement
+            if (
+              target.tagName === 'BUTTON' ||
+              target.tagName === 'INPUT' ||
+              target.closest('button') ||
+              target.closest('input') ||
+              target.closest('.cursor-pointer')
+            ) {
+              e.stopPropagation()
+            }
+          }}
           style={{ zIndex: 60 }}
         >
           {/* Progress Bar with Preview */}
