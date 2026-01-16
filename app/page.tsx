@@ -465,7 +465,7 @@ export default function HomePage() {
     <div className="min-h-screen">
       {/* Hero Carousel */}
       {content.featured && content.featured.length > 0 && (
-        <HeroCarousel items={content.featured} autoPlayInterval={8000} />
+        <HeroCarousel items={content.featured} autoPlayInterval={12000} />
       )}
 
       {/* Content Carousels - ALL NEPALI CONTENT */}

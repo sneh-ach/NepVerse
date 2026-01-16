@@ -21,10 +21,10 @@ interface HeroItem {
 
 interface HeroCarouselProps {
   items: HeroItem[]
-  autoPlayInterval?: number // in milliseconds, default 8000 (8 seconds)
+  autoPlayInterval?: number // in milliseconds, default 12000 (12 seconds)
 }
 
-export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselProps) {
+export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [imageLoaded, setImageLoaded] = useState<boolean[]>(items.map(() => false))
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 })
@@ -145,7 +145,7 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
           return (
             <div
               key={item.id}
-              className={`absolute inset-0 transform transition-all duration-[1500ms] ease-in-out ${
+              className={`absolute inset-0 transform transition-all duration-[2000ms] ease-in-out ${
                 isActive 
                   ? 'opacity-100 scale-100 z-10' 
                   : isNext || isPrevious
@@ -154,7 +154,7 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
               }`}
               style={{
                 animation: isActive ? 'kenBurns 20s ease-in-out infinite' : 'none',
-                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
+                transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
               }}
             >
               {itemBackdropUrl?.includes('r2.cloudflarestorage.com') || itemBackdropUrl?.includes('/api/storage/proxy') ? (
@@ -253,9 +253,9 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
           {/* Badge Row */}
           <div 
             key={`badges-${currentIndex}`}
-            className="flex flex-wrap items-center gap-3 mb-6 animate-fade-in"
+            className="flex flex-wrap items-center gap-3 mb-6"
             style={{
-              animation: 'fadeIn 0.6s ease-in-out',
+              animation: 'fadeIn 1s ease-in-out',
             }}
           >
             {currentItem.rating && (
@@ -290,7 +290,7 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
               letterSpacing: '0.02em',
               textShadow: '0 2px 12px rgba(0,0,0,0.8)',
               lineHeight: '1.1',
-              animation: 'slideUp 0.8s ease-out',
+              animation: 'slideUp 1.2s ease-out',
             }}
           >
             {currentItem.title}
@@ -302,7 +302,7 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
             className="text-lg md:text-xl text-gray-100 mb-6 max-w-3xl leading-relaxed drop-shadow-lg"
             style={{
               textShadow: '0 2px 10px rgba(0,0,0,0.6)',
-              animation: 'fadeIn 0.8s ease-in-out 0.2s both',
+              animation: 'fadeIn 1.2s ease-in-out 0.3s both',
             }}
           >
             {currentItem.description}
@@ -313,7 +313,7 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
             key={`buttons-${currentIndex}`}
             className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
             style={{
-              animation: 'fadeIn 0.8s ease-in-out 0.4s both',
+              animation: 'fadeIn 1.2s ease-in-out 0.5s both',
             }}
           >
             <Link href={`/watch/${currentItem.contentType}/${currentItem.id}`} className="group relative inline-block">
