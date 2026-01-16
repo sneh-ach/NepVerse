@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Search, Bell, User, Menu, X } from 'lucide-react'
 import { Notifications } from './Notifications'
 import { Button } from '@/components/ui/Button'
-import { cn } from '@/lib/utils'
+import { cn, getImageUrl } from '@/lib/utils'
 import { profileStorage, UserProfile } from '@/lib/localStorage'
 export function Header() {
   const { user, loading, logout } = useAuth()
