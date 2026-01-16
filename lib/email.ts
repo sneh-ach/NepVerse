@@ -202,13 +202,14 @@ class EmailService {
 
   // Email templates
   async sendWelcomeEmail(to: string, name: string): Promise<boolean> {
+    const browseUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/browse`
     const textVersion = `Hi ${name},
 
 Thank you for joining NepVerse - The Home of Nepali Stories!
 
 You now have access to unlimited Nepali movies, series, and originals.
 
-Start watching: ${process.env.NEXT_PUBLIC_APP_URL}/browse
+Start watching: ${browseUrl}
 
 Happy streaming!
 
@@ -220,25 +221,52 @@ The NepVerse Team`
       text: textVersion,
       html: `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>Welcome to NepVerse!</title>
           </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Welcome to NepVerse!</h1>
-            </div>
-            <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-              <p>Hi ${name},</p>
-              <p>Thank you for joining NepVerse - The Home of Nepali Stories!</p>
-              <p>You now have access to unlimited Nepali movies, series, and originals.</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/browse" style="background: #e50914; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Start Watching</a>
-              </div>
-              <p>Happy streaming!</p>
-              <p>The NepVerse Team</p>
-            </div>
+          <body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
+              <tr>
+                <td align="center">
+                  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Welcome to NepVerse!</h1>
+                      </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                      <td style="background: #f9f9f9; padding: 30px;">
+                        <p style="margin: 0 0 15px 0; font-size: 16px;">Hi ${name},</p>
+                        <p style="margin: 0 0 15px 0; font-size: 16px;">Thank you for joining NepVerse - The Home of Nepali Stories!</p>
+                        <p style="margin: 0 0 30px 0; font-size: 16px;">You now have access to unlimited Nepali movies, series, and originals.</p>
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
+                          <tr>
+                            <td align="center">
+                              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td align="center" style="background: #e50914; border-radius: 5px;">
+                                    <a href="${browseUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px;">Start Watching</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="margin: 30px 0 15px 0; font-size: 16px;">Happy streaming!</p>
+                        <p style="margin: 0; font-size: 16px;">The NepVerse Team</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </body>
         </html>
       `,
@@ -272,38 +300,55 @@ The NepVerse Team`
       text: textVersion,
       html: `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>Reset Your NepVerse Password</title>
           </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Password Reset Request</h1>
-            </div>
-            <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-              <p>Hello,</p>
-              <p>You requested to reset your password for your NepVerse account.</p>
-              <p>Click the button below to reset your password:</p>
-              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
-                <tr>
-                  <td align="center">
-                    <table cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td align="center" style="background: #e50914; border-radius: 5px;">
-                          <a href="${resetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px; background: #e50914;">Reset Password</a>
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin-top: 20px;">Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #666; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">${resetUrl}</p>
-              <p><strong>This link will expire in 1 hour.</strong></p>
-              <p style="color: #666; font-size: 14px; margin-top: 20px;">If you didn't request this password reset, please ignore this email. Your account is secure.</p>
-              <p style="margin-top: 20px;">Best regards,<br>The NepVerse Team</p>
-            </div>
+          <body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
+              <tr>
+                <td align="center">
+                  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Password Reset Request</h1>
+                      </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                      <td style="background: #f9f9f9; padding: 30px;">
+                        <p style="margin: 0 0 15px 0; font-size: 16px;">Hello,</p>
+                        <p style="margin: 0 0 15px 0; font-size: 16px;">You requested to reset your password for your NepVerse account.</p>
+                        <p style="margin: 0 0 30px 0; font-size: 16px;">Click the button below to reset your password:</p>
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
+                          <tr>
+                            <td align="center">
+                              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td align="center" style="background: #e50914; border-radius: 5px;">
+                                    <a href="${resetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px;">Reset Password</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="margin: 20px 0 15px 0; font-size: 16px;">Or copy and paste this link into your browser:</p>
+                        <p style="word-break: break-all; color: #666666; background: #ffffff; padding: 10px; border-radius: 5px; border: 1px solid #dddddd; font-family: monospace; font-size: 12px; margin: 0 0 20px 0;">${resetUrl}</p>
+                        <p style="margin: 0 0 20px 0; font-size: 16px;"><strong>This link will expire in 1 hour.</strong></p>
+                        <p style="color: #666666; font-size: 14px; margin: 0 0 20px 0;">If you didn't request this password reset, please ignore this email. Your account is secure.</p>
+                        <p style="margin: 0; font-size: 16px;">Best regards,<br>The NepVerse Team</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </body>
         </html>
       `,
@@ -311,7 +356,8 @@ The NepVerse Team`
   }
 
   async sendEmailVerificationEmail(to: string, verificationToken: string): Promise<boolean> {
-    const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const verifyUrl = `${baseUrl}/verify-email?token=${encodeURIComponent(verificationToken)}`
     
     const textVersion = `Thank you for signing up for NepVerse!
 
@@ -328,26 +374,53 @@ The NepVerse Team`
       text: textVersion,
       html: `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>Verify Your NepVerse Email</title>
           </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Verify Your Email</h1>
-            </div>
-            <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
-              <p>Thank you for signing up for NepVerse!</p>
-              <p>Please verify your email address by clicking the button below:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${verifyUrl}" style="background: #e50914; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Verify Email</a>
-              </div>
-              <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #666;">${verifyUrl}</p>
-              <p><strong>This link will expire in 24 hours.</strong></p>
-              <p>The NepVerse Team</p>
-            </div>
+          <body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
+              <tr>
+                <td align="center">
+                  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Verify Your Email</h1>
+                      </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                      <td style="background: #f9f9f9; padding: 30px;">
+                        <p style="margin: 0 0 15px 0; font-size: 16px;">Thank you for signing up for NepVerse!</p>
+                        <p style="margin: 0 0 30px 0; font-size: 16px;">Please verify your email address by clicking the button below:</p>
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
+                          <tr>
+                            <td align="center">
+                              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td align="center" style="background: #e50914; border-radius: 5px;">
+                                    <a href="${verifyUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px;">Verify Email</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                        <p style="margin: 20px 0 15px 0; font-size: 16px;">Or copy and paste this link into your browser:</p>
+                        <p style="word-break: break-all; color: #666666; background: #ffffff; padding: 10px; border-radius: 5px; border: 1px solid #dddddd; font-family: monospace; font-size: 12px; margin: 0 0 20px 0;">${verifyUrl}</p>
+                        <p style="margin: 0 0 20px 0; font-size: 16px;"><strong>This link will expire in 24 hours.</strong></p>
+                        <p style="margin: 0; font-size: 16px;">The NepVerse Team</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </body>
         </html>
       `,
