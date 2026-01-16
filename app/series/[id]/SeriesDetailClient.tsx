@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button'
 import { ShareModal } from '@/components/content/ShareModal'
 import { TrailerPlayer } from '@/components/content/TrailerPlayer'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { watchListService } from '@/lib/clientStorage'
 import toast from 'react-hot-toast'
 
@@ -22,6 +24,8 @@ interface SeriesDetailClientProps {
 }
 
 export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
+  const router = useRouter()
+  const { user } = useAuth()
   const [showShareModal, setShowShareModal] = useState(false)
   const [showTrailer, setShowTrailer] = useState(false)
   const [inWatchlist, setInWatchlist] = useState(false)
@@ -77,7 +81,11 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
     <>
       <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-6 flex-wrap gap-2 sm:gap-3">
         {series.episodes && Array.isArray(series.episodes) && series.episodes.length > 0 && series.episodes[0]?.id && (
-          <Link href={`/watch/series/${series.id}/episode/${series.episodes[0].id}`} className="group/play-link">
+          <Link 
+            href={`/watch/series/${series.id}/episode/${series.episodes[0].id}`} 
+            className="group/play-link"
+            onClick={handlePlayClick}
+          >
             <Button size="lg" className="relative flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold">
               <Play size={18} className="sm:w-[22px] sm:h-[22px] group-hover/play-link:scale-110 transition-transform duration-300" fill="currentColor" />
               <span>Play</span>

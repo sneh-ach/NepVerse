@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Play, Info, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/hooks/useAuth'
 import { getImageUrl } from '@/lib/utils'
+import toast from 'react-hot-toast'
 
 interface HeroItem {
   id: string
@@ -31,6 +33,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
   const elementRef = useRef<HTMLDivElement>(null)
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
+  const { user } = useAuth()
 
   const currentItem = items[currentIndex]
 
@@ -316,7 +319,19 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
               animation: 'fadeIn 2s ease-in-out',
             }}
           >
-            <Link href={`/watch/${currentItem.contentType}/${currentItem.id}`} className="group relative inline-block">
+            <Link 
+              href={`/watch/${currentItem.contentType}/${currentItem.id}`} 
+              className="group relative inline-block"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault()
+                  router.push(`/login?redirect=/watch/${currentItem.contentType}/${currentItem.id}`)
+                  toast.error('Please login to watch content', {
+                    duration: 3000,
+                  })
+                }
+              }}
+            >
               <Button 
                 size="lg" 
                 className="relative flex items-center px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold group/btn"

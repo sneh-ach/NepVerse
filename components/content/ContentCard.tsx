@@ -90,6 +90,9 @@ export const ContentCard = memo(function ContentCard({
     
     if (!user) {
       if (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        router.push(`/login?redirect=/${type}/${id}`)
         toast.error('Please login to add content to your list', {
           duration: 3000,
         })

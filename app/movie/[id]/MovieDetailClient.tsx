@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/Button'
 import { ShareModal } from '@/components/content/ShareModal'
 import { TrailerPlayer } from '@/components/content/TrailerPlayer'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import { watchListService } from '@/lib/clientStorage'
 import toast from 'react-hot-toast'
 
@@ -21,6 +23,8 @@ interface MovieDetailClientProps {
 }
 
 export function MovieDetailClient({ movie }: MovieDetailClientProps) {
+  const router = useRouter()
+  const { user } = useAuth()
   const [showShareModal, setShowShareModal] = useState(false)
   const [showTrailer, setShowTrailer] = useState(false)
   const [inWatchlist, setInWatchlist] = useState(false)
@@ -40,6 +44,14 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
   }, [movie.id])
 
   const handleAddToList = async () => {
+    if (!user) {
+      router.push(`/login?redirect=/movie/${movie.id}`)
+      toast.error('Please login to add content to your list', {
+        duration: 3000,
+      })
+      return
+    }
+
     try {
       if (inWatchlist) {
         await watchListService.remove(movie.id, undefined)
@@ -67,10 +79,20 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
     }
   }
 
+  const handlePlayClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault()
+      router.push(`/login?redirect=/watch/movie/${movie.id}`)
+      toast.error('Please login to watch movies', {
+        duration: 3000,
+      })
+    }
+  }
+
   return (
     <>
       <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-6 flex-wrap gap-2 sm:gap-3">
-        <Link href={`/watch/movie/${movie.id}`} className="group/play-link">
+        <Link href={`/watch/movie/${movie.id}`} className="group/play-link" onClick={handlePlayClick}>
           <Button 
             size="lg" 
             className="relative flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold"
