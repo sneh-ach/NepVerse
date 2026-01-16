@@ -135,11 +135,11 @@ export default async function MovieDetailPage({ params }: { params: { id: string
         title={movie.title}
         previewDuration={12}
       >
-        <div className="container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end">
+        <div className="container mx-auto px-4 lg:px-8 h-full flex items-center pb-16 pt-32 lg:pt-40">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Poster - Left Side */}
-            <div className="lg:col-span-4 flex justify-center lg:justify-start items-end">
-              <div className="relative w-72 md:w-80 lg:w-96 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
+            <div className="lg:col-span-3 flex justify-center lg:justify-start">
+              <div className="relative w-56 md:w-64 lg:w-72 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
                 {(() => {
                   const displayPosterUrl = getImageUrl(movie.posterUrl)
                   return (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
@@ -155,7 +155,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
                       alt={movie.title}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 288px, (max-width: 1024px) 320px, 384px"
+                      sizes="(max-width: 768px) 224px, (max-width: 1024px) 256px, 288px"
                       priority
                     />
                   )
@@ -164,31 +164,31 @@ export default async function MovieDetailPage({ params }: { params: { id: string
             </div>
 
             {/* Content - Right Side */}
-            <div className="lg:col-span-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+            <div className="lg:col-span-9">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-lg">
                 {movie.title}
               </h1>
               {movie.titleNepali && (
-                <h2 className="text-2xl md:text-3xl text-gray-300 mb-4 drop-shadow-lg">{movie.titleNepali}</h2>
+                <h2 className="text-xl md:text-2xl text-gray-300 mb-3 drop-shadow-lg">{movie.titleNepali}</h2>
               )}
 
-              <div className="flex flex-wrap items-center gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-3 mb-5">
                 {movie.rating && (
-                  <span className="px-3.5 py-1.5 bg-primary rounded-md font-semibold text-white flex items-center space-x-1.5">
-                    <Star size={18} className="fill-white" />
-                    <span className="text-base">{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
+                  <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1 text-sm">
+                    <Star size={14} className="fill-white" />
+                    <span>{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
                   </span>
                 )}
-                <span className="text-white drop-shadow-lg text-base font-medium">{new Date(movie.releaseDate).getFullYear()}</span>
-                <span className="text-white drop-shadow-lg text-base font-medium">{formatDuration(movie.duration * 60)}</span>
+                <span className="text-white drop-shadow-lg text-sm">{new Date(movie.releaseDate).getFullYear()}</span>
+                <span className="text-white drop-shadow-lg text-sm">{formatDuration(movie.duration * 60)}</span>
                 {(movie as any).quality && (
-                  <span className="px-3.5 py-1.5 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
+                  <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-xs font-semibold">
                     {(movie as any).quality}
                   </span>
                 )}
-                <span className="px-3.5 py-1.5 bg-gray-700 rounded-md text-white text-sm font-medium">{movie.ageRating}</span>
+                <span className="px-3 py-1 bg-gray-700 rounded-md text-white text-xs">{movie.ageRating}</span>
                 {genres.map((genre: any) => (
-                  <span key={genre.name} className="text-gray-300 drop-shadow-lg text-base font-medium">
+                  <span key={genre.name} className="text-gray-300 drop-shadow-lg text-sm">
                     {genre.name}
                   </span>
                 ))}
@@ -196,26 +196,26 @@ export default async function MovieDetailPage({ params }: { params: { id: string
 
               {/* Cast, Mature Themes, Tags */}
               {(movie as any).cast && (
-                <div className="mb-4">
-                  <p className="text-gray-300 text-base md:text-lg drop-shadow-lg">
+                <div className="mb-3">
+                  <p className="text-gray-300 text-sm drop-shadow-lg leading-relaxed">
                     <span className="font-semibold text-white">Cast:</span> {(movie as any).cast}
                   </p>
                 </div>
               )}
               {(movie as any).matureThemes && (
-                <div className="mb-4">
-                  <p className="text-gray-400 text-base md:text-lg drop-shadow-lg">{(movie as any).matureThemes}</p>
+                <div className="mb-3">
+                  <p className="text-gray-400 text-sm drop-shadow-lg leading-relaxed">{(movie as any).matureThemes}</p>
                 </div>
               )}
               {(movie as any).tags && (
-                <div className="mb-4">
-                  <p className="text-gray-300 text-base md:text-lg drop-shadow-lg">
+                <div className="mb-3">
+                  <p className="text-gray-300 text-sm drop-shadow-lg leading-relaxed">
                     <span className="font-semibold text-white">This Movie Is:</span> {(movie as any).tags}
                   </p>
                 </div>
               )}
 
-              <div className="mb-5">
+              <div className="mb-4">
                 <MovieDetailClient movie={{ 
                   id: movie.id, 
                   title: movie.title, 
@@ -226,9 +226,9 @@ export default async function MovieDetailPage({ params }: { params: { id: string
                 }} />
               </div>
 
-              <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg leading-relaxed">{movie.description}</p>
+              <p className="text-base text-gray-200 mb-3 drop-shadow-lg leading-relaxed">{movie.description}</p>
               {movie.descriptionNepali && (
-                <p className="text-lg md:text-xl text-gray-300 drop-shadow-lg leading-relaxed">{movie.descriptionNepali}</p>
+                <p className="text-base text-gray-300 drop-shadow-lg leading-relaxed">{movie.descriptionNepali}</p>
               )}
             </div>
           </div>
