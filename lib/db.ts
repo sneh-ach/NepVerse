@@ -9,15 +9,16 @@ export const db = {
   user: {
     async findByEmail(email: string) {
       // Use case-insensitive search for email
-      // PostgreSQL is case-sensitive by default, so we need to handle this
-      return prisma.user.findFirst({
-        where: {
-          email: {
-            equals: email,
-            mode: 'insensitive', // Case-insensitive search
-          },
-        },
-      })
+      // PostgreSQL is case-sensitive by default, so we use LOWER() for comparison
+      // First try exact match (faster), then fall back to case-insensitive
+      const exactMatch = await prisma.user.findUnique({ where: { email } })
+      if (exactMatch) return exactMatch
+      
+      // Case-insensitive fallback using raw query
+      const result = await prisma.$queryRaw<Array<{ id: string; email: string | null; phone: string | null; passwordHash: string; role: string; emailVerified: boolean; phoneVerified: boolean; createdAt: Date; updatedAt: Date }>>`
+        SELECT * FROM "User" WHERE LOWER(email) = LOWER(${email}) LIMIT 1
+      `
+      return result[0] || null
     },
     
     async findByPhone(phone: string) {
