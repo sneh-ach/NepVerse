@@ -202,9 +202,22 @@ class EmailService {
 
   // Email templates
   async sendWelcomeEmail(to: string, name: string): Promise<boolean> {
+    const textVersion = `Hi ${name},
+
+Thank you for joining NepVerse - The Home of Nepali Stories!
+
+You now have access to unlimited Nepali movies, series, and originals.
+
+Start watching: ${process.env.NEXT_PUBLIC_APP_URL}/browse
+
+Happy streaming!
+
+The NepVerse Team`
+    
     return this.send({
       to,
       subject: 'Welcome to NepVerse!',
+      text: textVersion,
       html: `
         <!DOCTYPE html>
         <html>
@@ -237,9 +250,25 @@ class EmailService {
     const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`
     console.log('[Email] Password reset URL:', resetUrl)
     
+    // Plain text version for better deliverability
+    const textVersion = `Hello,
+
+You requested to reset your password for your NepVerse account.
+
+Click this link to reset your password:
+${resetUrl}
+
+This link will expire in 1 hour.
+
+If you didn't request this password reset, please ignore this email. Your account is secure.
+
+Best regards,
+The NepVerse Team`
+    
     return this.send({
       to,
       subject: 'Reset Your NepVerse Password',
+      text: textVersion,
       html: `
         <!DOCTYPE html>
         <html>
@@ -249,19 +278,20 @@ class EmailService {
           </head>
           <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-              <h1 style="color: white; margin: 0;">Password Reset</h1>
+              <h1 style="color: white; margin: 0;">Password Reset Request</h1>
             </div>
             <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px;">
+              <p>Hello,</p>
               <p>You requested to reset your password for your NepVerse account.</p>
               <p>Click the button below to reset your password:</p>
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${resetUrl}" style="background: #e50914; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+                <a href="${resetUrl}" style="background: #e50914; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reset Password</a>
               </div>
               <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #666;">${resetUrl}</p>
+              <p style="word-break: break-all; color: #666; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">${resetUrl}</p>
               <p><strong>This link will expire in 1 hour.</strong></p>
-              <p>If you didn't request this, please ignore this email.</p>
-              <p>The NepVerse Team</p>
+              <p style="color: #666; font-size: 14px;">If you didn't request this password reset, please ignore this email. Your account is secure.</p>
+              <p>Best regards,<br>The NepVerse Team</p>
             </div>
           </body>
         </html>
@@ -272,9 +302,19 @@ class EmailService {
   async sendEmailVerificationEmail(to: string, verificationToken: string): Promise<boolean> {
     const verifyUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${verificationToken}`
     
+    const textVersion = `Thank you for signing up for NepVerse!
+
+Please verify your email address by clicking this link:
+${verifyUrl}
+
+This link will expire in 24 hours.
+
+The NepVerse Team`
+    
     return this.send({
       to,
       subject: 'Verify Your NepVerse Email',
+      text: textVersion,
       html: `
         <!DOCTYPE html>
         <html>
