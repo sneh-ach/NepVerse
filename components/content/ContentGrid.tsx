@@ -109,18 +109,37 @@ export function ContentGrid({
     return enrichedItems.slice(0, maxItems)
   }, [enrichedItems, rows, columns])
 
+  // Get column classes based on responsive breakpoints
+  const getGridCols = () => {
+    const mobile = columns.mobile || 2
+    const tablet = columns.tablet || 3
+    const desktop = columns.desktop || 4
+    
+    // Map numbers to Tailwind classes
+    const colsMap: Record<number, string> = {
+      1: 'grid-cols-1',
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4',
+      5: 'grid-cols-5',
+      6: 'grid-cols-6',
+    }
+    
+    return cn(
+      'grid gap-4 sm:gap-6 px-4 lg:px-8',
+      colsMap[mobile] || 'grid-cols-2',
+      `sm:${colsMap[tablet] || 'grid-cols-3'}`,
+      `lg:${colsMap[desktop] || 'grid-cols-4'}`
+    )
+  }
+
   if (isLoading) {
     return (
       <div className={cn('mb-8', className)}>
         <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-4 lg:px-8">
           {title}
         </h2>
-        <div className={cn(
-          'grid gap-4 px-4 lg:px-8',
-          `grid-cols-${columns.mobile || 2}`,
-          `sm:grid-cols-${columns.tablet || 3}`,
-          `lg:grid-cols-${columns.desktop || 4}`
-        )}>
+        <div className={getGridCols()}>
           {[...Array((columns.desktop || 4) * rows)].map((_, i) => (
             <ContentCardSkeleton key={i} />
           ))}
@@ -156,12 +175,7 @@ export function ContentGrid({
         <div className="h-1.5 sm:h-2 w-24 sm:w-32 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
       </div>
       
-      <div className={cn(
-        'grid gap-4 sm:gap-6 px-4 lg:px-8',
-        `grid-cols-${columns.mobile || 2}`,
-        `sm:grid-cols-${columns.tablet || 3}`,
-        `lg:grid-cols-${columns.desktop || 4}`
-      )}>
+      <div className={getGridCols()}>
         {itemsToShow.map((item, index) => (
           <div
             key={item.id}
