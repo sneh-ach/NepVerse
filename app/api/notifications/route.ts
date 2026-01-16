@@ -98,3 +98,56 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// DELETE /api/notifications - Delete notification
+export async function DELETE(request: NextRequest) {
+  try {
+    const user = await getAuthUser(request)
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const notificationId = searchParams.get('id')
+
+    if (!notificationId) {
+      return NextResponse.json(
+        { message: 'Notification ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Verify the notification belongs to the user
+    const notification = await prisma.notification.findUnique({
+      where: { id: notificationId },
+    })
+
+    if (!notification) {
+      return NextResponse.json(
+        { message: 'Notification not found' },
+        { status: 404 }
+      )
+    }
+
+    if (notification.userId !== user.id) {
+      return NextResponse.json(
+        { message: 'Unauthorized' },
+        { status: 403 }
+      )
+    }
+
+    await prisma.notification.delete({
+      where: { id: notificationId },
+    })
+
+    console.log('[Notifications API] 🗑️ Deleted notification:', notificationId)
+
+    return NextResponse.json({ message: 'Notification deleted' })
+  } catch (error) {
+    console.error('[Notifications API] ❌ Delete notification error:', error)
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
