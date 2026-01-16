@@ -70,6 +70,9 @@ export const ContentCard = memo(function ContentCard({
   const [isInWatchlist, setIsInWatchlist] = useState(inWatchlist)
   const [imageError, setImageError] = useState(false)
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Rewrite Vercel URLs to localhost in development
+  const displayPosterUrl = getImageUrl(posterUrl)
 
   const handleAddToList = useCallback(async (e?: React.MouseEvent) => {
     if (e) {
