@@ -166,36 +166,36 @@ function PricingPageContent() {
   }
 
   return (
-    <div className="min-h-screen py-16">
+    <div className="min-h-screen py-8 sm:py-12 md:py-16">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">
             {isChangingPlan ? 'Change Your Plan' : 'Choose Your Plan'}
           </h1>
-          <p className="text-xl text-gray-400 mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8">
             {isChangingPlan 
               ? 'Select a new plan to upgrade or downgrade your subscription.'
               : 'Start your free trial. Cancel anytime.'}
           </p>
 
           {/* Billing Cycle Toggle */}
-          <div className="flex items-center justify-center space-x-4 mb-8">
-            <span className={`text-white ${billingCycle === 'monthly' ? 'font-semibold' : ''}`}>
+          <div className="flex items-center justify-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+            <span className={`text-sm sm:text-base text-white ${billingCycle === 'monthly' ? 'font-semibold' : ''}`}>
               Monthly
             </span>
             <button
               onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-              className="relative w-14 h-8 bg-gray-700 rounded-full transition-colors"
+              className="relative w-12 sm:w-14 h-7 sm:h-8 bg-gray-700 rounded-full transition-colors"
             >
               <div
-                className={`absolute top-1 left-1 w-6 h-6 bg-primary rounded-full transition-transform ${
-                  billingCycle === 'yearly' ? 'translate-x-6' : ''
+                className={`absolute top-0.5 sm:top-1 left-0.5 sm:left-1 w-6 h-6 bg-primary rounded-full transition-transform ${
+                  billingCycle === 'yearly' ? 'translate-x-5 sm:translate-x-6' : ''
                 }`}
               />
             </button>
-            <span className={`text-white ${billingCycle === 'yearly' ? 'font-semibold' : ''}`}>
+            <span className={`text-sm sm:text-base text-white ${billingCycle === 'yearly' ? 'font-semibold' : ''}`}>
               Yearly
-              <span className="text-primary ml-2">Save 20%</span>
+              <span className="text-primary ml-1 sm:ml-2 text-xs sm:text-sm">Save 20%</span>
             </span>
           </div>
 
@@ -214,7 +214,7 @@ function PricingPageContent() {
         </div>
 
         {/* Plans Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => {
             const price = country === 'NP' 
               ? (billingCycle === 'yearly' ? plan.priceNPR * 10 : plan.priceNPR)
@@ -224,35 +224,35 @@ function PricingPageContent() {
             return (
               <div
                 key={plan.id}
-                className={`bg-card rounded-lg p-8 relative ${
+                className={`bg-card rounded-lg p-6 sm:p-8 relative ${
                   plan.popular ? 'border-2 border-primary' : 'border border-gray-700'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
+                  <div className="absolute -top-3 sm:-top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-primary text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-semibold">
                       Most Popular
                     </span>
                   </div>
                 )}
 
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <p className="text-gray-400 mb-6">{plan.description}</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">{plan.description}</p>
 
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-white">
+                <div className="mb-4 sm:mb-6">
+                  <span className="text-3xl sm:text-4xl font-bold text-white">
                     {formatCurrency(price, currency)}
                   </span>
-                  <span className="text-gray-400 ml-2">
+                  <span className="text-sm sm:text-base text-gray-400 ml-2">
                     /{billingCycle === 'monthly' ? 'month' : 'year'}
                   </span>
                 </div>
 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-center space-x-2">
-                      <Check size={20} className="text-primary flex-shrink-0" />
-                      <span className="text-gray-300">{feature}</span>
+                      <Check size={18} className="sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+                      <span className="text-sm sm:text-base text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>

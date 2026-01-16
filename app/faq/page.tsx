@@ -58,26 +58,26 @@ export default function FAQPage() {
   ]
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-8 sm:py-12">
       <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
-        <div className="flex items-center space-x-4 mb-8">
-          <HelpCircle className="w-8 h-8 text-primary" />
-          <h1 className="text-4xl md:text-5xl font-bold text-white">Frequently Asked Questions</h1>
+        <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
+          <HelpCircle className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white">Frequently Asked Questions</h1>
         </div>
-        <p className="text-gray-400 mb-12">
+        <p className="text-sm sm:text-base text-gray-400 mb-8 sm:mb-12">
           Find answers to common questions about NepVerse
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <div key={index} className="bg-card rounded-lg overflow-hidden">
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-card-hover transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between text-left hover:bg-card-hover transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                 aria-expanded={openIndex === index}
                 aria-controls={`faq-answer-${index}`}
               >
-                <span className="text-white font-semibold pr-4">{faq.question}</span>
+                <span className="text-sm sm:text-base text-white font-semibold pr-4">{faq.question}</span>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${
                     openIndex === index ? 'transform rotate-180' : ''
@@ -85,21 +85,21 @@ export default function FAQPage() {
                 />
               </button>
               {openIndex === index && (
-                <div id={`faq-answer-${index}`} className="px-6 py-4 border-t border-gray-800">
-                  <p className="text-gray-300 leading-relaxed">{faq.answer}</p>
+                <div id={`faq-answer-${index}`} className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-800">
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed">{faq.answer}</p>
                 </div>
               )}
             </div>
           ))}
         </div>
 
-        <div className="mt-12 bg-card p-8 rounded-lg text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Still have questions?</h2>
-          <p className="text-gray-400 mb-6">
+        <div className="mt-8 sm:mt-12 bg-card p-6 sm:p-8 rounded-lg text-center">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">Still have questions?</h2>
+          <p className="text-sm sm:text-base text-gray-400 mb-4 sm:mb-6">
             Can't find the answer you're looking for? Our support team is here to help.
           </p>
           <a href="/contact">
-            <button className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-light transition-colors">
+            <button className="px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-primary text-white rounded-md hover:bg-primary-light transition-colors">
               Contact Support
             </button>
           </a>

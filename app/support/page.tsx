@@ -65,19 +65,20 @@ export default function SupportPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-8 sm:py-12">
       <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Support Center</h1>
-        <p className="text-xl text-gray-400 mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">Support Center</h1>
+        <p className="text-lg sm:text-xl text-gray-400 mb-8 sm:mb-12">
           Get help with your NepVerse account and streaming experience
         </p>
 
         {/* Search */}
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12">
           <div className="relative">
             <Input
               type="text"
               placeholder="Search for help articles..."
+              className="text-sm sm:text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12"
@@ -87,18 +88,18 @@ export default function SupportPage() {
         </div>
 
         {/* Support Categories */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
           {supportCategories.map((category, index) => {
             const Icon = category.icon
             return (
-              <div key={index} className="bg-card p-6 rounded-lg">
-                <Icon className="w-8 h-8 text-primary mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">{category.title}</h3>
-                <p className="text-gray-400 text-sm mb-4">{category.description}</p>
-                <ul className="space-y-2">
+              <div key={index} className="bg-card p-4 sm:p-6 rounded-lg">
+                <Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary mb-3 sm:mb-4" />
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">{category.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">{category.description}</p>
+                <ul className="space-y-1.5 sm:space-y-2">
                   {category.articles.map((article, i) => (
                     <li key={i}>
-                      <a href="#" className="text-primary hover:underline text-sm">
+                      <a href="#" className="text-xs sm:text-sm text-primary hover:underline">
                         {article}
                       </a>
                     </li>
@@ -110,28 +111,28 @@ export default function SupportPage() {
         </div>
 
         {/* Quick Links */}
-        <div className="grid md:grid-cols-3 gap-4 mb-12">
-          <Link href="/faq" className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors">
-            <Book className="w-6 h-6 text-primary mb-3" />
-            <h3 className="text-white font-semibold mb-2">FAQ</h3>
-            <p className="text-gray-400 text-sm">Common questions and answers</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8 sm:mb-12">
+          <Link href="/faq" className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors">
+            <Book className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+            <h3 className="text-base sm:text-lg text-white font-semibold mb-1 sm:mb-2">FAQ</h3>
+            <p className="text-xs sm:text-sm text-gray-400">Common questions and answers</p>
           </Link>
-          <Link href="/devices" className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors">
-            <Settings className="w-6 h-6 text-primary mb-3" />
-            <h3 className="text-white font-semibold mb-2">Supported Devices</h3>
-            <p className="text-gray-400 text-sm">Check device compatibility</p>
+          <Link href="/devices" className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors">
+            <Settings className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+            <h3 className="text-base sm:text-lg text-white font-semibold mb-1 sm:mb-2">Supported Devices</h3>
+            <p className="text-xs sm:text-sm text-gray-400">Check device compatibility</p>
           </Link>
-          <Link href="/contact" className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors">
-            <MessageSquare className="w-6 h-6 text-primary mb-3" />
-            <h3 className="text-white font-semibold mb-2">Contact Us</h3>
-            <p className="text-gray-400 text-sm">Get in touch with our team</p>
+          <Link href="/contact" className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors sm:col-span-2 md:col-span-1">
+            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+            <h3 className="text-base sm:text-lg text-white font-semibold mb-1 sm:mb-2">Contact Us</h3>
+            <p className="text-xs sm:text-sm text-gray-400">Get in touch with our team</p>
           </Link>
         </div>
 
         {/* Submit Ticket */}
-        <div className="bg-card p-8 rounded-lg">
-          <h2 className="text-2xl font-bold text-white mb-6">Submit a Support Ticket</h2>
-          <form onSubmit={handleSubmitTicket} className="space-y-4">
+        <div className="bg-card p-6 sm:p-8 rounded-lg">
+          <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Submit a Support Ticket</h2>
+          <form onSubmit={handleSubmitTicket} className="space-y-3 sm:space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <Input label="Your Name" required />
               <Input label="Email" type="email" required />

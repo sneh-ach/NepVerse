@@ -213,12 +213,12 @@ export default function SettingsPage() {
   ]
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-6 sm:py-8">
       <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-8">Settings</h1>
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 sm:mb-8">Settings</h1>
 
         {/* Tabs */}
-        <div className="flex space-x-1 mb-8 border-b border-gray-800">
+        <div className="flex space-x-1 mb-6 sm:mb-8 border-b border-gray-800 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => {
             const Icon = tab.icon
             return (
@@ -226,7 +226,7 @@ export default function SettingsPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`
-                  px-6 py-3 flex items-center space-x-2 border-b-2 transition-colors
+                  px-3 sm:px-6 py-2 sm:py-3 flex items-center space-x-1 sm:space-x-2 border-b-2 transition-colors whitespace-nowrap text-sm sm:text-base
                   ${
                     activeTab === tab.id
                       ? 'border-primary text-primary'
@@ -234,7 +234,7 @@ export default function SettingsPage() {
                   }
                 `}
               >
-                <Icon size={18} />
+                <Icon size={16} className="sm:w-[18px] sm:h-[18px]" />
                 <span>{tab.label}</span>
               </button>
             )
@@ -243,10 +243,10 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Profile Information</h2>
+          <Card className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Profile Information</h2>
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   label="First Name"
                   value={profileData.firstName}
@@ -307,9 +307,9 @@ export default function SettingsPage() {
 
         {/* Account Tab */}
         {activeTab === 'account' && (
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Account Settings</h2>
-            <div className="space-y-4">
+          <Card className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Account Settings</h2>
+            <div className="space-y-3 sm:space-y-4">
               <Input
                 label="Email"
                 type="email"
@@ -362,13 +362,13 @@ export default function SettingsPage() {
 
         {/* Preferences Tab */}
         {activeTab === 'preferences' && (
-          <Card className="p-6">
-            <h2 className="text-xl font-bold text-white mb-6">Playback Preferences</h2>
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-white font-medium">Autoplay</h3>
-                  <p className="text-gray-400 text-sm">Automatically play videos when selected</p>
+          <Card className="p-4 sm:p-6">
+            <h2 className="text-lg sm:text-xl font-bold text-white mb-4 sm:mb-6">Playback Preferences</h2>
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-sm sm:text-base text-white font-medium">Autoplay</h3>
+                  <p className="text-xs sm:text-sm text-gray-400">Automatically play videos when selected</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input
@@ -381,10 +381,10 @@ export default function SettingsPage() {
                 </label>
               </div>
 
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-white font-medium">Autoplay Next Episode</h3>
-                  <p className="text-gray-400 text-sm">Automatically play next episode in a series</p>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                  <h3 className="text-sm sm:text-base text-white font-medium">Autoplay Next Episode</h3>
+                  <p className="text-xs sm:text-sm text-gray-400">Automatically play next episode in a series</p>
                 </div>
                 <label className="relative inline-flex items-center cursor-pointer">
                   <input

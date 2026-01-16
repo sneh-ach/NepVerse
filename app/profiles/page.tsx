@@ -285,23 +285,23 @@ function ProfilesPageContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-16">
+    <div className="min-h-screen bg-background py-8 sm:py-12 md:py-16">
       <div className="container mx-auto px-4 lg:px-8">
-        <h1 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white text-center mb-3 sm:mb-4">
           Who's watching?
         </h1>
-        <p className="text-gray-400 text-center mb-12">
+        <p className="text-sm sm:text-base text-gray-400 text-center mb-8 sm:mb-12">
           Select a profile or create a new one
         </p>
 
-        <div className="flex flex-wrap justify-center gap-8 mb-12">
+        <div className="flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-12">
           {profiles.map((profile) => (
             <div
               key={profile.id}
               className="flex flex-col items-center cursor-pointer group"
               onClick={() => handleSelectProfile(profile)}
             >
-              <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-lg overflow-hidden bg-card border-2 border-transparent group-hover:border-primary transition-all duration-300 group-hover:scale-110 mb-4">
+              <div className="relative w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-lg overflow-hidden bg-card border-2 border-transparent group-hover:border-primary transition-all duration-300 group-hover:scale-110 mb-3 sm:mb-4">
                 {profile.avatarType === 'uploaded' && profile.avatar && (profile.avatar.startsWith('data:') || profile.avatar.startsWith('http')) ? (
                   <img
                     src={profile.avatar}
@@ -309,17 +309,17 @@ function ProfilesPageContent() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-6xl md:text-7xl">
+                  <div className="w-full h-full flex items-center justify-center text-4xl sm:text-6xl md:text-7xl">
                     {profile.avatar || '👤'}
                   </div>
                 )}
                 {profile.pin && (
-                  <div className="absolute top-2 right-2">
-                    <Lock size={16} className="text-white" />
+                  <div className="absolute top-1 sm:top-2 right-1 sm:right-2">
+                    <Lock size={12} className="sm:w-4 sm:h-4 text-white" />
                   </div>
                 )}
               </div>
-              <h3 className="text-white font-semibold text-lg mb-2">{profile.name}</h3>
+              <h3 className="text-white font-semibold text-base sm:text-lg mb-2">{profile.name}</h3>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={(e) => {
@@ -327,10 +327,10 @@ function ProfilesPageContent() {
                     setEditingProfile(profile)
                     setShowCreateModal(true)
                   }}
-                  className="p-2 text-gray-400 hover:text-primary transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-400 hover:text-primary transition-colors"
                   aria-label="Edit profile"
                 >
-                  <Edit size={18} />
+                  <Edit size={16} className="sm:w-[18px] sm:h-[18px]" />
                 </button>
                 {profiles.length > 1 && (
                   <button
@@ -338,10 +338,10 @@ function ProfilesPageContent() {
                       e.stopPropagation()
                       handleDeleteProfile(profile.id)
                     }}
-                    className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 transition-colors"
                     aria-label="Delete profile"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                   </button>
                 )}
               </div>
@@ -354,10 +354,10 @@ function ProfilesPageContent() {
                 setEditingProfile(null)
                 setShowCreateModal(true)
               }}
-              className="flex flex-col items-center justify-center w-32 h-32 md:w-40 md:h-40 rounded-lg bg-card border-2 border-dashed border-gray-700 hover:border-primary transition-all duration-300 hover:scale-110 group"
+              className="flex flex-col items-center justify-center w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-lg bg-card border-2 border-dashed border-gray-700 hover:border-primary transition-all duration-300 hover:scale-110 group"
             >
-              <Plus size={48} className="text-gray-400 group-hover:text-primary mb-2" />
-              <span className="text-gray-400 group-hover:text-white">Add Profile</span>
+              <Plus size={32} className="sm:w-12 sm:h-12 text-gray-400 group-hover:text-primary mb-1 sm:mb-2" />
+              <span className="text-xs sm:text-base text-gray-400 group-hover:text-white">Add Profile</span>
             </button>
           )}
         </div>

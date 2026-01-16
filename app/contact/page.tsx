@@ -30,43 +30,43 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-8 sm:py-12">
       <div className="container mx-auto px-4 lg:px-8 max-w-4xl">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Contact Us</h1>
-        <p className="text-xl text-gray-400 mb-12">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-4">Contact Us</h1>
+        <p className="text-lg sm:text-xl text-gray-400 mb-8 sm:mb-12">
           We'd love to hear from you. Get in touch with our team.
         </p>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           {/* Contact Info */}
-          <div className="space-y-6">
-            <div className="bg-card p-6 rounded-lg">
-              <Mail className="w-6 h-6 text-primary mb-3" />
-              <h3 className="text-white font-semibold mb-2">Email</h3>
-              <a href="mailto:support@nepverse.com" className="text-gray-400 hover:text-primary transition-colors">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="bg-card p-4 sm:p-6 rounded-lg">
+              <Mail className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-1 sm:mb-2">Email</h3>
+              <a href="mailto:support@nepverse.com" className="text-sm sm:text-base text-gray-400 hover:text-primary transition-colors">
                 support@nepverse.com
               </a>
             </div>
 
-            <div className="bg-card p-6 rounded-lg">
-              <Phone className="w-6 h-6 text-primary mb-3" />
-              <h3 className="text-white font-semibold mb-2">Phone</h3>
-              <a href="tel:+977-1-XXXXXXX" className="text-gray-400 hover:text-primary transition-colors">
+            <div className="bg-card p-4 sm:p-6 rounded-lg">
+              <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-1 sm:mb-2">Phone</h3>
+              <a href="tel:+977-1-XXXXXXX" className="text-sm sm:text-base text-gray-400 hover:text-primary transition-colors">
                 +977-1-XXXXXXX
               </a>
             </div>
 
-            <div className="bg-card p-6 rounded-lg">
-              <MapPin className="w-6 h-6 text-primary mb-3" />
-              <h3 className="text-white font-semibold mb-2">Address</h3>
-              <p className="text-gray-400">
+            <div className="bg-card p-4 sm:p-6 rounded-lg">
+              <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-primary mb-2 sm:mb-3" />
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-1 sm:mb-2">Address</h3>
+              <p className="text-sm sm:text-base text-gray-400">
                 Kathmandu, Nepal
               </p>
             </div>
 
-            <div className="bg-card p-6 rounded-lg">
-              <h3 className="text-white font-semibold mb-4">Business Hours</h3>
-              <div className="space-y-2 text-gray-400 text-sm">
+            <div className="bg-card p-4 sm:p-6 rounded-lg">
+              <h3 className="text-white font-semibold text-sm sm:text-base mb-3 sm:mb-4">Business Hours</h3>
+              <div className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-400">
                 <p>Monday - Friday: 9:00 AM - 6:00 PM NPT</p>
                 <p>Saturday: 10:00 AM - 4:00 PM NPT</p>
                 <p>Sunday: Closed</p>
@@ -75,9 +75,9 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-card p-6 rounded-lg">
-            <h2 className="text-2xl font-bold text-white mb-6">Send us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="bg-card p-4 sm:p-6 rounded-lg">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6">Send us a Message</h2>
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <Input
                 label="Your Name"
                 value={formData.name}

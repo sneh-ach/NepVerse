@@ -167,84 +167,86 @@ function BrowsePageContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-6">Browse Content</h1>
+    <div className="container mx-auto px-4 lg:px-8 py-6 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 sm:mb-6">Browse Content</h1>
 
         {/* Search and Filters */}
-        <div className="space-y-4">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="flex-1">
               <Input
                 type="text"
                 placeholder="Search movies, series..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full"
+                className="w-full text-sm sm:text-base"
               />
             </div>
-            <Button variant="primary" className="flex items-center space-x-2 group/btn min-w-[120px]">
-              <Search size={20} className="group-hover/btn:rotate-90 transition-transform duration-300" />
-              <span className="font-semibold">Search</span>
+            <Button variant="primary" className="flex items-center justify-center space-x-2 group/btn min-w-full sm:min-w-[120px]">
+              <Search size={18} className="sm:w-5 sm:h-5 group-hover/btn:rotate-90 transition-transform duration-300" />
+              <span className="font-semibold text-sm sm:text-base">Search</span>
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center space-x-2">
-              <Filter size={20} className="text-gray-400" />
-              <span className="text-gray-400 font-semibold">Filters:</span>
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-start sm:items-center">
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Filter size={18} className="sm:w-5 sm:h-5 text-gray-400" />
+              <span className="text-gray-400 font-semibold text-sm sm:text-base">Filters:</span>
             </div>
 
-            <Dropdown
-              options={genres.map(g => ({ value: g.id, label: g.name }))}
-              value={selectedGenre}
-              onChange={setSelectedGenre}
-              className="min-w-[150px]"
-              placeholder="All Genres"
-            />
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 sm:gap-4 w-full sm:w-auto">
+              <Dropdown
+                options={genres.map(g => ({ value: g.id, label: g.name }))}
+                value={selectedGenre}
+                onChange={setSelectedGenre}
+                className="min-w-0 sm:min-w-[150px] text-sm"
+                placeholder="All Genres"
+              />
 
-            <Dropdown
-              options={[
-                { value: 'all', label: 'All Years' },
-                ...years.map(y => ({ value: y.toString(), label: y.toString() }))
-              ]}
-              value={selectedYear}
-              onChange={setSelectedYear}
-              className="min-w-[120px]"
-              placeholder="All Years"
-            />
+              <Dropdown
+                options={[
+                  { value: 'all', label: 'All Years' },
+                  ...years.map(y => ({ value: y.toString(), label: y.toString() }))
+                ]}
+                value={selectedYear}
+                onChange={setSelectedYear}
+                className="min-w-0 sm:min-w-[120px] text-sm"
+                placeholder="All Years"
+              />
 
-            <Dropdown
-              options={ratingOptions}
-              value={selectedRating}
-              onChange={setSelectedRating}
-              className="min-w-[140px]"
-              placeholder="All Ratings"
-            />
+              <Dropdown
+                options={ratingOptions}
+                value={selectedRating}
+                onChange={setSelectedRating}
+                className="min-w-0 sm:min-w-[140px] text-sm"
+                placeholder="All Ratings"
+              />
 
-            <Dropdown
-              options={ageRatingOptions}
-              value={selectedAgeRating}
-              onChange={setSelectedAgeRating}
-              className="min-w-[140px]"
-              placeholder="All Ages"
-            />
+              <Dropdown
+                options={ageRatingOptions}
+                value={selectedAgeRating}
+                onChange={setSelectedAgeRating}
+                className="min-w-0 sm:min-w-[140px] text-sm"
+                placeholder="All Ages"
+              />
 
-            <Dropdown
-              options={qualityOptions}
-              value={selectedQuality}
-              onChange={setSelectedQuality}
-              className="min-w-[140px]"
-              placeholder="All Quality"
-            />
+              <Dropdown
+                options={qualityOptions}
+                value={selectedQuality}
+                onChange={setSelectedQuality}
+                className="min-w-0 sm:min-w-[140px] text-sm"
+                placeholder="All Quality"
+              />
 
-            <Dropdown
-              options={contentTypeOptions}
-              value={selectedContentType}
-              onChange={setSelectedContentType}
-              className="min-w-[140px]"
-              placeholder="All Content"
-            />
+              <Dropdown
+                options={contentTypeOptions}
+                value={selectedContentType}
+                onChange={setSelectedContentType}
+                className="min-w-0 sm:min-w-[140px] text-sm"
+                placeholder="All Content"
+              />
+            </div>
           </div>
         </div>
       </div>

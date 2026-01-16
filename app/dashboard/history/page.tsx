@@ -70,36 +70,37 @@ export default function WatchHistoryPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-6 sm:py-8">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft size={18} className="mr-2" />
-                Back
+              <Button variant="ghost" size="sm" className="text-sm">
+                <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">Back</span>
               </Button>
             </Link>
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">Watch History</h1>
-              <p className="text-gray-400 mt-1">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Watch History</h1>
+              <p className="text-sm sm:text-base text-gray-400 mt-1">
                 {watchHistory.length} {watchHistory.length === 1 ? 'item' : 'items'}
               </p>
             </div>
           </div>
           {watchHistory.length > 0 && (
-            <Button variant="outline" onClick={clearHistory}>
-              <Trash2 size={18} className="mr-2" />
-              Clear All
+            <Button variant="outline" onClick={clearHistory} className="text-sm">
+              <Trash2 size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Clear All</span>
+              <span className="sm:hidden">Clear</span>
             </Button>
           )}
         </div>
 
         {watchHistory.length === 0 ? (
-          <div className="text-center py-16 bg-card rounded-lg">
-            <History size={64} className="text-gray-600 mx-auto mb-4" />
-            <h3 className="text-white font-semibold text-xl mb-2">No Watch History Yet</h3>
-            <p className="text-gray-400 text-lg mb-6 max-w-md mx-auto">
+          <div className="text-center py-12 sm:py-16 bg-card rounded-lg">
+            <History size={48} className="sm:w-16 sm:h-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-white font-semibold text-lg sm:text-xl mb-2">No Watch History Yet</h3>
+            <p className="text-sm sm:text-base md:text-lg text-gray-400 mb-6 max-w-md mx-auto px-4">
               Start watching movies and series to see your progress here. Your watch history will appear automatically.
             </p>
             <Link href="/browse">
@@ -107,7 +108,7 @@ export default function WatchHistoryPage() {
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {watchHistory.map((item) => (
               <ContinueWatchingCard
                 key={item.id}

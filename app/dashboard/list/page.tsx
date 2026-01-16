@@ -53,21 +53,21 @@ export default function WatchListPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-6 sm:py-8">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="flex items-center space-x-4 mb-8">
+        <div className="flex items-center space-x-3 sm:space-x-4 mb-6 sm:mb-8">
           <Link href="/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft size={18} className="mr-2" />
-              Back
+            <Button variant="ghost" size="sm" className="text-sm">
+              <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white flex items-center space-x-2">
-              <Heart size={32} className="text-primary" fill="currentColor" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white flex items-center space-x-2">
+              <Heart size={24} className="sm:w-8 sm:h-8 text-primary" fill="currentColor" />
               <span>My List</span>
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="text-sm sm:text-base text-gray-400 mt-1">
               {watchList.length} {watchList.length === 1 ? 'item' : 'items'} saved
             </p>
           </div>

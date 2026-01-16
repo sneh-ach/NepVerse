@@ -145,7 +145,7 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
       />
       <div className="min-h-screen">
       {/* Hero Section with Auto-Play Preview */}
-      <div className="relative h-[70vh] min-h-[500px]">
+      <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] min-h-[400px] sm:min-h-[450px] md:min-h-[500px]">
         <AutoPlayPreview
           videoUrl={series.videoUrl}
           trailerUrl={series.trailerUrl}
@@ -155,11 +155,11 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
           previewDuration={12} // 12 seconds preview
         />
 
-        <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+        <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex items-end pb-8 md:pb-16">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8 items-end">
             {/* Poster - Left Side */}
             <div className="lg:col-span-3 flex justify-center lg:justify-start">
-              <div className="relative w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
+              <div className="relative w-40 sm:w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
                 {(() => {
                   const displayPosterUrl = getImageUrl(series.posterUrl)
                   return (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
@@ -185,14 +185,14 @@ export default async function SeriesDetailPage({ params }: { params: { id: strin
 
             {/* Content - Right Side */}
             <div className="lg:col-span-9">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-4 drop-shadow-lg">
                 {series.title}
               </h1>
               {series.titleNepali && (
-                <h2 className="text-2xl md:text-3xl text-gray-300 mb-4 drop-shadow-lg">{series.titleNepali}</h2>
+                <h2 className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-2 md:mb-4 drop-shadow-lg">{series.titleNepali}</h2>
               )}
 
-              <div className="flex flex-wrap items-center gap-4 mb-6">
+              <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-4 md:mb-6">
                 {series.rating && (
                   <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
                     <Star size={16} className="fill-white" />

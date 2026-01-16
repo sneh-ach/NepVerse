@@ -134,53 +134,53 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen py-8">
+    <div className="min-h-screen py-6 sm:py-8">
       <div className="container mx-auto px-4 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-            <span className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-primary-light to-primary bg-clip-text text-transparent">
               Welcome back{currentProfile?.name ? `, ${currentProfile.name}` : user.profile?.firstName ? `, ${user.profile.firstName}` : ''}!
             </span>
           </h1>
-          <p className="text-gray-400">Manage your account and continue watching</p>
+          <p className="text-sm sm:text-base text-gray-400">Manage your account and continue watching</p>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link
             href="/dashboard/settings"
-            className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
           >
-            <Settings size={32} className="text-primary mb-2" />
-            <h3 className="text-white font-semibold">Settings</h3>
-            <p className="text-gray-400 text-sm">Manage your profile</p>
+            <Settings size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Settings</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Manage your profile</p>
           </Link>
 
           <Link
             href="/dashboard/history"
-            className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
           >
-            <History size={32} className="text-primary mb-2" />
-            <h3 className="text-white font-semibold">Watch History</h3>
-            <p className="text-gray-400 text-sm">Continue watching</p>
+            <History size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Watch History</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Continue watching</p>
           </Link>
 
           <Link
             href="/dashboard/list"
-            className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
           >
-            <Heart size={32} className="text-primary mb-2" />
-            <h3 className="text-white font-semibold">My List</h3>
-            <p className="text-gray-400 text-sm">Saved content</p>
+            <Heart size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">My List</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Saved content</p>
           </Link>
 
           <Link
             href="/dashboard/subscription"
-            className="bg-card p-6 rounded-lg hover:bg-card-hover transition-colors"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
           >
-            <CreditCard size={32} className="text-primary mb-2" />
-            <h3 className="text-white font-semibold">Subscription</h3>
-            <p className="text-gray-400 text-sm">Manage plan</p>
+            <CreditCard size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Subscription</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Manage plan</p>
           </Link>
         </div>
 

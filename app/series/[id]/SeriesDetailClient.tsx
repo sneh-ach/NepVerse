@@ -75,12 +75,12 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
 
   return (
     <>
-      <div className="flex items-center space-x-4 mb-6 flex-wrap gap-3">
+      <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-6 flex-wrap gap-2 sm:gap-3">
         {series.episodes && Array.isArray(series.episodes) && series.episodes.length > 0 && series.episodes[0]?.id && (
-          <Link href={`/watch/series/${series.id}/episode/${series.episodes[0].id}`}>
-            <Button size="lg" className="flex items-center space-x-2 group/btn">
-              <Play size={24} fill="currentColor" className="group-hover/btn:scale-125 transition-transform duration-300" />
-              <span className="font-bold">Play</span>
+          <Link href={`/watch/series/${series.id}/episode/${series.episodes[0].id}`} className="group/play-link">
+            <Button size="lg" className="relative flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold">
+              <Play size={18} className="sm:w-[22px] sm:h-[22px] group-hover/play-link:scale-110 transition-transform duration-300" fill="currentColor" />
+              <span>Play</span>
             </Button>
           </Link>
         )}
@@ -88,28 +88,29 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
           <Button
             variant="outline"
             size="lg"
-            className="flex items-center space-x-2 group/btn backdrop-blur-md"
+            className="flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-semibold group/trailer backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
             onClick={() => setShowTrailer(true)}
           >
-            <Film size={24} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-            <span className="font-semibold">Trailer</span>
+            <Film size={18} className="sm:w-[22px] sm:h-[22px] group-hover/trailer:rotate-12 transition-transform duration-300" />
+            <span className="hidden sm:inline">Trailer</span>
           </Button>
         )}
         <Button
           variant="outline"
           size="lg"
-          className="flex items-center space-x-2 group/btn backdrop-blur-md"
+          className="flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-semibold group/list-btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
           onClick={handleAddToList}
         >
           {inWatchlist ? (
             <>
-              <Plus size={24} className="rotate-45 group-hover/btn:rotate-90 transition-transform duration-300" />
-              <span className="font-semibold">Remove from List</span>
+              <Plus size={18} className="sm:w-[22px] sm:h-[22px] rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <span className="hidden sm:inline">Remove from List</span>
+              <span className="sm:hidden">Remove</span>
             </>
           ) : (
             <>
-              <Plus size={24} className="group-hover/btn:rotate-90 transition-transform duration-300" />
-              <span className="font-semibold">My List</span>
+              <Plus size={18} className="sm:w-[22px] sm:h-[22px] group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <span>My List</span>
             </>
           )}
         </Button>
@@ -121,14 +122,14 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
             e.stopPropagation()
             setShowShareModal(true)
           }}
-          className="group/btn"
+          className="group/btn w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300"
           type="button"
           aria-label="Share"
         >
-          <Share2 size={24} className="group-hover/btn:rotate-12 transition-transform duration-300" />
+          <Share2 size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:rotate-12 transition-transform duration-300" />
         </Button>
-        <Button variant="ghost" size="lg" onClick={handleLike} className="group/btn">
-          <Heart size={24} className={`group-hover/btn:scale-125 transition-transform duration-300 ${inWatchlist ? 'fill-primary text-primary animate-pulse' : ''}`} />
+        <Button variant="ghost" size="lg" onClick={handleLike} className="group/btn w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300">
+          <Heart size={18} className={`sm:w-[22px] sm:h-[22px] group-hover/btn:scale-125 transition-transform duration-300 ${inWatchlist ? 'fill-primary text-primary' : ''}`} />
         </Button>
       </div>
 

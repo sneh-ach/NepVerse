@@ -84,11 +84,11 @@ export default function ForgotPasswordPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
         <div className="w-full max-w-md">
-          <div className="bg-card p-8 rounded-lg text-center">
-            <Mail size={64} className="text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">
+          <div className="bg-card p-6 sm:p-8 rounded-lg text-center">
+            <Mail size={48} className="sm:w-16 sm:h-16 text-primary mx-auto mb-3 sm:mb-4" />
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-3 sm:mb-4">
               {devResetLink ? 'Password Reset Link' : 'Check Your Email'}
             </h2>
             {devResetLink ? (
@@ -135,20 +135,20 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
       <div className="w-full max-w-md">
-        <Link href="/login" className="inline-flex items-center text-gray-400 hover:text-primary mb-6">
-          <ArrowLeft size={18} className="mr-2" />
+        <Link href="/login" className="inline-flex items-center text-sm sm:text-base text-gray-400 hover:text-primary mb-4 sm:mb-6">
+          <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px] mr-1 sm:mr-2" />
           Back to Sign In
         </Link>
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-2">NepVerse</h1>
-          <h2 className="text-2xl font-semibold text-white mb-2">Forgot Password</h2>
-          <p className="text-gray-400">Enter your email and we'll send you a reset link.</p>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-primary mb-2">NepVerse</h1>
+          <h2 className="text-xl sm:text-2xl font-semibold text-white mb-2">Forgot Password</h2>
+          <p className="text-sm sm:text-base text-gray-400">Enter your email and we'll send you a reset link.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-card p-8 rounded-lg">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 bg-card p-6 sm:p-8 rounded-lg">
           <Input
             type="email"
             label="Email Address"
