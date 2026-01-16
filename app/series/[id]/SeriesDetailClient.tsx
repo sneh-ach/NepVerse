@@ -45,6 +45,14 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
   }, [series.id])
 
   const handleAddToList = async () => {
+    if (!user) {
+      router.push(`/login?redirect=/series/${series.id}`)
+      toast.error('Please login to add content to your list', {
+        duration: 3000,
+      })
+      return
+    }
+
     try {
       if (inWatchlist) {
         await watchListService.remove(undefined, series.id)
@@ -69,6 +77,20 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
           duration: 3000,
         })
       }
+    }
+  }
+
+  const handlePlayClick = (e: React.MouseEvent) => {
+    if (!user) {
+      e.preventDefault()
+      if (series.episodes && series.episodes.length > 0 && series.episodes[0]?.id) {
+        router.push(`/login?redirect=/watch/series/${series.id}/episode/${series.episodes[0].id}`)
+      } else {
+        router.push(`/login?redirect=/series/${series.id}`)
+      }
+      toast.error('Please login to watch series', {
+        duration: 3000,
+      })
     }
   }
 
