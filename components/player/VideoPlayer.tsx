@@ -801,6 +801,11 @@ export function VideoPlayer({
             </div>
           </div>
           
+          {/* Title - Center Bottom */}
+          <div className="flex items-center justify-center">
+            <span className="text-white text-base font-bold">{title}</span>
+          </div>
+          
           {/* Control Buttons */}
           <div 
             className="flex items-center justify-between relative z-50"
@@ -810,11 +815,7 @@ export function VideoPlayer({
             }}
             style={{ pointerEvents: 'auto', zIndex: 50 }}
           >
-            <div className="flex items-center space-x-4">
-              {/* Title - Aligned with controls */}
-              <span className="text-white text-base font-bold">{title}</span>
-              
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
                 <button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -918,9 +919,8 @@ export function VideoPlayer({
               </div>
 
               <div className="text-white text-sm">
-                {Math.round((state.currentTime / state.duration) * 100)} {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
+                {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
               </div>
-            </div>
             </div>
 
             <div className="flex items-center space-x-4">
