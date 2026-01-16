@@ -279,7 +279,8 @@ export async function PATCH(
     if (movie.isPublished && existingMovie && !existingMovie.isPublished) {
       try {
         const { notifyNewMovie } = await import('@/lib/notifications')
-        const notificationResult = await notifyNewMovie(movie.id, false) // Don't send emails by default
+        // Send emails to verified users who have opted in
+        const notificationResult = await notifyNewMovie(movie.id, true) // Send emails to verified users
         logger.info(`Notifications created for newly published movie ${movie.id}`, {
           created: notificationResult.created,
           errors: notificationResult.errors.length,

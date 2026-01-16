@@ -98,17 +98,17 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
 
     console.log('[Notifications] ✅ Movie found and published:', movie.title)
 
-    // Get all users (not just verified) - we'll send notifications to all users
-    // For emails, we'll only send to verified users who opted in
-    const users = await prisma.user.findMany({
-      where: sendEmails
-        ? {
-            emailVerified: true, // Only verified users for emails
-            emailNotifications: true, // Only users who opted in
-          }
-        : {}, // For in-app notifications, send to all users
+    // Get all users for in-app notifications
+    // If sending emails, also get verified users who opted in
+    const allUsers = await prisma.user.findMany({
       select: { id: true, email: true, emailVerified: true, emailNotifications: true },
     })
+
+    // For in-app notifications, use all users
+    // For email notifications, filter to verified users who opted in
+    const users = sendEmails
+      ? allUsers.filter(user => user.emailVerified && user.emailNotifications)
+      : allUsers
 
     console.log('[Notifications] 👥 Found users:', users.length)
 
@@ -122,7 +122,8 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
       errors: [] as string[],
     }
 
-    const notificationPromises = users.map(async (user) => {
+    // Create notifications for all users (in-app)
+    const allUserPromises = allUsers.map(async (user) => {
       try {
         await createNotification({
           userId: user.id,
@@ -134,7 +135,9 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
           sendEmail: sendEmails && user.emailVerified && user.emailNotifications, // Only send email if user verified and opted in
         })
         results.created++
-        console.log('[Notifications] ✅ Created notification for user:', user.id)
+        console.log('[Notifications] ✅ Created notification for user:', user.id, {
+          emailSent: sendEmails && user.emailVerified && user.emailNotifications,
+        })
       } catch (error: any) {
         const errorMsg = `User ${user.id}: ${error.message}`
         results.errors.push(errorMsg)
@@ -142,12 +145,13 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
       }
     })
 
-    await Promise.all(notificationPromises)
+    await Promise.all(allUserPromises)
 
     console.log('[Notifications] 📊 Results:', {
       created: results.created,
       errors: results.errors.length,
-      totalUsers: users.length,
+      totalUsers: allUsers.length,
+      emailEligible: sendEmails ? users.length : 0,
     })
 
     return results

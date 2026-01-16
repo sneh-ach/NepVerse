@@ -187,7 +187,8 @@ export async function POST(request: NextRequest) {
         try {
           console.log('[Upload] 📢 Creating notifications for published movie:', movie.id)
           const { notifyNewMovie } = await import('@/lib/notifications')
-          const notificationResult = await notifyNewMovie(movie.id, false) // Don't send emails by default
+          // Send emails to verified users who have opted in
+          const notificationResult = await notifyNewMovie(movie.id, true) // Send emails to verified users
           logger.info(`Notifications created for movie ${movie.id}`, {
             created: notificationResult.created,
             errors: notificationResult.errors.length,
@@ -242,7 +243,8 @@ export async function POST(request: NextRequest) {
       if (isPublished) {
         try {
           const { notifyNewSeries } = await import('@/lib/notifications')
-          const notificationResult = await notifyNewSeries(series.id, false) // Don't send emails by default
+          // Send emails to verified users who have opted in
+          const notificationResult = await notifyNewSeries(series.id, true) // Send emails to verified users
           logger.info(`Notifications created for series ${series.id}`, {
             created: notificationResult.created,
             errors: notificationResult.errors.length,
