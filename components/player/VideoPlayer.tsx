@@ -801,11 +801,6 @@ export function VideoPlayer({
             </div>
           </div>
           
-          {/* Title - Center Bottom */}
-          <div className="flex items-center justify-center">
-            <span className="text-white text-base font-bold">{title}</span>
-          </div>
-          
           {/* Control Buttons */}
           <div 
             className="flex items-center justify-between relative z-50"
@@ -921,6 +916,11 @@ export function VideoPlayer({
               <div className="text-white text-sm">
                 {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
               </div>
+            </div>
+
+            {/* Title - Center */}
+            <div className="absolute left-1/2 transform -translate-x-1/2">
+              <span className="text-white text-base font-bold">{title}</span>
             </div>
 
             <div className="flex items-center space-x-4">
