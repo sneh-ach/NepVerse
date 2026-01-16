@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { usePlayer } from '@/hooks/usePlayer'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Settings, X, SkipForward, SkipBack } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { formatDuration } from '@/lib/utils'
+import { formatDuration, getImageUrl } from '@/lib/utils'
 import { WatchPartyControls } from './WatchPartyControls'
 import { watchPartyService } from '@/lib/watchParty'
 
@@ -64,6 +64,8 @@ export function VideoPlayer({
   const [showSkipIndicator, setShowSkipIndicator] = useState<'forward' | 'back' | null>(null)
   const [showTopBar, setShowTopBar] = useState(true) // Always show top bar with cast/watch party
   const [isHoveringTopBar, setIsHoveringTopBar] = useState(false)
+  const [previewTime, setPreviewTime] = useState<number | null>(null)
+  const [previewPosition, setPreviewPosition] = useState(0)
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
   const skipTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -668,9 +670,7 @@ export function VideoPlayer({
           }}
         >
           <div className="flex items-center justify-between gap-2 min-w-0 w-full" style={{ maxWidth: '100%' }}>
-            <h1 className="text-white text-base sm:text-lg font-semibold truncate flex-1 min-w-0 mr-3 max-w-[calc(100%-280px)]">
-              {title}
-            </h1>
+            <div className="flex-1"></div>
             <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0" style={{ minWidth: 0 }}>
               {contentId && contentType && (
                 <div 
@@ -733,18 +733,69 @@ export function VideoPlayer({
           onClick={(e) => e.stopPropagation()}
           style={{ zIndex: 60 }}
         >
-          {/* Progress Bar */}
-          <div
-            className="w-full h-1 bg-gray-700 rounded-full cursor-pointer group"
-            onClick={(e) => {
-              e.stopPropagation()
-              handleProgressClick(e)
-            }}
-          >
+          {/* Progress Bar with Preview */}
+          <div className="relative">
+            {/* Preview Thumbnail */}
+            {previewTime !== null && showControls && (
+              <div
+                className="absolute bottom-full left-0 mb-2 transform -translate-x-1/2 pointer-events-none z-50"
+                style={{ left: `${previewPosition}%` }}
+              >
+                <div className="bg-black/90 rounded-lg p-2 shadow-2xl">
+                  <div className="w-32 h-18 bg-gray-800 rounded overflow-hidden mb-1">
+                    {posterUrl ? (
+                      <img
+                        src={getImageUrl(posterUrl)}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">
+                        Preview
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-white text-xs text-center font-semibold">
+                    {formatDuration(previewTime)}
+                  </div>
+                </div>
+              </div>
+            )}
+            
             <div
-              className="h-full bg-primary rounded-full transition-all group-hover:bg-primary-light"
-              style={{ width: `${(state.currentTime / state.duration) * 100}%` }}
-            />
+              className="w-full h-1 bg-gray-700 rounded-full cursor-pointer group relative"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleProgressClick(e)
+              }}
+              onMouseMove={(e) => {
+                if (!videoRef.current || !state.duration) return
+                const rect = e.currentTarget.getBoundingClientRect()
+                const percent = (e.clientX - rect.left) / rect.width
+                const hoverTime = percent * state.duration
+                setPreviewTime(hoverTime)
+                setPreviewPosition(percent * 100)
+              }}
+              onMouseLeave={() => {
+                setPreviewTime(null)
+              }}
+            >
+              <div
+                className="h-full bg-primary rounded-full transition-all group-hover:bg-primary-light"
+                style={{ width: `${(state.currentTime / state.duration) * 100}%` }}
+              />
+            </div>
+          </div>
+          
+          {/* Title and Time Display - Center */}
+          <div className="flex items-center justify-center space-x-3 text-white text-sm">
+            <span className="font-semibold">{title}</span>
+            <span className="text-gray-300">
+              {Math.round((state.currentTime / state.duration) * 100)}%
+            </span>
+            <span className="text-gray-300">
+              {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
+            </span>
           </div>
 
           {/* Control Buttons */}
@@ -857,10 +908,6 @@ export function VideoPlayer({
                   className="w-24"
                 />
                 <span className="text-white text-sm w-12">{Math.round(state.volume * 100)}%</span>
-              </div>
-
-              <div className="text-white text-sm">
-                {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
               </div>
             </div>
 
