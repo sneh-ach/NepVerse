@@ -15,7 +15,9 @@ class EmailService {
 
   constructor() {
     // Use Resend's test domain for development if no custom domain verified
-    this.fromEmail = process.env.EMAIL_FROM || 'NepVerse <onboarding@resend.dev>'
+    // Remove quotes if present and ensure proper format
+    const envFrom = process.env.EMAIL_FROM?.trim().replace(/^["']|["']$/g, '') || 'NepVerse <onboarding@resend.dev>'
+    this.fromEmail = envFrom.includes('@') ? envFrom : 'NepVerse <onboarding@resend.dev>'
   }
 
   // Lazy provider detection - check at send time to ensure env vars are loaded
@@ -86,12 +88,25 @@ class EmailService {
       const resend = new Resend(apiKey)
 
       const toEmail = Array.isArray(options.to) ? options.to.join(', ') : options.to
-      const fromEmail = options.from || this.fromEmail
+      let fromEmail = options.from || this.fromEmail
+      
+      // Ensure FROM email has proper format
+      if (!fromEmail.includes('@')) {
+        console.error('[Email] ⚠️ Invalid FROM email format:', fromEmail)
+        fromEmail = 'NepVerse <onboarding@resend.dev>'
+        console.error('[Email] ⚠️ Using fallback:', fromEmail)
+      }
       
       console.log('[Email] Sending via Resend:')
       console.log('[Email]   To:', toEmail)
       console.log('[Email]   From:', fromEmail)
       console.log('[Email]   Subject:', options.subject)
+      
+      // Warn about resend.dev domain restriction
+      if (fromEmail.includes('@resend.dev')) {
+        console.warn('[Email] ⚠️ Using resend.dev test domain - can only send to your verified account email')
+        console.warn('[Email] 💡 For production, verify your own domain in Resend dashboard')
+      }
 
       const result = await resend.emails.send({
         from: fromEmail,
@@ -107,9 +122,14 @@ class EmailService {
         console.error('[Email] Error type:', result.error.name || 'Unknown')
         
         // Provide helpful error messages
-        if (result.error.message?.includes('domain') || result.error.message?.includes('verify')) {
-          console.error('[Email] 💡 TIP: You may need to verify your domain in Resend dashboard')
-          console.error('[Email] 💡 TIP: Or use a verified email address for the FROM field')
+        if (result.error.message?.includes('domain') || result.error.message?.includes('verify') || result.error.message?.includes('testing domain restriction')) {
+          console.error('[Email] ⚠️ DOMAIN RESTRICTION DETECTED')
+          console.error('[Email] 💡 The resend.dev domain can only send to your verified account email')
+          console.error('[Email] 💡 Solutions:')
+          console.error('[Email]    1. Verify your own domain in Resend dashboard (recommended for production)')
+          console.error('[Email]    2. For testing, only send to your Resend account email address')
+          console.error('[Email]    3. Update EMAIL_FROM in .env to use your verified domain')
+          console.error('[Email] 💡 See: https://resend.com/docs/dashboard/domains/introduction')
         }
         if (result.error.message?.includes('rate limit') || result.error.message?.includes('quota')) {
           console.error('[Email] 💡 TIP: You may have hit Resend rate limits. Check your dashboard.')
