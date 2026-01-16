@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       title: '🎬 Test Notification',
       message: 'This is a test notification to verify the system is working!',
       link: '/browse',
-      imageUrl: null,
+      imageUrl: undefined,
       sendEmail: false,
     })
 
