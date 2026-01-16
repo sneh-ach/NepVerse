@@ -128,21 +128,14 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
 
     console.log('[Notifications] ✅ Movie found and published:', movie.title)
 
-    // Get all users for in-app notifications
-    // If sending emails, also get verified users who opted in
+    // Get ALL users for in-app notifications (regardless of email verification)
     const allUsers = await prisma.user.findMany({
       select: { id: true, email: true, emailVerified: true, emailNotifications: true },
     })
 
-    // For in-app notifications, use all users
-    // For email notifications, filter to verified users who opted in
-    const users = sendEmails
-      ? allUsers.filter(user => user.emailVerified && user.emailNotifications)
-      : allUsers
-
     console.log('[Notifications] 👥 Found users:', {
       total: allUsers.length,
-      emailEligible: sendEmails ? users.length : 0,
+      emailEligible: sendEmails ? allUsers.filter(u => u.emailVerified && u.emailNotifications).length : 0,
       userDetails: allUsers.map(u => ({
         id: u.id,
         email: u.email,
@@ -161,9 +154,18 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
       errors: [] as string[],
     }
 
-    // Create notifications for all users (in-app)
+    // Create notifications for ALL users (in-app notifications)
+    // Emails will only be sent to verified users who opted in
     const allUserPromises = allUsers.map(async (user) => {
       try {
+        const shouldSendEmail = sendEmails && user.emailVerified && user.emailNotifications
+        console.log('[Notifications] 📝 Creating notification for user:', user.id, {
+          email: user.email,
+          emailVerified: user.emailVerified,
+          emailNotifications: user.emailNotifications,
+          willSendEmail: shouldSendEmail,
+        })
+        
         await createNotification({
           userId: user.id,
           type: 'new_movie',
@@ -171,26 +173,29 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
           message: `${movie.title}${movie.titleNepali ? ` (${movie.titleNepali})` : ''} is now available to watch!`,
           link: `/movie/${movie.id}`,
           imageUrl: movie.posterUrl,
-          sendEmail: sendEmails && user.emailVerified && user.emailNotifications, // Only send email if user verified and opted in
+          sendEmail: shouldSendEmail, // Only send email if user verified and opted in
         })
         results.created++
-        console.log('[Notifications] ✅ Created notification for user:', user.id, {
-          emailSent: sendEmails && user.emailVerified && user.emailNotifications,
-        })
+        console.log('[Notifications] ✅ Created notification for user:', user.id)
       } catch (error: any) {
         const errorMsg = `User ${user.id}: ${error.message}`
         results.errors.push(errorMsg)
-        console.error('[Notifications] ❌ Error creating notification:', errorMsg)
+        console.error('[Notifications] ❌ Error creating notification:', errorMsg, error)
       }
     })
 
     await Promise.all(allUserPromises)
 
+    const emailEligibleCount = sendEmails 
+      ? allUsers.filter(u => u.emailVerified && u.emailNotifications).length 
+      : 0
+
     console.log('[Notifications] 📊 Results:', {
       created: results.created,
       errors: results.errors.length,
       totalUsers: allUsers.length,
-      emailEligible: sendEmails ? users.length : 0,
+      emailEligible: emailEligibleCount,
+      errorDetails: results.errors.length > 0 ? results.errors : undefined,
     })
 
     return results
