@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
+import { ContentCard } from '@/components/content/ContentCard'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
 import { Dropdown } from '@/components/ui/Dropdown'
@@ -258,11 +259,43 @@ function BrowsePageContent() {
       ) : results.length > 0 ? (
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center justify-between mb-4 px-4 lg:px-8">
-            <h2 className="text-xl md:text-2xl font-bold text-white">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white">
               Search Results ({results.length})
             </h2>
           </div>
-          <ContentCarousel title="" items={results} />
+          {/* Grid View for Mobile (2 per row), Carousel for Desktop */}
+          <div className="block md:hidden px-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {results.map((item) => (
+                <ContentCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  titleNepali={item.titleNepali}
+                  description={item.description}
+                  descriptionNepali={item.descriptionNepali}
+                  posterUrl={item.posterUrl}
+                  backdropUrl={item.backdropUrl}
+                  videoUrl={item.videoUrl}
+                  trailerUrl={item.trailerUrl}
+                  type={item.type}
+                  rating={item.rating}
+                  year={item.year}
+                  duration={item.duration}
+                  quality={item.quality}
+                  ageRating={item.ageRating}
+                  cast={item.cast}
+                  matureThemes={item.matureThemes}
+                  tags={item.tags}
+                  genres={item.genres}
+                  className="w-full"
+                />
+              ))}
+            </div>
+          </div>
+          <div className="hidden md:block">
+            <ContentCarousel title="" items={results} />
+          </div>
         </div>
       ) : (
         <div className="text-center py-16 bg-card rounded-lg">

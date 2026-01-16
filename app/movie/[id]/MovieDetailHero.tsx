@@ -46,7 +46,7 @@ export function MovieDetailHero({
   return (
     <div 
       ref={elementRef}
-      className="relative h-[70vh] min-h-[500px] overflow-hidden"
+      className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] min-h-[400px] sm:min-h-[450px] md:min-h-[500px] overflow-hidden"
       style={{
         background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(229, 9, 20, 0.15) 0%, transparent 50%)`,
       }}

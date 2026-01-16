@@ -731,7 +731,7 @@ export function VideoPlayer({
 
         {/* Bottom Controls */}
         <div 
-          className="absolute bottom-0 left-0 right-0 p-4 space-y-2 pointer-events-auto"
+          className="absolute bottom-0 left-0 right-0 p-2 sm:p-4 space-y-2 pointer-events-auto"
           onClick={(e) => {
             // Only stop propagation if clicking on actual control elements
             const target = e.target as HTMLElement
@@ -810,18 +810,18 @@ export function VideoPlayer({
             }}
             style={{ pointerEvents: 'auto', zIndex: 50 }}
           >
-            <div className="flex items-center space-x-2">
-                <button
+            <div className="flex items-center space-x-1 sm:space-x-2">
+              <button
                 onClick={(e) => {
                   e.stopPropagation()
                   skip(-10)
                 }}
-                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-2"
+                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-1.5 sm:p-2"
                 title="Rewind 10s (←)"
                 aria-label="Rewind 10 seconds"
                 type="button"
               >
-                <SkipBack size={20} />
+                <SkipBack size={16} className="sm:w-5 sm:h-5" />
               </button>
               <button
                 onMouseDown={(e) => {
@@ -870,9 +870,9 @@ export function VideoPlayer({
                 style={{ pointerEvents: 'auto', zIndex: 50, position: 'relative' }}
               >
                 {state.playing ? (
-                  <Pause size={24} fill="currentColor" />
+                  <Pause size={18} className="sm:w-6 sm:h-6" fill="currentColor" />
                 ) : (
-                  <Play size={24} fill="currentColor" className="ml-0.5" />
+                  <Play size={18} className="sm:w-6 sm:h-6 ml-0.5" fill="currentColor" />
                 )}
               </button>
               <button
@@ -880,27 +880,27 @@ export function VideoPlayer({
                   e.stopPropagation()
                   skip(10)
                 }}
-                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-2"
+                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-1.5 sm:p-2"
                 title="Forward 10s (→)"
                 aria-label="Forward 10 seconds"
                 type="button"
               >
-                <SkipForward size={20} />
+                <SkipForward size={16} className="sm:w-5 sm:h-5" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation()
                   toggleMute()
                 }}
-                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-2"
+                className="text-white hover:text-primary transition-all hover:scale-110 active:scale-95 p-1.5 sm:p-2"
                 title="Mute (M)"
                 aria-label={state.muted ? 'Unmute' : 'Mute'}
                 type="button"
               >
-                {state.muted ? <VolumeX size={24} fill="currentColor" /> : <Volume2 size={24} fill="currentColor" />}
+                {state.muted ? <VolumeX size={18} className="sm:w-6 sm:h-6" fill="currentColor" /> : <Volume2 size={18} className="sm:w-6 sm:h-6" fill="currentColor" />}
               </button>
 
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <input
                   type="range"
                   min="0"
@@ -908,22 +908,22 @@ export function VideoPlayer({
                   step="0.1"
                   value={state.volume}
                   onChange={(e) => setVolume(parseFloat(e.target.value))}
-                  className="w-24"
+                  className="w-20 sm:w-24"
                 />
-                <span className="text-white text-sm w-12">{Math.round(state.volume * 100)}%</span>
+                <span className="text-white text-xs sm:text-sm w-10 sm:w-12">{Math.round(state.volume * 100)}%</span>
               </div>
 
-              <div className="text-white text-sm">
+              <div className="text-white text-xs sm:text-sm">
                 {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
               </div>
             </div>
 
             {/* Title - Center */}
-            <div className="absolute left-1/2 transform -translate-x-1/2">
-              <span className="text-white text-base font-bold">{title}</span>
+            <div className="absolute left-1/2 transform -translate-x-1/2 hidden sm:block">
+              <span className="text-white text-sm sm:text-base font-bold">{title}</span>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Settings */}
               <div className="relative">
                 <button

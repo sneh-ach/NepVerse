@@ -177,18 +177,18 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
             className
           )}
         >
-          <div className="px-4 lg:px-8 mb-6">
-            <h2 
-              className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2" 
-              style={{ 
-                letterSpacing: '0.05em',
-                textShadow: '0 2px 10px rgba(0,0,0,0.5)',
-              }}
-            >
-              {title}
-            </h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
-          </div>
+        <div className="px-4 lg:px-8 mb-4 sm:mb-6">
+          <h2
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2"
+            style={{
+              letterSpacing: '0.05em',
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+            }}
+          >
+            {title}
+          </h2>
+          <div className="h-1 w-16 sm:w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+        </div>
           <div className="px-4 lg:px-8">
             <div className="bg-card/60 backdrop-blur-sm rounded-xl p-8 text-center border border-gray-700/50 shadow-xl">
               <p className="text-gray-300 text-lg">
@@ -285,7 +285,7 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
                 genres={item.genres}
                 progress={item.progress}
                 inWatchlist={item.inWatchlist}
-                className="w-52 md:w-60 lg:w-72"
+                className="w-40 sm:w-48 md:w-60 lg:w-72"
               />
             </div>
           ))}

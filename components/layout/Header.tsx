@@ -223,7 +223,7 @@ export function Header() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search movies, series..."
-                        className="px-4 py-2 bg-card border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all duration-200 hover:border-gray-600 w-64 pr-10"
+                        className="px-3 sm:px-4 py-2 bg-card border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary transition-all duration-200 hover:border-gray-600 w-48 sm:w-64 pr-8 sm:pr-10 text-sm sm:text-base"
                         autoFocus
                         aria-label="Search content"
                       />
@@ -245,7 +245,7 @@ export function Header() {
                   
                   {/* Search Suggestions */}
                   {searchSuggestions.length > 0 && (
-                    <div className="absolute top-full left-0 mt-2 w-64 bg-card border border-gray-700 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto glass">
+                    <div className="absolute top-full left-0 mt-2 w-48 sm:w-64 bg-card border border-gray-700 rounded-lg shadow-2xl z-50 max-h-96 overflow-y-auto glass">
                       {searchSuggestions.map((item: any) => (
                         <Link
                           key={item.id}

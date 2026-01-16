@@ -69,17 +69,17 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
 
   return (
     <>
-      <div className="flex items-center space-x-4 mb-6 flex-wrap gap-3">
+      <div className="flex items-center space-x-2 sm:space-x-4 mb-4 sm:mb-6 flex-wrap gap-2 sm:gap-3">
         <Link href={`/watch/movie/${movie.id}`} className="group/play-link">
           <Button 
             size="lg" 
-            className="relative flex items-center space-x-2 px-7 py-3.5 text-base font-bold"
+            className="relative flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold"
             style={{
               background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
               boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)',
             }}
           >
-            <Play size={22} fill="currentColor" className="group-hover/play-link:scale-110 transition-transform duration-300" />
+            <Play size={18} className="sm:w-[22px] sm:h-[22px] group-hover/play-link:scale-110 transition-transform duration-300" fill="currentColor" />
             <span>Play</span>
           </Button>
         </Link>
@@ -87,27 +87,28 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
           <Button
             variant="outline"
             size="lg"
-            className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/trailer backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+            className="flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-semibold group/trailer backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
             onClick={() => setShowTrailer(true)}
           >
-            <Film size={22} className="group-hover/trailer:rotate-12 transition-transform duration-300" />
-            <span>Trailer</span>
+            <Film size={18} className="sm:w-[22px] sm:h-[22px] group-hover/trailer:rotate-12 transition-transform duration-300" />
+            <span className="hidden sm:inline">Trailer</span>
           </Button>
         )}
         <Button
           variant="outline"
           size="lg"
-          className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/list-btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+          className="flex items-center space-x-2 px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-semibold group/list-btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
           onClick={handleAddToList}
         >
           {inWatchlist ? (
             <>
-              <Plus size={22} className="rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
-              <span>Remove from List</span>
+              <Plus size={18} sm:size={22} className="rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <span className="hidden sm:inline">Remove from List</span>
+              <span className="sm:hidden">Remove</span>
             </>
           ) : (
             <>
-              <Plus size={22} className="group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <Plus size={18} sm:size={22} className="group-hover/list-btn:rotate-90 transition-transform duration-300" />
               <span>My List</span>
             </>
           )}
@@ -120,19 +121,19 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
             e.stopPropagation()
             setShowShareModal(true)
           }}
-          className="group/btn w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300"
+          className="group/btn w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300"
           type="button"
           aria-label="Share"
         >
-          <Share2 size={22} className="group-hover/btn:rotate-12 transition-transform duration-300" />
+          <Share2 size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:rotate-12 transition-transform duration-300" />
         </Button>
         <Button 
           variant="ghost" 
           size="lg"
           onClick={handleAddToList}
-          className="group/btn w-12 h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300"
+          className="group/btn w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300"
         >
-          <Heart size={22} className={`group-hover/btn:scale-125 transition-transform duration-300 ${inWatchlist ? 'fill-primary text-primary' : ''}`} />
+          <Heart size={18} className={`sm:w-[22px] sm:h-[22px] group-hover/btn:scale-125 transition-transform duration-300 ${inWatchlist ? 'fill-primary text-primary' : ''}`} />
         </Button>
       </div>
 

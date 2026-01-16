@@ -116,7 +116,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
   return (
     <div 
       ref={elementRef}
-      className="relative h-[90vh] min-h-[600px] max-h-[900px] flex items-end overflow-hidden group/carousel"
+      className="relative h-[60vh] sm:h-[75vh] md:h-[90vh] min-h-[400px] sm:min-h-[500px] md:min-h-[600px] max-h-[900px] flex items-end overflow-hidden group/carousel"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{
@@ -248,35 +248,35 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
       )}
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 lg:px-8 pb-20 lg:pb-24 w-full">
+      <div className="relative z-10 container mx-auto px-4 lg:px-8 pb-12 sm:pb-16 md:pb-20 lg:pb-24 w-full">
         <div className="max-w-4xl">
           {/* Badge Row */}
           <div 
             key={`badges-${currentIndex}`}
-            className="flex flex-wrap items-center gap-3 mb-6"
+            className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6"
             style={{
               animation: 'fadeIn 2s ease-in-out',
             }}
           >
             {currentItem.rating && (
-              <div className="flex items-center space-x-1.5 px-4 py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
-                <Star size={18} className="fill-yellow-400 text-yellow-400" />
-                <span className="text-white font-bold text-base">
+              <div className="flex items-center space-x-1 px-2 sm:px-4 py-1 sm:py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
+                <Star size={14} className="sm:w-[18px] sm:h-[18px] fill-yellow-400 text-yellow-400" />
+                <span className="text-white font-bold text-xs sm:text-base">
                   {(currentItem.rating > 5 ? currentItem.rating / 2 : currentItem.rating).toFixed(1)}/5
                 </span>
               </div>
             )}
             
             {currentItem.year && (
-              <div className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
-                <span className="text-white font-bold text-base">
+              <div className="px-2 sm:px-4 py-1 sm:py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
+                <span className="text-white font-bold text-xs sm:text-base">
                   {currentItem.year}
                 </span>
               </div>
             )}
             
-            <div className="px-4 py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
-              <span className="text-white font-bold text-base uppercase tracking-wider">
+            <div className="px-2 sm:px-4 py-1 sm:py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
+              <span className="text-white font-bold text-xs sm:text-base uppercase tracking-wider">
                 {currentItem.contentType === 'movie' ? 'Movie' : 'Series'}
               </span>
             </div>
@@ -285,7 +285,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
           {/* Title */}
           <h1 
             key={`title-${currentIndex}`}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 sm:mb-4 drop-shadow-lg"
             style={{
               letterSpacing: '0.02em',
               textShadow: '0 2px 12px rgba(0,0,0,0.8)',
@@ -299,7 +299,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
           {/* Description */}
           <p 
             key={`description-${currentIndex}`}
-            className="text-lg md:text-xl text-gray-100 mb-6 max-w-3xl leading-relaxed drop-shadow-lg"
+            className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100 mb-4 sm:mb-6 max-w-3xl leading-relaxed drop-shadow-lg line-clamp-2 sm:line-clamp-none"
             style={{
               textShadow: '0 2px 10px rgba(0,0,0,0.6)',
               animation: 'fadeIn 2s ease-in-out',
@@ -311,7 +311,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
           {/* Action Buttons */}
           <div 
             key={`buttons-${currentIndex}`}
-            className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4"
             style={{
               animation: 'fadeIn 2s ease-in-out',
             }}
@@ -319,14 +319,14 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
             <Link href={`/watch/${currentItem.contentType}/${currentItem.id}`} className="group relative inline-block">
               <Button 
                 size="lg" 
-                className="relative flex items-center px-7 py-3.5 text-base font-bold group/btn"
+                className="relative flex items-center px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-bold group/btn"
                 style={{
                   background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
                   boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)',
-                  gap: '12px',
+                  gap: '8px',
                 }}
               >
-                <Play size={22} fill="currentColor" className="group-hover/btn:scale-110 transition-transform duration-300" />
+                <Play size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:scale-110 transition-transform duration-300" fill="currentColor" />
                 <span>Play</span>
               </Button>
             </Link>
@@ -334,9 +334,9 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
             <Button 
               variant="outline" 
               size="lg" 
-              className="flex items-center px-7 py-3.5 text-base font-semibold backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300 group/btn"
+              className="flex items-center px-4 sm:px-7 py-2.5 sm:py-3.5 text-sm sm:text-base font-semibold backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300 group/btn"
               style={{
-                gap: '12px',
+                gap: '8px',
               }}
               type="button"
               onClick={(e) => {
@@ -345,8 +345,9 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
                 router.push(`/${currentItem.contentType}/${currentItem.id}`)
               }}
             >
-              <Info size={22} className="group-hover/btn:rotate-12 transition-transform duration-300" />
-              <span>More Info</span>
+              <Info size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:rotate-12 transition-transform duration-300" />
+              <span className="hidden sm:inline">More Info</span>
+              <span className="sm:hidden">Info</span>
             </Button>
           </div>
         </div>
