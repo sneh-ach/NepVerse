@@ -233,14 +233,24 @@ export function EnhancedVideoPlayer({
       onClick={(e) => {
         // Handle clicks on the container/video area
         const target = e.target as HTMLElement
-        // Only toggle if clicking on video, container, or overlay background (not on controls)
+        
+        // Don't toggle if clicking on any button, input, or control element
         if (
-          target.tagName === 'VIDEO' ||
-          target === e.currentTarget ||
-          (target.classList.contains('bg-gradient-to-t') && target === e.currentTarget)
+          target.tagName === 'BUTTON' ||
+          target.tagName === 'INPUT' ||
+          target.closest('button') ||
+          target.closest('input') ||
+          target.closest('[role="button"]') ||
+          target.closest('[aria-label]') ||
+          // Don't toggle if clicking on progress bar or controls
+          target.closest('.cursor-pointer') ||
+          target.closest('[class*="pointer-events-auto"]')
         ) {
-          togglePlay()
+          return
         }
+        
+        // Toggle play/pause on any click on the screen (video, container, or overlay background)
+        togglePlay()
       }}
     >
       <video

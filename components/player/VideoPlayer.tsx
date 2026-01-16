@@ -594,20 +594,17 @@ export function VideoPlayer({
           target.tagName === 'INPUT' ||
           target.closest('button') ||
           target.closest('input') ||
-          target.closest('[class*="pointer-events-auto"]') ||
-          target.classList.contains('pointer-events-auto')
+          target.closest('[role="button"]') ||
+          target.closest('[aria-label]') ||
+          // Don't toggle if clicking on progress bar or controls
+          target.closest('.cursor-pointer') ||
+          target.closest('[class*="pointer-events-auto"]')
         ) {
           return
         }
         
-        // Only toggle if clicking on video, container, or overlay background
-        if (
-          target.tagName === 'VIDEO' ||
-          target === e.currentTarget
-        ) {
-          // Toggle play/pause on video click
-          togglePlay()
-        }
+        // Toggle play/pause on any click on the screen (video, container, or overlay background)
+        togglePlay()
       }}
     >
       <video
