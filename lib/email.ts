@@ -102,14 +102,29 @@ class EmailService {
       })
 
       if (result.error) {
-        console.error('[Email] Resend API error:', JSON.stringify(result.error, null, 2))
+        console.error('[Email] ❌ Resend API error:', JSON.stringify(result.error, null, 2))
         console.error('[Email] Error details:', result.error.message || result.error)
+        console.error('[Email] Error type:', result.error.name || 'Unknown')
+        
+        // Provide helpful error messages
+        if (result.error.message?.includes('domain') || result.error.message?.includes('verify')) {
+          console.error('[Email] 💡 TIP: You may need to verify your domain in Resend dashboard')
+          console.error('[Email] 💡 TIP: Or use a verified email address for the FROM field')
+        }
+        if (result.error.message?.includes('rate limit') || result.error.message?.includes('quota')) {
+          console.error('[Email] 💡 TIP: You may have hit Resend rate limits. Check your dashboard.')
+        }
         return false
       }
 
       console.log('[Email] ✅ Email sent successfully!')
       console.log('[Email]   Message ID:', result.data?.id)
       console.log('[Email]   To:', toEmail)
+      console.log('[Email]   From:', fromEmail)
+      console.log('[Email] 💡 TIP: If email not received, check:')
+      console.log('[Email]   1. Spam/junk folder')
+      console.log('[Email]   2. Resend dashboard for delivery status')
+      console.log('[Email]   3. Verify sender domain in Resend dashboard')
       return true
     } catch (error: any) {
       console.error('[Email] ❌ Resend send error:', error.message || error)

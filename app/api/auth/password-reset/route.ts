@@ -58,16 +58,29 @@ export async function POST(request: NextRequest) {
     console.log('[Password Reset] Reset URL generated')
     
     // Send email (wrapped in try-catch to prevent crashes)
-    console.log('[Password Reset] 📧 Attempting to send email...')
+    console.log('[Password Reset] 📧 Attempting to send email to:', user.email)
+    console.log('[Password Reset] Using FROM email:', process.env.EMAIL_FROM || 'NepVerse <onboarding@resend.dev>')
     let emailSent = false
     try {
       emailSent = await emailService.sendPasswordResetEmail(user.email!, token)
       console.log('[Password Reset] Email send result:', emailSent ? '✅ SUCCESS' : '❌ FAILED')
-    } catch (emailError) {
+      
+      if (emailSent) {
+        console.log('[Password Reset] ✅ Email sent! Check Resend dashboard for delivery status.')
+        console.log('[Password Reset] 💡 If email not received:')
+        console.log('[Password Reset]   1. Check spam/junk folder')
+        console.log('[Password Reset]   2. Verify sender domain in Resend dashboard')
+        console.log('[Password Reset]   3. Check Resend dashboard for bounce/spam reports')
+      } else {
+        console.error('[Password Reset] ❌ Email failed to send. Check server logs above for details.')
+      }
+    } catch (emailError: any) {
       console.error('[Password Reset] ❌ Email service error:', emailError)
+      console.error('[Password Reset] Error message:', emailError?.message || 'Unknown error')
       console.error('[Password Reset] Check:')
       console.error('   1. RESEND_API_KEY is set in .env')
       console.error('   2. Email service is properly configured')
+      console.error('   3. Sender domain is verified in Resend dashboard')
       // Still return success to user (security best practice)
     }
     
