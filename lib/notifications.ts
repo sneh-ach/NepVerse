@@ -141,11 +141,13 @@ export async function notifyNewSeries(seriesId: string, sendEmails = false) {
       return { created: 0, errors: [] }
     }
 
+    // Get all active users who want notifications
     const users = await prisma.user.findMany({
       where: {
-        emailVerified: true,
+        emailVerified: true, // Only verified users
+        emailNotifications: sendEmails ? true : undefined, // If sending emails, only to users who opted in
       },
-      select: { id: true },
+      select: { id: true, emailNotifications: true },
     })
 
     const results = {
