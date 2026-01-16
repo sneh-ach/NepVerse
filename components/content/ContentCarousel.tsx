@@ -210,18 +210,18 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
         hasIntersected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       )}
     >
-      <div className="px-4 lg:px-8 mb-6">
+      <div className="px-4 lg:px-8 mb-4 sm:mb-6">
         <h2 
-          className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2" 
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-3 sm:mb-4" 
           style={{ 
-            fontFamily: 'var(--font-bebas), sans-serif',
-            letterSpacing: '0.05em',
-            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+            letterSpacing: '0.03em',
+            textShadow: '0 2px 12px rgba(0,0,0,0.8)',
+            lineHeight: '1.1',
           }}
         >
           {title}
         </h2>
-        <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+        <div className="h-1.5 sm:h-2 w-24 sm:w-32 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
       </div>
       <div className="relative carousel-wrapper group/carousel">
         {canScrollLeft && (
