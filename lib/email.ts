@@ -247,7 +247,8 @@ The NepVerse Team`
 
   async sendPasswordResetEmail(to: string, resetToken: string): Promise<boolean> {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    const resetUrl = `${baseUrl}/reset-password?token=${resetToken}`
+    // Ensure URL is properly encoded
+    const resetUrl = `${baseUrl}/reset-password?token=${encodeURIComponent(resetToken)}`
     console.log('[Email] Password reset URL:', resetUrl)
     
     // Plain text version for better deliverability
@@ -284,14 +285,24 @@ The NepVerse Team`
               <p>Hello,</p>
               <p>You requested to reset your password for your NepVerse account.</p>
               <p>Click the button below to reset your password:</p>
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${resetUrl}" style="background: #e50914; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Reset Password</a>
-              </div>
-              <p>Or copy and paste this link into your browser:</p>
-              <p style="word-break: break-all; color: #666; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">${resetUrl}</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
+                <tr>
+                  <td align="center">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td align="center" style="background: #e50914; border-radius: 5px;">
+                          <a href="${resetUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px; background: #e50914;">Reset Password</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin-top: 20px;">Or copy and paste this link into your browser:</p>
+              <p style="word-break: break-all; color: #666; background: #fff; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-family: monospace; font-size: 12px;">${resetUrl}</p>
               <p><strong>This link will expire in 1 hour.</strong></p>
-              <p style="color: #666; font-size: 14px;">If you didn't request this password reset, please ignore this email. Your account is secure.</p>
-              <p>Best regards,<br>The NepVerse Team</p>
+              <p style="color: #666; font-size: 14px; margin-top: 20px;">If you didn't request this password reset, please ignore this email. Your account is secure.</p>
+              <p style="margin-top: 20px;">Best regards,<br>The NepVerse Team</p>
             </div>
           </body>
         </html>
