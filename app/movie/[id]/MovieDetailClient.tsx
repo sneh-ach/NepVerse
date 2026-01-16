@@ -102,13 +102,13 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
         >
           {inWatchlist ? (
             <>
-              <Plus size={18} sm:size={22} className="rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <Plus size={18} className="sm:w-[22px] sm:h-[22px] rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
               <span className="hidden sm:inline">Remove from List</span>
               <span className="sm:hidden">Remove</span>
             </>
           ) : (
             <>
-              <Plus size={18} sm:size={22} className="group-hover/list-btn:rotate-90 transition-transform duration-300" />
+              <Plus size={18} className="sm:w-[22px] sm:h-[22px] group-hover/list-btn:rotate-90 transition-transform duration-300" />
               <span>My List</span>
             </>
           )}
