@@ -226,8 +226,18 @@ export const ContentCard = memo(function ContentCard({
               <div className="absolute inset-0 bg-black/30 transition-all duration-300" />
               <div className="flex items-center space-x-6 pointer-events-auto relative z-10">
                 <button
-                  className="rounded-full bg-gradient-to-br from-primary via-primary-light to-primary-dark flex items-center justify-center shadow-[0_20px_60px_rgba(229,9,20,0.7)] hover:shadow-[0_25px_80px_rgba(229,9,20,0.9)] hover:scale-115 active:scale-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/play relative overflow-hidden border-2 border-white/50 hover:border-white/80"
+                  className="rounded-full bg-gradient-to-br from-primary via-primary-light to-primary-dark flex items-center justify-center shadow-[0_20px_60px_rgba(229,9,20,0.7)] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/play relative overflow-hidden border-2 border-white/50 transition-all duration-300"
                   style={{ width: '90px', height: '90px' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.15)'
+                    e.currentTarget.style.boxShadow = '0 25px 80px rgba(229,9,20,0.9)'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.8)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(229,9,20,0.7)'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+                  }}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -239,20 +249,32 @@ export const ContentCard = memo(function ContentCard({
                   }}
                   aria-label={`Play ${title}`}
                 >
-                  <span className="absolute inset-0 bg-white/60 rounded-full scale-0 group-hover/play:scale-150 transition-transform duration-500 opacity-0 group-hover/play:opacity-100" />
+                  <span className="absolute inset-0 bg-white/40 rounded-full scale-0 group-hover/play:scale-125 transition-transform duration-300 opacity-0 group-hover/play:opacity-100 z-0" />
                   <Play size={40} className="text-white ml-1 fill-current relative z-10 group-hover/play:scale-110 transition-transform duration-300 drop-shadow-2xl" />
                 </button>
                 <button
                   onClick={handleAddToList}
-                  className="rounded-full bg-black/95 backdrop-blur-2xl flex items-center justify-center hover:bg-primary/90 hover:scale-115 active:scale-100 transition-all duration-300 border-2 border-white/70 hover:border-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/list relative overflow-hidden shadow-2xl hover:shadow-primary/70"
+                  className="rounded-full bg-black/95 backdrop-blur-2xl flex items-center justify-center border-2 border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/list relative overflow-hidden shadow-2xl transition-all duration-300"
                   style={{ width: '80px', height: '80px' }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.15)'
+                    e.currentTarget.style.backgroundColor = 'rgba(229,9,20,0.9)'
+                    e.currentTarget.style.borderColor = 'rgba(229,9,20,0.9)'
+                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(229,9,20,0.7)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)'
+                    e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.95)'
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'
+                    e.currentTarget.style.boxShadow = '0 0 0 rgba(229,9,20,0)'
+                  }}
                   aria-label={isInWatchlist ? `Remove ${title} from list` : `Add ${title} to list`}
                 >
-                  <span className="absolute inset-0 bg-primary/70 rounded-full scale-0 group-hover/list:scale-150 transition-transform duration-500 opacity-0 group-hover/list:opacity-100" />
+                  <span className="absolute inset-0 bg-primary/50 rounded-full scale-0 group-hover/list:scale-125 transition-transform duration-300 opacity-0 group-hover/list:opacity-100 z-0" />
                   {isInWatchlist ? (
-                    <Heart size={32} className="text-primary fill-current relative z-10 group-hover/list:scale-125 transition-transform duration-300 drop-shadow-2xl" />
+                    <Heart size={32} className="text-primary fill-current relative z-10 group-hover/list:scale-110 transition-transform duration-300 drop-shadow-2xl" />
                   ) : (
-                    <Plus size={32} className="text-white relative z-10 group-hover/list:rotate-90 group-hover/list:scale-125 transition-all duration-300 drop-shadow-2xl" />
+                    <Plus size={32} className="text-white relative z-10 group-hover/list:rotate-90 group-hover/list:scale-110 transition-all duration-300 drop-shadow-2xl" />
                   )}
                 </button>
               </div>
