@@ -172,9 +172,9 @@ export const ContentCard = memo(function ContentCard({
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:z-40 group-hover/card:shadow-2xl origin-center">
           {!imageError ? (
             // Always use regular img for R2 images and proxy URLs
-            (posterUrl?.includes('r2.cloudflarestorage.com') || posterUrl?.includes('/api/storage/proxy')) ? (
+            (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
               <img
-                src={posterUrl}
+                src={displayPosterUrl}
                 alt={title}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
                 onError={() => setImageError(true)}
@@ -183,7 +183,7 @@ export const ContentCard = memo(function ContentCard({
               />
             ) : (
               <Image
-                src={posterUrl}
+                src={displayPosterUrl}
                 alt={title}
                 fill
                 className="object-cover transition-transform duration-300 group-hover/card:scale-105"
@@ -192,7 +192,7 @@ export const ContentCard = memo(function ContentCard({
                 loading="lazy"
                 placeholder="blur"
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-                unoptimized={posterUrl?.startsWith('http://localhost')}
+                unoptimized={displayPosterUrl?.startsWith('http://localhost')}
               />
             )
           ) : (
