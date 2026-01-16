@@ -14,6 +14,7 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [devResetLink, setDevResetLink] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,9 +55,18 @@ export default function ForgotPasswordPage() {
 
         setIsLoading(false)
         setEmailSent(true)
-        toast.success('Password reset link sent to your email!', {
-          duration: 4000,
-        })
+        
+        // Store dev reset link if provided
+        if (data.devResetLink) {
+          setDevResetLink(data.devResetLink)
+          toast.success('Password reset link generated! (Email service not configured)', {
+            duration: 5000,
+          })
+        } else {
+          toast.success('Password reset link sent to your email!', {
+            duration: 4000,
+          })
+        }
       } catch (error: any) {
         clearTimeout(timeoutId)
         if (error.name === 'AbortError') {
@@ -78,13 +88,38 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-md">
           <div className="bg-card p-8 rounded-lg text-center">
             <Mail size={64} className="text-primary mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-4">Check Your Email</h2>
-            <p className="text-gray-400 mb-6">
-              We've sent a password reset link to <strong className="text-white">{email}</strong>
-            </p>
-            <p className="text-gray-400 text-sm mb-6">
-              Click the link in the email to reset your password. If you don't see it, check your spam folder.
-            </p>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              {devResetLink ? 'Password Reset Link' : 'Check Your Email'}
+            </h2>
+            {devResetLink ? (
+              <>
+                <p className="text-gray-400 mb-4">
+                  Email service is not configured. Use the link below to reset your password:
+                </p>
+                <div className="bg-black/50 p-4 rounded-lg mb-6 text-left">
+                  <a 
+                    href={devResetLink} 
+                    className="text-primary hover:text-primary-light underline break-all text-sm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {devResetLink}
+                  </a>
+                </div>
+                <p className="text-gray-400 text-sm mb-6">
+                  Click the link above to reset your password. This link will expire in 1 hour.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-400 mb-6">
+                  We've sent a password reset link to <strong className="text-white">{email}</strong>
+                </p>
+                <p className="text-gray-400 text-sm mb-6">
+                  Click the link in the email to reset your password. If you don't see it, check your spam folder.
+                </p>
+              </>
+            )}
             <div className="flex flex-col space-y-3">
               <Button variant="primary" onClick={() => router.push('/login')}>
                 Back to Sign In

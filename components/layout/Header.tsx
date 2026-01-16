@@ -343,6 +343,18 @@ export function Header() {
                           >
                             Settings
                           </Link>
+                          {(user as any)?.role === 'ADMIN' && (
+                            <Link
+                              href="/admin"
+                              className="block px-4 py-2 text-white hover:bg-card-hover transition-colors border-t border-gray-800 mt-1"
+                              onClick={() => setShowProfileMenu(false)}
+                            >
+                              <span className="flex items-center">
+                                <span>Admin Panel</span>
+                                <span className="ml-2 px-2 py-0.5 bg-primary/20 text-primary text-xs rounded">ADMIN</span>
+                              </span>
+                            </Link>
+                          )}
                           <button
                             onClick={() => {
                               setShowProfileMenu(false)

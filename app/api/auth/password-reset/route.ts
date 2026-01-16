@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
 
     // Generate and store reset token
     const { token } = await db.user.createPasswordResetToken(user.id)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const resetUrl = `${baseUrl}/reset-password?token=${token}`
+    
     // Log without sensitive data
     console.log('[Password Reset] ✅ Token created')
     console.log('[Password Reset] Reset URL generated')
@@ -68,13 +71,31 @@ export async function POST(request: NextRequest) {
       // Still return success to user (security best practice)
     }
     
+    // In development, log the reset link so it can be tested
+    if (process.env.NODE_ENV === 'development' || !emailSent) {
+      console.log('\n' + '='.repeat(80))
+      console.log('[Password Reset] 🔗 RESET LINK (for testing):')
+      console.log(resetUrl)
+      console.log('='.repeat(80) + '\n')
+    }
+    
     if (!emailSent) {
       console.warn('[Password Reset] ⚠️ Email not sent, but returning success to user (security best practice)')
+      console.warn('[Password Reset] ⚠️ Check server logs above for the reset link in development mode')
     }
 
-    return NextResponse.json({
+    // In development, include the reset link in the response for testing
+    const response: any = {
       message: 'If an account with that email exists, we\'ve sent a password reset link.',
-    })
+    }
+    
+    // Only include reset link in development mode for testing
+    if (process.env.NODE_ENV === 'development' && !emailSent) {
+      response.devResetLink = resetUrl
+      response.devMessage = 'Email service not configured. Use the reset link above to test password reset.'
+    }
+
+    return NextResponse.json(response)
   } catch (error) {
     console.error('Password reset error:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

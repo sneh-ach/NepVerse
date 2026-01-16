@@ -134,12 +134,33 @@ export default function SettingsPage() {
 
     setIsSaving(true)
     try {
+      // Update account via API (phone and/or password)
+      const response = await fetch('/api/user/account', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          phone: accountData.phone || null,
+          currentPassword: accountData.currentPassword || undefined,
+          newPassword: accountData.newPassword || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Failed to update account')
+      }
+
+      // Also update in localStorage for consistency
       accountService.updateAccount({
         email: accountData.email,
         phone: accountData.phone,
         currentPassword: accountData.currentPassword,
         newPassword: accountData.newPassword,
       })
+
       toast.success('Account updated successfully!', {
         duration: 3000,
       })
@@ -301,7 +322,7 @@ export default function SettingsPage() {
                 type="tel"
                 value={accountData.phone}
                 onChange={(e) => setAccountData({ ...accountData, phone: e.target.value })}
-                disabled
+                placeholder="+977 98XXXXXXXX"
               />
               <div className="border-t border-gray-800 pt-6 mt-6">
                 <h3 className="text-lg font-semibold text-white mb-4">Change Password</h3>

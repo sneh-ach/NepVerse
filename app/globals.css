@@ -117,6 +117,16 @@
     animation: shimmer 2s infinite;
   }
 
+  /* Smooth Ken Burns zoom animation */
+  @keyframes kenBurns {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.08);
+    }
+  }
+
   /* Enhanced Ripple effect */
   @keyframes ripple {
     0% {

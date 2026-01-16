@@ -161,7 +161,7 @@ export const ContentCard = memo(function ContentCard({
     <>
       <div 
         className={`relative flex-shrink-0 ${className}`} 
-        style={{ willChange: 'transform', transformOrigin: 'center center' }}
+        style={{ willChange: 'transform', transformOrigin: 'center center', padding: '8px' }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -169,14 +169,14 @@ export const ContentCard = memo(function ContentCard({
           onClick={handleCardClick}
           className="block group/card cursor-pointer"
         >
-        <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-card transition-all duration-300 ease-out group-hover/card:scale-105 group-hover/card:z-40 group-hover/card:shadow-2xl origin-center">
+        <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-card transition-all duration-500 ease-out group-hover/card:scale-105 group-hover/card:z-40 group-hover/card:shadow-[0_20px_60px_rgba(0,0,0,0.8)] origin-center border border-white/10 group-hover/card:border-white/30">
           {!imageError ? (
             // Always use regular img for R2 images and proxy URLs
             (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
               <img
                 src={displayPosterUrl}
                 alt={title}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover/card:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
                 onError={() => setImageError(true)}
                 loading="lazy"
                 crossOrigin="anonymous"
@@ -186,7 +186,7 @@ export const ContentCard = memo(function ContentCard({
                 src={displayPosterUrl}
                 alt={title}
                 fill
-                className="object-cover transition-transform duration-300 group-hover/card:scale-105"
+                className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
                 sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
                 onError={() => setImageError(true)}
                 loading="lazy"
@@ -217,12 +217,14 @@ export const ContentCard = memo(function ContentCard({
             </div>
           )}
 
-          {/* Quick Actions Overlay - Better Visibility */}
+          {/* Quick Actions Overlay - Clean & Premium */}
           {showQuickActions && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-200 pointer-events-none z-20">
-              <div className="flex items-center space-x-3 pointer-events-auto">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-300 pointer-events-none z-20">
+              <div className="absolute inset-0 bg-black/30 transition-all duration-300" />
+              <div className="flex items-center space-x-6 pointer-events-auto relative z-10">
                 <button
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-primary via-primary-light to-primary-dark flex items-center justify-center shadow-2xl hover:shadow-primary/70 hover:scale-110 active:scale-95 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group relative overflow-hidden border-2 border-white/20"
+                  className="rounded-full bg-gradient-to-br from-primary via-primary-light to-primary-dark flex items-center justify-center shadow-[0_20px_60px_rgba(229,9,20,0.7)] hover:shadow-[0_25px_80px_rgba(229,9,20,0.9)] hover:scale-115 active:scale-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/play relative overflow-hidden border-2 border-white/50 hover:border-white/80"
+                  style={{ width: '90px', height: '90px' }}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
@@ -234,58 +236,26 @@ export const ContentCard = memo(function ContentCard({
                   }}
                   aria-label={`Play ${title}`}
                 >
-                  <span className="absolute inset-0 bg-white/30 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
-                  <Play size={28} className="text-white ml-1 fill-current relative z-10 group-hover:scale-110 transition-transform duration-200" />
+                  <span className="absolute inset-0 bg-white/60 rounded-full scale-0 group-hover/play:scale-150 transition-transform duration-500 opacity-0 group-hover/play:opacity-100" />
+                  <Play size={40} className="text-white ml-1 fill-current relative z-10 group-hover/play:scale-110 transition-transform duration-300 drop-shadow-2xl" />
                 </button>
                 <button
                   onClick={handleAddToList}
-                  className="w-14 h-14 rounded-full bg-black/90 backdrop-blur-md flex items-center justify-center hover:bg-primary/90 hover:scale-110 active:scale-95 transition-all duration-200 border-2 border-white/40 hover:border-primary/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group relative overflow-hidden shadow-xl hover:shadow-primary/40"
+                  className="rounded-full bg-black/95 backdrop-blur-2xl flex items-center justify-center hover:bg-primary/90 hover:scale-115 active:scale-100 transition-all duration-300 border-2 border-white/70 hover:border-primary/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/list relative overflow-hidden shadow-2xl hover:shadow-primary/70"
+                  style={{ width: '80px', height: '80px' }}
                   aria-label={isInWatchlist ? `Remove ${title} from list` : `Add ${title} to list`}
                 >
-                  <span className="absolute inset-0 bg-primary/40 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100" />
+                  <span className="absolute inset-0 bg-primary/70 rounded-full scale-0 group-hover/list:scale-150 transition-transform duration-500 opacity-0 group-hover/list:opacity-100" />
                   {isInWatchlist ? (
-                    <Heart size={22} className="text-primary fill-current relative z-10 group-hover:scale-125 transition-transform duration-200" />
+                    <Heart size={32} className="text-primary fill-current relative z-10 group-hover/list:scale-125 transition-transform duration-300 drop-shadow-2xl" />
                   ) : (
-                    <Plus size={22} className="text-white relative z-10 group-hover:rotate-90 group-hover:scale-125 transition-all duration-200" />
+                    <Plus size={32} className="text-white relative z-10 group-hover/list:rotate-90 group-hover/list:scale-125 transition-all duration-300 drop-shadow-2xl" />
                   )}
                 </button>
               </div>
             </div>
           )}
 
-          {/* Rating Badge - Always Visible - Larger */}
-          {rating !== undefined && (
-            <div className="absolute top-3 left-3 bg-black/95 backdrop-blur-md px-3 py-1.5 rounded-lg flex items-center space-x-1.5 z-20 shadow-lg border border-yellow-400/30">
-              <Star size={16} className="text-yellow-400 fill-yellow-400" />
-              <span className="text-white text-sm font-bold">
-                {(rating > 5 ? rating / 2 : rating).toFixed(1)}/5
-              </span>
-            </div>
-          )}
-
-          {/* Bottom Info - Always Visible - Larger and More Prominent */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/95 to-black/70 z-10">
-            <h3 className="text-white font-bold text-base mb-2 line-clamp-1 drop-shadow-lg">{title}</h3>
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-3 flex-wrap text-sm">
-                {year && (
-                  <span className="text-white font-semibold">{year}</span>
-                )}
-                {duration && (
-                  <div className="flex items-center space-x-1.5 text-white">
-                    <Clock size={14} />
-                    <span className="font-medium">{Math.floor(duration / 60)}h {duration % 60}m</span>
-                  </div>
-                )}
-                {quality && (
-                  <span className="px-2 py-0.5 bg-primary/90 rounded text-white text-xs font-bold">{quality}</span>
-                )}
-                {ageRating && (
-                  <span className="px-2 py-0.5 bg-gray-700 rounded text-white text-xs font-semibold">{ageRating}</span>
-                )}
-              </div>
-            </div>
-          </div>
         </div>
         </div>
       </div>

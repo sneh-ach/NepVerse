@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { profileStorage } from '@/lib/localStorage'
-import { HeroBanner } from '@/components/content/HeroBanner'
+import { HeroCarousel } from '@/components/content/HeroCarousel'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
 import { watchHistoryService } from '@/lib/clientStorage'
 
@@ -76,16 +76,24 @@ async function getFeaturedContent() {
       console.warn('⚠️ No published content found in database. Make sure content is marked as "Published" in the admin panel.')
     }
 
-    // Featured content (first featured movie or series, or any published content)
-    const featured = movies.find((m: any) => m.isFeatured) || 
-                    series.find((s: any) => s.isFeatured) ||
-                    movies[0] || 
-                    series[0] ||
-                    allMovies[0] ||
-                    allSeries[0] ||
-                    null
+    // Get up to 3 random movies for hero carousel (or however many are available, minimum 1)
+    const allContent = [...allMovies, ...allSeries].filter((item: any) => item && item.id && item.backdropUrl)
     
-    console.log('Featured content:', featured ? featured.title : 'none')
+    // Shuffle and get up to 3 random items (or all available if less than 3, but at least 1 if available)
+    const shuffled = [...allContent].sort(() => Math.random() - 0.5)
+    const maxItems = Math.min(3, Math.max(1, shuffled.length))
+    const featuredItems = shuffled.slice(0, maxItems).map((item: any) => ({
+      id: item.id,
+      title: item.title || 'Untitled',
+      description: item.description || '',
+      backdropUrl: item.backdropUrl || '',
+      posterUrl: item.posterUrl || '',
+      contentType: ('episodeCount' in item || item.episodes) ? ('series' as const) : ('movie' as const),
+      rating: item.rating ?? undefined,
+      year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : undefined,
+    }))
+    
+    console.log('Featured carousel items:', featuredItems.length)
 
     // Trending (most viewed)
     const trending = [...allMovies, ...allSeries]
@@ -243,17 +251,7 @@ async function getFeaturedContent() {
       }))
 
     return {
-      featured: featured ? {
-        id: featured.id,
-        title: featured.title,
-        titleNepali: featured.titleNepali,
-        description: featured.description,
-        backdropUrl: featured.backdropUrl,
-        posterUrl: featured.posterUrl,
-        contentType: 'episodeCount' in featured || featured.episodes ? ('series' as const) : ('movie' as const),
-        rating: featured.rating,
-        year: new Date(featured.releaseDate).getFullYear(),
-      } : null,
+      featured: featuredItems,
       trending,
       originals,
       newReleases,
@@ -266,7 +264,7 @@ async function getFeaturedContent() {
     console.error('Error details:', error instanceof Error ? error.message : String(error))
     // Return empty data on error
     return {
-      featured: null,
+      featured: [],
       trending: [],
       originals: [],
       newReleases: [],
@@ -282,7 +280,7 @@ export default function HomePage() {
   const { user, loading } = useAuth()
   const [continueWatching, setContinueWatching] = useState<any[]>([])
   const [content, setContent] = useState<any>({
-    featured: null,
+    featured: [],
     trending: [],
     originals: [],
     newReleases: [],
@@ -465,18 +463,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Banner */}
-      {content.featured && (
-        <HeroBanner
-          title={content.featured.title}
-          description={content.featured.description}
-          backdropUrl={content.featured.backdropUrl}
-          posterUrl={content.featured.posterUrl}
-          contentId={content.featured.id}
-          contentType={content.featured.contentType}
-          rating={content.featured.rating}
-          year={content.featured.year}
-        />
+      {/* Hero Carousel */}
+      {content.featured && content.featured.length > 0 && (
+        <HeroCarousel items={content.featured} autoPlayInterval={8000} />
       )}
 
       {/* Content Carousels - ALL NEPALI CONTENT */}
@@ -548,6 +537,7 @@ export default function HomePage() {
         
         {/* Show message if no content at all */}
         {!contentLoading && 
+         (!content.featured || content.featured.length === 0) &&
          content.trending.length === 0 && 
          content.originals.length === 0 && 
          content.newReleases.length === 0 && 

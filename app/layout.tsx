@@ -1,12 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { Toaster } from 'react-hot-toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://nepverse.com'),
@@ -116,7 +113,7 @@ export default function RootLayout({
         <meta property="og:image:height" content="630" />
         <meta property="og:image:type" content="image/jpeg" />
       </head>
-      <body className={`${inter.variable} font-sans bg-background text-foreground antialiased`}>
+      <body className="bg-background text-foreground antialiased">
         <ErrorBoundary>
           <Header />
           <main className="min-h-screen pt-16">

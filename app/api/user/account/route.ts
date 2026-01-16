@@ -72,8 +72,17 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    const { currentPassword, newPassword } = await request.json()
+    const { phone, currentPassword, newPassword } = await request.json()
 
+    // Prepare update data
+    const updateData: { phone?: string | null; passwordHash?: string } = {}
+
+    // Update phone if provided
+    if (phone !== undefined) {
+      updateData.phone = phone || null
+    }
+
+    // Update password if provided
     if (newPassword) {
       // Verify current password
       const user = await prisma.user.findUnique({
@@ -103,10 +112,14 @@ export async function PUT(request: NextRequest) {
       }
 
       // Update password
-      const passwordHash = await hashPassword(newPassword)
+      updateData.passwordHash = await hashPassword(newPassword)
+    }
+
+    // Update user with all changes
+    if (Object.keys(updateData).length > 0) {
       await prisma.user.update({
         where: { id: userId },
-        data: { passwordHash },
+        data: updateData,
       })
     }
 

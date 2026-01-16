@@ -172,17 +172,26 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
         <div 
           ref={elementRef as any}
           className={cn(
-            'mb-8 transition-all duration-1000',
+            'mb-12 transition-all duration-1000',
             hasIntersected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
             className
           )}
         >
-          <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-4 lg:px-8 gradient-text">
-            {title}
-          </h2>
+          <div className="px-4 lg:px-8 mb-6">
+            <h2 
+              className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2" 
+              style={{ 
+                letterSpacing: '0.05em',
+                textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+              }}
+            >
+              {title}
+            </h2>
+            <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+          </div>
           <div className="px-4 lg:px-8">
-            <div className="bg-card/50 rounded-lg p-8 text-center border border-gray-800">
-              <p className="text-gray-400 text-lg">
+            <div className="bg-card/60 backdrop-blur-sm rounded-xl p-8 text-center border border-gray-700/50 shadow-xl">
+              <p className="text-gray-300 text-lg">
                 {emptyMessage || 'No items to show. Start watching to see your progress here.'}
               </p>
             </div>
@@ -197,13 +206,23 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
     <div 
       ref={elementRef as any}
       className={cn(
-        'mb-8 transition-all duration-1000',
+        'mb-12 transition-all duration-1000',
         hasIntersected ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       )}
     >
-      <h2 className="text-xl md:text-2xl font-bold text-white mb-4 px-4 lg:px-8 gradient-text">
-        {title}
-      </h2>
+      <div className="px-4 lg:px-8 mb-6">
+        <h2 
+          className="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-2" 
+          style={{ 
+            fontFamily: 'var(--font-bebas), sans-serif',
+            letterSpacing: '0.05em',
+            textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+          }}
+        >
+          {title}
+        </h2>
+        <div className="h-1 w-20 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+      </div>
       <div className="relative carousel-wrapper group/carousel">
         {canScrollLeft && (
           <button
@@ -222,11 +241,12 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
 
         <div
           ref={scrollRef}
-          className="flex space-x-2 overflow-x-auto scrollbar-hide px-4 lg:px-8 scroll-smooth momentum-scroll"
+          className="flex space-x-4 overflow-x-auto scrollbar-hide px-4 lg:px-8 scroll-smooth momentum-scroll pb-4 overflow-y-visible"
           style={{ 
             scrollbarWidth: 'none', 
             msOverflowStyle: 'none',
             overscrollBehaviorX: 'contain',
+            overflowY: 'visible',
           }}
           onWheel={(e) => {
             if (scrollRef.current && e.currentTarget === e.target) {
@@ -235,32 +255,39 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
             }
           }}
         >
-          {enrichedItems.map((item) => (
-            <ContentCard
+          {enrichedItems.map((item, index) => (
+            <div
               key={item.id}
-              id={item.id}
-              title={item.title}
-              titleNepali={item.titleNepali}
-              description={item.description}
-              descriptionNepali={item.descriptionNepali}
-              posterUrl={item.posterUrl}
-              backdropUrl={item.backdropUrl}
-              videoUrl={item.videoUrl}
-              trailerUrl={item.trailerUrl}
-              type={item.type}
-              rating={item.rating}
-              year={item.year}
-              duration={item.duration}
-              quality={item.quality}
-              ageRating={item.ageRating}
-              cast={item.cast}
-              matureThemes={item.matureThemes}
-              tags={item.tags}
-              genres={item.genres}
-              progress={item.progress}
-              inWatchlist={item.inWatchlist}
-              className="w-48 md:w-56 lg:w-64"
-            />
+              className="flex-shrink-0"
+              style={{
+                animationDelay: `${index * 50}ms`,
+              }}
+            >
+              <ContentCard
+                id={item.id}
+                title={item.title}
+                titleNepali={item.titleNepali}
+                description={item.description}
+                descriptionNepali={item.descriptionNepali}
+                posterUrl={item.posterUrl}
+                backdropUrl={item.backdropUrl}
+                videoUrl={item.videoUrl}
+                trailerUrl={item.trailerUrl}
+                type={item.type}
+                rating={item.rating}
+                year={item.year}
+                duration={item.duration}
+                quality={item.quality}
+                ageRating={item.ageRating}
+                cast={item.cast}
+                matureThemes={item.matureThemes}
+                tags={item.tags}
+                genres={item.genres}
+                progress={item.progress}
+                inWatchlist={item.inWatchlist}
+                className="w-52 md:w-60 lg:w-72"
+              />
+            </div>
           ))}
         </div>
 

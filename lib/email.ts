@@ -16,25 +16,47 @@ class EmailService {
   constructor() {
     // Use Resend's test domain for development if no custom domain verified
     this.fromEmail = process.env.EMAIL_FROM || 'NepVerse <onboarding@resend.dev>'
+  }
+
+  // Lazy provider detection - check at send time to ensure env vars are loaded
+  private getProvider(): 'resend' | 'sendgrid' | 'ses' | null {
+    if (this.provider) {
+      return this.provider
+    }
     
-    // Determine which provider to use
+    // Check environment variables at runtime
     if (process.env.RESEND_API_KEY) {
       this.provider = 'resend'
+      console.log('[Email] ✅ Resend provider detected')
     } else if (process.env.SENDGRID_API_KEY) {
       this.provider = 'sendgrid'
+      console.log('[Email] ✅ SendGrid provider detected')
     } else if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
       this.provider = 'ses'
+      console.log('[Email] ✅ AWS SES provider detected')
+    } else {
+      console.warn('[Email] ⚠️ No email provider configured')
+      console.warn('[Email] ⚠️ RESEND_API_KEY:', process.env.RESEND_API_KEY ? 'Found' : 'NOT FOUND')
     }
+    
+    return this.provider
   }
 
   async send(options: EmailOptions): Promise<boolean> {
-    if (!this.provider) {
-      console.warn('No email provider configured. Email not sent:', options.subject)
+    const provider = this.getProvider()
+    
+    if (!provider) {
+      console.warn('⚠️ No email provider configured. Email not sent:', options.subject)
+      console.warn('⚠️ To enable email sending, set one of the following in .env:')
+      console.warn('   - RESEND_API_KEY (recommended)')
+      console.warn('   - SENDGRID_API_KEY')
+      console.warn('   - AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY (for AWS SES)')
+      console.warn('⚠️ Current RESEND_API_KEY value:', process.env.RESEND_API_KEY ? 'Set (' + process.env.RESEND_API_KEY.substring(0, 10) + '...)' : 'NOT SET')
       return false
     }
 
     try {
-      switch (this.provider) {
+      switch (provider) {
         case 'resend':
           return await this.sendViaResend(options)
         case 'sendgrid':

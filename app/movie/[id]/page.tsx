@@ -9,7 +9,7 @@ import { ReviewSection } from '@/components/content/ReviewSection'
 import { CommentsSection } from '@/components/content/CommentsSection'
 import { formatDate, formatDuration, getImageUrl } from '@/lib/utils'
 import { MovieDetailClient } from './MovieDetailClient'
-import { AutoPlayPreview } from '@/components/content/AutoPlayPreview'
+import { MovieDetailHero } from './MovieDetailHero'
 import { generateMetadata as generateSEOMetadata, generateStructuredData } from '@/lib/seo'
 import { prisma } from '@/lib/prisma'
 
@@ -126,22 +126,20 @@ export default async function MovieDetailPage({ params }: { params: { id: string
         dangerouslySetInnerHTML={{ __html: jsonLdScript }}
       />
       <div className="min-h-screen">
-      {/* Hero Section with Auto-Play Preview */}
-      <div className="relative h-[70vh] min-h-[500px]">
-        <AutoPlayPreview
-          videoUrl={movie.videoUrl}
-          trailerUrl={(movie as any).trailerUrl}
-          backdropUrl={getImageUrl(movie.backdropUrl || '')}
-          posterUrl={getImageUrl(movie.posterUrl)}
-          title={movie.title}
-          previewDuration={12} // 12 seconds preview
-        />
-
-        <div className="relative z-10 container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
-          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+      {/* Hero Section with Animated Background */}
+      <MovieDetailHero
+        videoUrl={movie.videoUrl}
+        trailerUrl={(movie as any).trailerUrl}
+        backdropUrl={getImageUrl(movie.backdropUrl || '')}
+        posterUrl={getImageUrl(movie.posterUrl)}
+        title={movie.title}
+        previewDuration={12}
+      >
+        <div className="container mx-auto px-4 lg:px-8 h-full flex items-end pb-16">
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-end">
             {/* Poster - Left Side */}
-            <div className="lg:col-span-3 flex justify-center lg:justify-start">
-              <div className="relative w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
+            <div className="lg:col-span-4 flex justify-center lg:justify-start items-end">
+              <div className="relative w-72 md:w-80 lg:w-96 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
                 {(() => {
                   const displayPosterUrl = getImageUrl(movie.posterUrl)
                   return (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
@@ -157,7 +155,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
                       alt={movie.title}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
+                      sizes="(max-width: 768px) 288px, (max-width: 1024px) 320px, 384px"
                       priority
                     />
                   )
@@ -166,7 +164,7 @@ export default async function MovieDetailPage({ params }: { params: { id: string
             </div>
 
             {/* Content - Right Side */}
-            <div className="lg:col-span-9">
+            <div className="lg:col-span-8">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg">
                 {movie.title}
               </h1>
@@ -176,21 +174,21 @@ export default async function MovieDetailPage({ params }: { params: { id: string
 
               <div className="flex flex-wrap items-center gap-4 mb-6">
                 {movie.rating && (
-                  <span className="px-3 py-1 bg-primary rounded-md font-semibold text-white flex items-center space-x-1">
-                    <Star size={16} className="fill-white" />
-                    <span>{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
+                  <span className="px-3.5 py-1.5 bg-primary rounded-md font-semibold text-white flex items-center space-x-1.5">
+                    <Star size={18} className="fill-white" />
+                    <span className="text-base">{(movie.rating > 5 ? movie.rating / 2 : movie.rating).toFixed(1)}/5</span>
                   </span>
                 )}
-                <span className="text-white drop-shadow-lg">{new Date(movie.releaseDate).getFullYear()}</span>
-                <span className="text-white drop-shadow-lg">{formatDuration(movie.duration * 60)}</span>
+                <span className="text-white drop-shadow-lg text-base font-medium">{new Date(movie.releaseDate).getFullYear()}</span>
+                <span className="text-white drop-shadow-lg text-base font-medium">{formatDuration(movie.duration * 60)}</span>
                 {(movie as any).quality && (
-                  <span className="px-3 py-1 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
+                  <span className="px-3.5 py-1.5 bg-blue-500/80 rounded-md text-white text-sm font-semibold">
                     {(movie as any).quality}
                   </span>
                 )}
-                <span className="px-3 py-1 bg-gray-700 rounded-md text-white">{movie.ageRating}</span>
+                <span className="px-3.5 py-1.5 bg-gray-700 rounded-md text-white text-sm font-medium">{movie.ageRating}</span>
                 {genres.map((genre: any) => (
-                  <span key={genre.name} className="text-gray-300 drop-shadow-lg">
+                  <span key={genre.name} className="text-gray-300 drop-shadow-lg text-base font-medium">
                     {genre.name}
                   </span>
                 ))}
@@ -199,41 +197,43 @@ export default async function MovieDetailPage({ params }: { params: { id: string
               {/* Cast, Mature Themes, Tags */}
               {(movie as any).cast && (
                 <div className="mb-4">
-                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                  <p className="text-gray-300 text-base md:text-lg drop-shadow-lg">
                     <span className="font-semibold text-white">Cast:</span> {(movie as any).cast}
                   </p>
                 </div>
               )}
               {(movie as any).matureThemes && (
                 <div className="mb-4">
-                  <p className="text-gray-400 text-sm drop-shadow-lg">{(movie as any).matureThemes}</p>
+                  <p className="text-gray-400 text-base md:text-lg drop-shadow-lg">{(movie as any).matureThemes}</p>
                 </div>
               )}
               {(movie as any).tags && (
                 <div className="mb-4">
-                  <p className="text-gray-300 text-sm drop-shadow-lg">
+                  <p className="text-gray-300 text-base md:text-lg drop-shadow-lg">
                     <span className="font-semibold text-white">This Movie Is:</span> {(movie as any).tags}
                   </p>
                 </div>
               )}
 
-              <MovieDetailClient movie={{ 
-                id: movie.id, 
-                title: movie.title, 
-                trailerUrl: (movie as any).trailerUrl,
-                rating: movie.rating ?? undefined,
-                year: new Date(movie.releaseDate).getFullYear(),
-                description: movie.description
-              }} />
+              <div className="mb-5">
+                <MovieDetailClient movie={{ 
+                  id: movie.id, 
+                  title: movie.title, 
+                  trailerUrl: (movie as any).trailerUrl,
+                  rating: movie.rating ?? undefined,
+                  year: new Date(movie.releaseDate).getFullYear(),
+                  description: movie.description
+                }} />
+              </div>
 
-              <p className="text-lg text-gray-200 mb-4 drop-shadow-lg">{movie.description}</p>
+              <p className="text-lg md:text-xl text-gray-200 mb-4 drop-shadow-lg leading-relaxed">{movie.description}</p>
               {movie.descriptionNepali && (
-                <p className="text-lg text-gray-300 drop-shadow-lg">{movie.descriptionNepali}</p>
+                <p className="text-lg md:text-xl text-gray-300 drop-shadow-lg leading-relaxed">{movie.descriptionNepali}</p>
               )}
             </div>
           </div>
         </div>
-      </div>
+      </MovieDetailHero>
 
       {/* Recommended */}
       {recommended.length > 0 && (
