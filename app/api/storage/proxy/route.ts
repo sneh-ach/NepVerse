@@ -5,6 +5,20 @@ import { storageService } from '@/lib/storage'
 export const dynamic = 'force-dynamic'
 
 /**
+ * OPTIONS handler for CORS preflight requests
+ */
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  })
+}
+
+/**
  * GET /api/storage/proxy
  * Proxy endpoint to serve files from R2/S3 storage
  * 
@@ -277,12 +291,18 @@ export async function GET(request: NextRequest) {
       // Convert buffer to Uint8Array for NextResponse
       const uint8Array = new Uint8Array(buffer)
       
+      // Add CORS headers to allow cross-origin requests (especially for localhost development)
+      const headers: Record<string, string> = {
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Content-Disposition': `inline; filename="${keyToUse.split('/').pop()}"`,
+        'Access-Control-Allow-Origin': '*', // Allow all origins (images should be publicly accessible)
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+      
       return new NextResponse(uint8Array, {
-        headers: {
-          'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable',
-          'Content-Disposition': `inline; filename="${keyToUse.split('/').pop()}"`,
-        },
+        headers,
       })
     } catch (error: any) {
       // Handle S3/R2 errors

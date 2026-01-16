@@ -54,9 +54,29 @@ class StorageService {
   }
 
   private initialize() {
+    // Helper to get env var and strip quotes if present
+    const getEnv = (key: string): string | undefined => {
+      const value = process.env[key]
+      if (!value) return undefined
+      // Strip surrounding quotes if present
+      return value.replace(/^["']|["']$/g, '')
+    }
+    
     // Check for S3 or R2 configuration
-    const hasS3 = !!process.env.S3_ACCESS_KEY_ID && !!process.env.S3_SECRET_ACCESS_KEY
-    const hasR2 = !!process.env.R2_ACCOUNT_ID && !!process.env.R2_ACCESS_KEY_ID
+    const hasS3 = !!getEnv('S3_ACCESS_KEY_ID') && !!getEnv('S3_SECRET_ACCESS_KEY')
+    const hasR2 = !!getEnv('R2_ACCOUNT_ID') && !!getEnv('R2_ACCESS_KEY_ID')
+    
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Storage] Initializing storage service...')
+      console.log('[Storage] Has S3:', hasS3)
+      console.log('[Storage] Has R2:', hasR2, {
+        accountId: !!getEnv('R2_ACCOUNT_ID'),
+        accessKey: !!getEnv('R2_ACCESS_KEY_ID'),
+        secretKey: !!getEnv('R2_SECRET_ACCESS_KEY'),
+        bucket: !!getEnv('R2_BUCKET'),
+      })
+    }
     
     let provider: 's3' | 'r2' | undefined
     if (hasS3) {
@@ -69,28 +89,43 @@ class StorageService {
     }
 
     if (!provider) {
-      console.warn('Storage provider not configured')
+      console.warn('[Storage] Storage provider not configured')
+      console.warn('[Storage] Please set R2_* or S3_* environment variables')
       return
+    }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Storage] Using provider:', provider)
     }
 
     if (provider === 's3') {
+      const getEnv = (key: string, fallback: string = ''): string => {
+        const value = process.env[key] || fallback
+        return value.replace(/^["']|["']$/g, '') // Strip quotes
+      }
+      
       this.config = {
         provider: 's3',
         endpoint: '', // S3 uses default endpoints
-        bucket: process.env.S3_BUCKET || process.env.STORAGE_BUCKET || '',
-        accessKey: process.env.S3_ACCESS_KEY_ID || process.env.STORAGE_ACCESS_KEY || '',
-        secretKey: process.env.S3_SECRET_ACCESS_KEY || process.env.STORAGE_SECRET_KEY || '',
-        region: process.env.S3_REGION || process.env.STORAGE_REGION || 'us-east-1',
+        bucket: getEnv('S3_BUCKET', getEnv('STORAGE_BUCKET')),
+        accessKey: getEnv('S3_ACCESS_KEY_ID', getEnv('STORAGE_ACCESS_KEY')),
+        secretKey: getEnv('S3_SECRET_ACCESS_KEY', getEnv('STORAGE_SECRET_KEY')),
+        region: getEnv('S3_REGION', getEnv('STORAGE_REGION', 'us-east-1')),
       }
     } else if (provider === 'r2') {
       // R2 uses S3-compatible API but needs custom endpoint
-      const accountId = process.env.R2_ACCOUNT_ID || ''
+      const getEnv = (key: string, fallback: string = ''): string => {
+        const value = process.env[key] || fallback
+        return value.replace(/^["']|["']$/g, '') // Strip quotes
+      }
+      
+      const accountId = getEnv('R2_ACCOUNT_ID')
       this.config = {
         provider: 'r2',
         endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-        bucket: process.env.R2_BUCKET || process.env.STORAGE_BUCKET || '',
-        accessKey: process.env.R2_ACCESS_KEY_ID || process.env.STORAGE_ACCESS_KEY || '',
-        secretKey: process.env.R2_SECRET_ACCESS_KEY || process.env.STORAGE_SECRET_KEY || '',
+        bucket: getEnv('R2_BUCKET', getEnv('STORAGE_BUCKET')),
+        accessKey: getEnv('R2_ACCESS_KEY_ID', getEnv('STORAGE_ACCESS_KEY')),
+        secretKey: getEnv('R2_SECRET_ACCESS_KEY', getEnv('STORAGE_SECRET_KEY')),
         region: 'auto', // R2 uses 'auto' region
       }
     }
@@ -99,6 +134,18 @@ class StorageService {
     if (!this.config) {
       throw new Error('Storage configuration is not available')
     }
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Storage] Initializing S3 client with config:', {
+        provider: this.config.provider,
+        bucket: this.config.bucket,
+        endpoint: this.config.endpoint || 'default',
+        region: this.config.region,
+        hasAccessKey: !!this.config.accessKey,
+        hasSecretKey: !!this.config.secretKey,
+      })
+    }
+    
     this.client = new S3Client({
       region: this.config.region || 'us-east-1',
       endpoint: this.config.provider === 'r2' ? (this.config.endpoint || undefined) : undefined,
@@ -107,6 +154,10 @@ class StorageService {
         secretAccessKey: this.config.secretKey || '',
       },
     })
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Storage] Storage service initialized successfully')
+    }
   }
 
   async upload(options: UploadOptions): Promise<string> {
@@ -181,7 +232,15 @@ class StorageService {
   }
 
   isConfigured(): boolean {
-    return this.config !== null && this.client !== null
+    const configured = this.config !== null && this.client !== null
+    if (!configured && process.env.NODE_ENV === 'development') {
+      console.warn('[Storage] Storage service is not configured')
+      console.warn('[Storage] Client:', !!this.client, 'Config:', !!this.config)
+      console.warn('[Storage] R2_ACCOUNT_ID:', !!process.env.R2_ACCOUNT_ID)
+      console.warn('[Storage] R2_ACCESS_KEY_ID:', !!process.env.R2_ACCESS_KEY_ID)
+      console.warn('[Storage] R2_BUCKET:', !!process.env.R2_BUCKET)
+    }
+    return configured
   }
 
   /**

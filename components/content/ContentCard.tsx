@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Play, Plus, Heart, MoreVertical, Star, Clock, Film } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { getImageUrl } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
 interface ContentCardProps {

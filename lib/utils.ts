@@ -69,3 +69,29 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
     maximumFractionDigits: currency === 'NPR' ? 0 : 2,
   }).format(amount)
 }
+
+/**
+ * Rewrite image URLs from production to localhost when in development
+ * This ensures images work correctly when running locally
+ */
+export function getImageUrl(url: string): string {
+  if (!url) return url
+  
+  // In development, rewrite Vercel URLs to localhost
+  if (typeof window !== 'undefined') {
+    // Client-side: check if we're on localhost
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (url.includes('nepverse.vercel.app')) {
+        return url.replace('https://nepverse.vercel.app', `http://${window.location.host}`)
+      }
+    }
+  } else if (process.env.NODE_ENV === 'development') {
+    // Server-side: use NEXT_PUBLIC_APP_URL or default to localhost
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    if (url.includes('nepverse.vercel.app')) {
+      return url.replace('https://nepverse.vercel.app', baseUrl)
+    }
+  }
+  
+  return url
+}
