@@ -108,6 +108,34 @@ export function Notifications() {
     }
   }
 
+  const removeNotification = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent triggering the notification click
+    
+    // Optimistic update
+    const notification = notifications.find((n) => n.id === id)
+    const wasUnread = notification && !notification.read
+    
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    if (wasUnread) {
+      setUnreadCount((prev) => Math.max(0, prev - 1))
+    }
+
+    try {
+      const response = await fetch(`/api/notifications?id=${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete notification')
+      }
+    } catch (error) {
+      console.error('Error removing notification:', error)
+      // Revert on error
+      loadNotifications()
+    }
+  }
+
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id)
     if (notification.link) {
@@ -152,8 +180,8 @@ export function Notifications() {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-80 sm:w-96 glass rounded-lg shadow-2xl border border-white/10 z-50 max-h-[500px] overflow-y-auto animate-scale-in">
-            <div className="p-4 border-b border-gray-800 flex items-center justify-between sticky top-0 bg-card/95 backdrop-blur-sm">
+          <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-card rounded-lg shadow-2xl border border-gray-800 z-50 max-h-[500px] overflow-y-auto animate-scale-in">
+            <div className="p-4 border-b border-gray-800 flex items-center justify-between sticky top-0 bg-card backdrop-blur-sm">
               <h3 className="text-white font-semibold text-lg">Notifications</h3>
               <div className="flex items-center space-x-2">
                 {unreadCount > 0 && (
@@ -189,7 +217,7 @@ export function Notifications() {
                   <div
                     key={notification.id}
                     className={`
-                      p-4 hover:bg-gray-800/50 transition-colors cursor-pointer
+                      p-4 hover:bg-gray-800/50 transition-colors cursor-pointer group
                       ${!notification.read ? 'bg-primary/5 border-l-2 border-l-primary' : ''}
                     `}
                     onClick={() => handleNotificationClick(notification)}
@@ -214,25 +242,36 @@ export function Notifications() {
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <p className="text-white font-medium text-sm mb-1 line-clamp-2">
-                            {notification.title}
-                          </p>
-                          {!notification.read && (
-                            <div className="w-2 h-2 bg-primary rounded-full ml-2 flex-shrink-0 mt-1.5" />
-                          )}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-1">
+                              <p className="text-white font-medium text-sm line-clamp-2">
+                                {notification.title}
+                              </p>
+                              {!notification.read && (
+                                <div className="w-2 h-2 bg-primary rounded-full ml-2 flex-shrink-0 mt-1.5" />
+                              )}
+                            </div>
+                            <p className="text-gray-400 text-xs mb-2 line-clamp-2">
+                              {notification.message}
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              {new Date(notification.createdAt).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                              })}
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => removeNotification(notification.id, e)}
+                            className="flex-shrink-0 p-1.5 hover:bg-gray-700 rounded transition-colors opacity-0 group-hover:opacity-100"
+                            aria-label="Remove notification"
+                          >
+                            <X size={14} className="text-gray-400 hover:text-white" />
+                          </button>
                         </div>
-                        <p className="text-gray-400 text-xs mb-2 line-clamp-2">
-                          {notification.message}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          {new Date(notification.createdAt).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: '2-digit',
-                          })}
-                        </p>
                       </div>
                     </div>
                   </div>
