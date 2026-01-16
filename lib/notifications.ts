@@ -33,43 +33,73 @@ export async function createNotification(options: CreateNotificationOptions) {
   // Send email if requested
   if (sendEmail) {
     try {
+      console.log('[Notification Email] 📧 Attempting to send email for notification:', notification.id)
       const user = await prisma.user.findUnique({
         where: { id: userId },
         include: { profile: true },
       })
 
-      if (user?.email) {
-        const name = user.profile?.firstName || user.email.split('@')[0]
-        let emailSent = false
+      if (!user) {
+        console.error('[Notification Email] ❌ User not found:', userId)
+        return notification
+      }
 
-        if (type === 'new_movie' && link) {
-          // Extract movie ID from link
-          const movieId = link.split('/movie/')[1]?.split('?')[0]
-          if (movieId) {
-            const movie = await prisma.movie.findUnique({
-              where: { id: movieId },
-            })
-            if (movie) {
-              emailSent = await emailService.sendNewMovieNotificationEmail(
-                user.email,
-                name,
-                movie
-              )
-            }
-          }
-        }
+      if (!user.email) {
+        console.warn('[Notification Email] ⚠️ User has no email:', userId)
+        return notification
+      }
 
-        if (emailSent) {
-          await prisma.notification.update({
-            where: { id: notification.id },
-            data: { emailSent: true },
+      console.log('[Notification Email] 👤 User found:', user.email, {
+        emailVerified: user.emailVerified,
+        emailNotifications: user.emailNotifications,
+      })
+
+      const name = user.profile?.firstName || user.email.split('@')[0]
+      let emailSent = false
+
+      if (type === 'new_movie' && link) {
+        // Extract movie ID from link
+        const movieId = link.split('/movie/')[1]?.split('?')[0]
+        console.log('[Notification Email] 🎬 Extracted movie ID from link:', movieId, 'from link:', link)
+        
+        if (movieId) {
+          const movie = await prisma.movie.findUnique({
+            where: { id: movieId },
           })
+          
+          if (movie) {
+            console.log('[Notification Email] ✅ Movie found, sending email to:', user.email)
+            emailSent = await emailService.sendNewMovieNotificationEmail(
+              user.email,
+              name,
+              movie
+            )
+            console.log('[Notification Email]', emailSent ? '✅ Email sent successfully' : '❌ Email failed to send')
+          } else {
+            console.error('[Notification Email] ❌ Movie not found:', movieId)
+          }
+        } else {
+          console.error('[Notification Email] ❌ Could not extract movie ID from link:', link)
         }
+      } else {
+        console.warn('[Notification Email] ⚠️ Email not sent - type:', type, 'link:', link)
+      }
+
+      if (emailSent) {
+        await prisma.notification.update({
+          where: { id: notification.id },
+          data: { emailSent: true },
+        })
+        console.log('[Notification Email] ✅ Updated notification emailSent flag')
+      } else {
+        console.warn('[Notification Email] ⚠️ Email not sent, notification emailSent remains false')
       }
     } catch (error) {
-      console.error('Error sending notification email:', error)
+      console.error('[Notification Email] ❌ Error sending notification email:', error)
       // Don't fail notification creation if email fails
     }
+  } else {
+    console.log('[Notification Email] ⏭️ Email sending skipped (sendEmail=false)')
   }
 
   return notification
@@ -110,10 +140,19 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
       ? allUsers.filter(user => user.emailVerified && user.emailNotifications)
       : allUsers
 
-    console.log('[Notifications] 👥 Found users:', users.length)
+    console.log('[Notifications] 👥 Found users:', {
+      total: allUsers.length,
+      emailEligible: sendEmails ? users.length : 0,
+      userDetails: allUsers.map(u => ({
+        id: u.id,
+        email: u.email,
+        emailVerified: u.emailVerified,
+        emailNotifications: u.emailNotifications,
+      })),
+    })
 
-    if (users.length === 0) {
-      console.warn('[Notifications] ⚠️ No users found to notify')
+    if (allUsers.length === 0) {
+      console.warn('[Notifications] ⚠️ No users found in database')
       return { created: 0, errors: ['No users found'] }
     }
 
