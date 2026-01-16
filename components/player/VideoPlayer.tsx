@@ -701,29 +701,21 @@ export function VideoPlayer({
           </div>
         </div>
 
-        {/* Center Play Button */}
+        {/* Center Play Button - Visual Only */}
         {showControls && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-auto">
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  console.log('📺 Play button clicked, current state:', { playing: state.playing, currentTime: state.currentTime, duration: state.duration })
-                  togglePlay()
-                }}
-                className="group relative w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white hover:bg-primary/30 transition-all transform hover:scale-125 active:scale-100 border-2 border-white/20 hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary shadow-lg hover:shadow-2xl hover:shadow-primary/50 transform-gpu overflow-hidden"
-              aria-label={state.playing ? 'Pause' : 'Play'}
-              type="button"
-            >
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div
+                className="group relative w-20 h-20 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white transition-all transform border-2 border-white/20 shadow-lg transform-gpu overflow-hidden"
+              >
               <span className="absolute inset-0 bg-white/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-100" />
               <span className="relative z-10">
                 {state.playing ? (
-                  <Pause size={36} fill="currentColor" className="group-hover:scale-110 transition-transform duration-300" />
+                  <Pause size={36} fill="currentColor" className="transition-transform duration-300" />
                 ) : (
-                  <Play size={36} fill="currentColor" className="ml-1 group-hover:scale-110 transition-transform duration-300" />
+                  <Play size={36} fill="currentColor" className="ml-1 transition-transform duration-300" />
                 )}
               </span>
-            </button>
+            </div>
           </div>
         )}
 
@@ -787,15 +779,9 @@ export function VideoPlayer({
             </div>
           </div>
           
-          {/* Title and Time Display - Center */}
-          <div className="flex items-center justify-center space-x-3 text-white text-sm">
-            <span className="font-semibold">{title}</span>
-            <span className="text-gray-300">
-              {Math.round((state.currentTime / state.duration) * 100)}%
-            </span>
-            <span className="text-gray-300">
-              {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
-            </span>
+          {/* Title - Center Only */}
+          <div className="flex items-center justify-center">
+            <span className="text-white text-sm font-semibold">{title}</span>
           </div>
 
           {/* Control Buttons */}
@@ -908,6 +894,10 @@ export function VideoPlayer({
                   className="w-24"
                 />
                 <span className="text-white text-sm w-12">{Math.round(state.volume * 100)}%</span>
+              </div>
+
+              <div className="text-white text-sm">
+                {Math.round((state.currentTime / state.duration) * 100)}% {formatDuration(state.currentTime)} / {formatDuration(state.duration)}
               </div>
             </div>
 
