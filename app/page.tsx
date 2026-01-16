@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { profileStorage } from '@/lib/localStorage'
 import { HeroCarousel } from '@/components/content/HeroCarousel'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
+import { ContentGrid } from '@/components/content/ContentGrid'
 import { watchHistoryService } from '@/lib/clientStorage'
 
 async function getFeaturedContent() {
@@ -479,10 +480,12 @@ export default function HomePage() {
           emptyMessage="Start watching movies or series to see your progress here."
         /> */}
         {content.trending.length > 0 && (
-          <ContentCarousel 
+          <ContentGrid 
             title="Popular Nepali Movies" 
             items={content.trending} 
             showLoading={false}
+            rows={3}
+            columns={{ mobile: 2, tablet: 3, desktop: 4 }}
           />
         )}
         {/* {content.originals.length > 0 && (
