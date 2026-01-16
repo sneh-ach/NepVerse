@@ -255,7 +255,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
             key={`badges-${currentIndex}`}
             className="flex flex-wrap items-center gap-3 mb-6"
             style={{
-              animation: 'fadeIn 1s ease-in-out',
+              animation: 'fadeIn 2s ease-in-out',
             }}
           >
             {currentItem.rating && (
@@ -290,7 +290,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
               letterSpacing: '0.02em',
               textShadow: '0 2px 12px rgba(0,0,0,0.8)',
               lineHeight: '1.1',
-              animation: 'slideUp 1.2s ease-out',
+              animation: 'fadeIn 2s ease-in-out',
             }}
           >
             {currentItem.title}
@@ -302,7 +302,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
             className="text-lg md:text-xl text-gray-100 mb-6 max-w-3xl leading-relaxed drop-shadow-lg"
             style={{
               textShadow: '0 2px 10px rgba(0,0,0,0.6)',
-              animation: 'fadeIn 1.2s ease-in-out 0.3s both',
+              animation: 'fadeIn 2s ease-in-out',
             }}
           >
             {currentItem.description}
@@ -313,7 +313,7 @@ export function HeroCarousel({ items, autoPlayInterval = 12000 }: HeroCarouselPr
             key={`buttons-${currentIndex}`}
             className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
             style={{
-              animation: 'fadeIn 1.2s ease-in-out 0.5s both',
+              animation: 'fadeIn 2s ease-in-out',
             }}
           >
             <Link href={`/watch/${currentItem.contentType}/${currentItem.id}`} className="group relative inline-block">
