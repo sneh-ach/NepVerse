@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
 import { ReviewSection } from '@/components/content/ReviewSection'
 import { CommentsSection } from '@/components/content/CommentsSection'
-import { formatDate, formatDuration } from '@/lib/utils'
+import { formatDate, formatDuration, getImageUrl } from '@/lib/utils'
 import { MovieDetailClient } from './MovieDetailClient'
 import { AutoPlayPreview } from '@/components/content/AutoPlayPreview'
 import { generateMetadata as generateSEOMetadata, generateStructuredData } from '@/lib/seo'
@@ -131,8 +131,8 @@ export default async function MovieDetailPage({ params }: { params: { id: string
         <AutoPlayPreview
           videoUrl={movie.videoUrl}
           trailerUrl={(movie as any).trailerUrl}
-          backdropUrl={movie.backdropUrl}
-          posterUrl={movie.posterUrl}
+          backdropUrl={getImageUrl(movie.backdropUrl || '')}
+          posterUrl={getImageUrl(movie.posterUrl)}
           title={movie.title}
           previewDuration={12} // 12 seconds preview
         />
@@ -142,23 +142,26 @@ export default async function MovieDetailPage({ params }: { params: { id: string
             {/* Poster - Left Side */}
             <div className="lg:col-span-3 flex justify-center lg:justify-start">
               <div className="relative w-48 md:w-56 lg:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl border-2 border-white/20">
-                {(movie.posterUrl?.includes('r2.cloudflarestorage.com') || movie.posterUrl?.includes('/api/storage/proxy')) ? (
-                  <img
-                    src={movie.posterUrl}
-                    alt={movie.title}
-                    className="w-full h-full object-cover"
-                    crossOrigin="anonymous"
-                  />
-                ) : (
-                  <Image
-                    src={movie.posterUrl}
-                    alt={movie.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
-                    priority
-                  />
-                )}
+                {(() => {
+                  const displayPosterUrl = getImageUrl(movie.posterUrl)
+                  return (displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
+                    <img
+                      src={displayPosterUrl}
+                      alt={movie.title}
+                      className="w-full h-full object-cover"
+                      crossOrigin="anonymous"
+                    />
+                  ) : (
+                    <Image
+                      src={displayPosterUrl}
+                      alt={movie.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
+                      priority
+                    />
+                  )
+                })()}
               </div>
             </div>
 

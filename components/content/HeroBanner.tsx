@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Play, Info, Star } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { truncateText } from '@/lib/utils'
+import { truncateText, getImageUrl } from '@/lib/utils'
 import { useIntersectionObserver } from '@/hooks/useIntersectionObserver'
 
 interface HeroBannerProps {
@@ -32,6 +32,10 @@ export function HeroBanner({
 }: HeroBannerProps) {
   const { elementRef, hasIntersected } = useIntersectionObserver({ triggerOnce: true })
   const router = useRouter()
+  
+  // Rewrite Vercel URLs to localhost in development
+  const displayBackdropUrl = getImageUrl(backdropUrl)
+  const displayPosterUrl = getImageUrl(posterUrl)
 
   return (
     <div 
@@ -42,20 +46,20 @@ export function HeroBanner({
     >
       {/* Backdrop Image */}
       <div className="absolute inset-0 z-0">
-        {(backdropUrl?.includes('r2.cloudflarestorage.com') || backdropUrl?.includes('/api/storage/proxy')) ? (
+        {(displayBackdropUrl?.includes('r2.cloudflarestorage.com') || displayBackdropUrl?.includes('/api/storage/proxy')) ? (
           <img
-            src={backdropUrl}
+            src={displayBackdropUrl}
             alt={title}
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement
-              target.src = posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920'
+              target.src = displayPosterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920'
             }}
             crossOrigin="anonymous"
           />
         ) : (
           <Image
-            src={backdropUrl}
+            src={displayBackdropUrl}
             alt={title}
             fill
             className="object-cover"
@@ -63,9 +67,9 @@ export function HeroBanner({
             sizes="100vw"
             onError={(e) => {
               const target = e.target as HTMLImageElement
-              target.src = posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920'
+              target.src = displayPosterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1920'
             }}
-            unoptimized={backdropUrl?.startsWith('http://localhost')}
+            unoptimized={displayBackdropUrl?.startsWith('http://localhost')}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-background/30 to-transparent" />

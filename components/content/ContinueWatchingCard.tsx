@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Play, Clock } from 'lucide-react'
 import { ProgressBar } from '@/components/ui/ProgressBar'
-import { formatDuration } from '@/lib/utils'
+import { formatDuration, getImageUrl } from '@/lib/utils'
 
 interface ContinueWatchingCardProps {
   id: string
@@ -34,13 +34,16 @@ export function ContinueWatchingCard({
     type === 'movie'
       ? `/watch/movie/${id}`
       : `/watch/series/${id}/episode/${id}` // Would need episode ID
+  
+  // Rewrite Vercel URLs to localhost in development
+  const displayPosterUrl = getImageUrl(posterUrl)
 
   return (
     <Link href={watchUrl} className="group block">
       <div className="relative aspect-video rounded-lg overflow-hidden bg-card card-3d transition-all duration-500 group-hover:scale-105 group-hover:shadow-2xl">
-        {(posterUrl?.includes('r2.cloudflarestorage.com') || posterUrl?.includes('/api/storage/proxy')) ? (
+        {(displayPosterUrl?.includes('r2.cloudflarestorage.com') || displayPosterUrl?.includes('/api/storage/proxy')) ? (
           <img
-            src={posterUrl}
+            src={displayPosterUrl}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
@@ -48,12 +51,12 @@ export function ContinueWatchingCard({
           />
         ) : (
           <Image
-            src={posterUrl}
+            src={displayPosterUrl}
             alt={title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-110"
             loading="lazy"
-            unoptimized={posterUrl?.startsWith('http://localhost')}
+            unoptimized={displayPosterUrl?.startsWith('http://localhost')}
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />

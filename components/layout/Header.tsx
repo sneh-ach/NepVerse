@@ -258,7 +258,7 @@ export function Header() {
                           }}
                         >
                           <div className="w-12 h-16 rounded overflow-hidden bg-gray-700 flex-shrink-0">
-                            <img src={item.posterUrl} alt={item.title} className="w-full h-full object-cover" />
+                            <img src={getImageUrl(item.posterUrl)} alt={item.title} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-white font-medium text-sm truncate">{item.title}</p>

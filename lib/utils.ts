@@ -74,23 +74,21 @@ export function formatCurrency(amount: number, currency: string = 'USD'): string
  * Rewrite image URLs from production to localhost when in development
  * This ensures images work correctly when running locally
  */
-export function getImageUrl(url: string): string {
-  if (!url) return url
+export function getImageUrl(url: string | null | undefined): string {
+  if (!url) return url || ''
   
-  // In development, rewrite Vercel URLs to localhost
-  if (typeof window !== 'undefined') {
-    // Client-side: check if we're on localhost
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      if (url.includes('nepverse.vercel.app')) {
-        return url.replace('https://nepverse.vercel.app', `http://${window.location.host}`)
-      }
-    }
-  } else if (process.env.NODE_ENV === 'development') {
-    // Server-side: use NEXT_PUBLIC_APP_URL or default to localhost
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-    if (url.includes('nepverse.vercel.app')) {
-      return url.replace('https://nepverse.vercel.app', baseUrl)
-    }
+  // Always rewrite Vercel URLs to localhost in development
+  // Check both client and server side
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isLocalhost = typeof window !== 'undefined' 
+    ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    : true // Assume localhost on server side in development
+  
+  if (isDevelopment && isLocalhost && url.includes('nepverse.vercel.app')) {
+    const baseUrl = typeof window !== 'undefined' 
+      ? `http://${window.location.host}`
+      : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+    return url.replace('https://nepverse.vercel.app', baseUrl)
   }
   
   return url

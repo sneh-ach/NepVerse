@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { X, Volume2, VolumeX, Play, ArrowLeft, Star, Clock, Users, Tag, AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { formatDuration } from '@/lib/utils'
+import { formatDuration, getImageUrl } from '@/lib/utils'
 import Link from 'next/link'
 
 interface ContentPreviewModalProps {
@@ -41,6 +41,10 @@ export function ContentPreviewModal({ isOpen, onClose, content }: ContentPreview
   const [hasStarted, setHasStarted] = useState(false)
   const [videoError, setVideoError] = useState(false)
   const previewTimeoutRef = useRef<NodeJS.Timeout>()
+  
+  // Rewrite Vercel URLs to localhost in development
+  const displayBackdropUrl = getImageUrl(content.backdropUrl || '')
+  const displayPosterUrl = getImageUrl(content.posterUrl || '')
 
   // Auto-play preview immediately when modal opens
   useEffect(() => {
@@ -256,7 +260,7 @@ export function ContentPreviewModal({ isOpen, onClose, content }: ContentPreview
             {/* Fallback image while video loads */}
             {!isPlaying && (
               <img
-                src={content.backdropUrl || content.posterUrl || '/placeholder-poster.jpg'}
+                src={displayBackdropUrl || displayPosterUrl || '/placeholder-poster.jpg'}
                 alt={content.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -264,7 +268,7 @@ export function ContentPreviewModal({ isOpen, onClose, content }: ContentPreview
           </>
         ) : (
           <img
-            src={content.backdropUrl || content.posterUrl || '/placeholder-poster.jpg'}
+            src={displayBackdropUrl || displayPosterUrl || '/placeholder-poster.jpg'}
             alt={content.title}
             className="w-full h-full object-cover"
           />

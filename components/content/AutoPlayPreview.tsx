@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { Volume2, VolumeX } from 'lucide-react'
+import { getImageUrl } from '@/lib/utils'
 
 interface AutoPlayPreviewProps {
   videoUrl?: string | null
@@ -27,6 +28,10 @@ export function AutoPlayPreview({
   const [showVideo, setShowVideo] = useState(false)
   const [videoError, setVideoError] = useState(false)
   const stopTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Rewrite Vercel URLs to localhost in development
+  const displayBackdropUrl = getImageUrl(backdropUrl || '')
+  const displayPosterUrl = getImageUrl(posterUrl || '')
 
   // Auto-play preview when component mounts
   useEffect(() => {
@@ -194,18 +199,18 @@ export function AutoPlayPreview({
       )}
       
       {/* Fallback to backdrop/poster image */}
-      {(!hasVideo || !showVideo || !isPlaying) && (backdropUrl || posterUrl) && (
-        (backdropUrl || posterUrl)?.includes('r2.cloudflarestorage.com') ||
-        (backdropUrl || posterUrl)?.includes('/api/storage/proxy') ? (
+      {(!hasVideo || !showVideo || !isPlaying) && (displayBackdropUrl || displayPosterUrl) && (
+        (displayBackdropUrl || displayPosterUrl)?.includes('r2.cloudflarestorage.com') ||
+        (displayBackdropUrl || displayPosterUrl)?.includes('/api/storage/proxy') ? (
           <img
-            src={backdropUrl || posterUrl || ''}
+            src={displayBackdropUrl || displayPosterUrl || ''}
             alt={title}
             className="w-full h-full object-cover"
             crossOrigin="anonymous"
           />
         ) : (
           <img
-            src={backdropUrl || posterUrl || ''}
+            src={displayBackdropUrl || displayPosterUrl || ''}
             alt={title}
             className="w-full h-full object-cover"
           />
