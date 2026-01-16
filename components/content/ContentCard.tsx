@@ -69,7 +69,6 @@ export const ContentCard = memo(function ContentCard({
   const router = useRouter()
   const [isInWatchlist, setIsInWatchlist] = useState(inWatchlist)
   const [imageError, setImageError] = useState(false)
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
   // Rewrite Vercel URLs to localhost in development
   const displayPosterUrl = getImageUrl(posterUrl)
@@ -128,30 +127,7 @@ export const ContentCard = memo(function ContentCard({
         })
       }
     }
-  }, [user, isInWatchlist, type, id, onAddToList, onRemoveFromList])
-  
-  // Handle hover to add to list
-  const handleMouseEnter = useCallback(() => {
-    // Only add on hover if not already in list and user is logged in
-    if (user && !isInWatchlist) {
-      // Clear any existing timeout
-      if (hoverTimeoutRef.current) {
-        clearTimeout(hoverTimeoutRef.current)
-      }
-      // Small delay to avoid accidental adds
-      hoverTimeoutRef.current = setTimeout(() => {
-        handleAddToList()
-      }, 1000) // 1 second hover before adding
-    }
-  }, [user, isInWatchlist, handleAddToList])
-  
-  const handleMouseLeave = useCallback(() => {
-    // Clear hover timeout if user moves away
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current)
-      hoverTimeoutRef.current = null
-    }
-  }, [])
+  }, [user, isInWatchlist, type, id, onAddToList, onRemoveFromList, router])
 
   const detailUrl = `/${type}/${id}`
 
@@ -165,8 +141,6 @@ export const ContentCard = memo(function ContentCard({
       <div 
         className={`relative flex-shrink-0 ${className}`} 
         style={{ willChange: 'transform', transformOrigin: 'center center', padding: '8px' }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
       >
         <div 
           onClick={handleCardClick}
@@ -253,7 +227,11 @@ export const ContentCard = memo(function ContentCard({
                   <Play size={40} className="text-white ml-1 fill-current relative z-10 group-hover/play:scale-110 transition-transform duration-300 drop-shadow-2xl" />
                 </button>
                 <button
-                  onClick={handleAddToList}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleAddToList(e)
+                  }}
                   className="rounded-full bg-black/95 backdrop-blur-2xl flex items-center justify-center border-2 border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/list relative overflow-hidden shadow-2xl transition-all duration-300"
                   style={{ width: '80px', height: '80px' }}
                   onMouseEnter={(e) => {
