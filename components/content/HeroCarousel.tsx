@@ -135,19 +135,26 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
       />
 
       {/* Backdrop Images with Carousel Effect */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {items.map((item, index) => {
           const itemBackdropUrl = getImageUrl(item.backdropUrl)
           const isActive = index === currentIndex
+          const isNext = index === (currentIndex + 1) % items.length
+          const isPrevious = index === (currentIndex - 1 + items.length) % items.length
           
           return (
             <div
               key={item.id}
-              className={`absolute inset-0 transform transition-all duration-1000 ease-in-out ${
-                isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+              className={`absolute inset-0 transform transition-all duration-[1500ms] ease-in-out ${
+                isActive 
+                  ? 'opacity-100 scale-100 z-10' 
+                  : isNext || isPrevious
+                  ? 'opacity-0 scale-105 z-0'
+                  : 'opacity-0 scale-110 z-0'
               }`}
               style={{
                 animation: isActive ? 'kenBurns 20s ease-in-out infinite' : 'none',
+                transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
               }}
             >
               {itemBackdropUrl?.includes('r2.cloudflarestorage.com') || itemBackdropUrl?.includes('/api/storage/proxy') ? (
@@ -244,7 +251,13 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
       <div className="relative z-10 container mx-auto px-4 lg:px-8 pb-20 lg:pb-24 w-full">
         <div className="max-w-4xl">
           {/* Badge Row */}
-          <div className="flex flex-wrap items-center gap-3 mb-6 animate-fade-in">
+          <div 
+            key={`badges-${currentIndex}`}
+            className="flex flex-wrap items-center gap-3 mb-6 animate-fade-in"
+            style={{
+              animation: 'fadeIn 0.6s ease-in-out',
+            }}
+          >
             {currentItem.rating && (
               <div className="flex items-center space-x-1.5 px-4 py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/25 shadow-lg">
                 <Star size={18} className="fill-yellow-400 text-yellow-400" />
@@ -271,11 +284,13 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
 
           {/* Title */}
           <h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg animate-slide-up"
+            key={`title-${currentIndex}`}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-lg"
             style={{
               letterSpacing: '0.02em',
               textShadow: '0 2px 12px rgba(0,0,0,0.8)',
               lineHeight: '1.1',
+              animation: 'slideUp 0.8s ease-out',
             }}
           >
             {currentItem.title}
@@ -283,17 +298,24 @@ export function HeroCarousel({ items, autoPlayInterval = 8000 }: HeroCarouselPro
 
           {/* Description */}
           <p 
-            className="text-lg md:text-xl text-gray-100 mb-6 max-w-3xl leading-relaxed drop-shadow-lg animate-fade-in"
+            key={`description-${currentIndex}`}
+            className="text-lg md:text-xl text-gray-100 mb-6 max-w-3xl leading-relaxed drop-shadow-lg"
             style={{
               textShadow: '0 2px 10px rgba(0,0,0,0.6)',
-              animationDelay: '0.2s',
+              animation: 'fadeIn 0.8s ease-in-out 0.2s both',
             }}
           >
             {currentItem.description}
           </p>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 animate-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div 
+            key={`buttons-${currentIndex}`}
+            className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            style={{
+              animation: 'fadeIn 0.8s ease-in-out 0.4s both',
+            }}
+          >
             <Link href={`/watch/${currentItem.contentType}/${currentItem.id}`} className="group relative inline-block">
               <Button 
                 size="lg" 

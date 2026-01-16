@@ -70,16 +70,16 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
   return (
     <>
       <div className="flex items-center space-x-4 mb-6 flex-wrap gap-3">
-        <Link href={`/watch/movie/${movie.id}`}>
+        <Link href={`/watch/movie/${movie.id}`} className="group/play-link">
           <Button 
             size="lg" 
-            className="relative flex items-center space-x-2 px-7 py-3.5 text-base font-bold group/btn"
+            className="relative flex items-center space-x-2 px-7 py-3.5 text-base font-bold"
             style={{
               background: 'linear-gradient(135deg, #e50914 0%, #b20710 100%)',
               boxShadow: '0 10px 30px rgba(229, 9, 20, 0.4)',
             }}
           >
-            <Play size={22} fill="currentColor" className="group-hover/btn:scale-110 transition-transform duration-300" />
+            <Play size={22} fill="currentColor" className="group-hover/play-link:scale-110 transition-transform duration-300" />
             <span>Play</span>
           </Button>
         </Link>
@@ -87,27 +87,27 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
           <Button
             variant="outline"
             size="lg"
-            className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+            className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/trailer backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
             onClick={() => setShowTrailer(true)}
           >
-            <Film size={22} className="group-hover/btn:rotate-12 transition-transform duration-300" />
+            <Film size={22} className="group-hover/trailer:rotate-12 transition-transform duration-300" />
             <span>Trailer</span>
           </Button>
         )}
         <Button
           variant="outline"
           size="lg"
-          className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+          className="flex items-center space-x-2 px-7 py-3.5 text-base font-semibold group/list-btn backdrop-blur-md border border-white/30 bg-white/5 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
           onClick={handleAddToList}
         >
           {inWatchlist ? (
             <>
-              <Plus size={22} className="rotate-45 group-hover/btn:rotate-90 transition-transform duration-300" />
+              <Plus size={22} className="rotate-45 group-hover/list-btn:rotate-90 transition-transform duration-300" />
               <span>Remove from List</span>
             </>
           ) : (
             <>
-              <Plus size={22} className="group-hover/btn:rotate-90 transition-transform duration-300" />
+              <Plus size={22} className="group-hover/list-btn:rotate-90 transition-transform duration-300" />
               <span>My List</span>
             </>
           )}
