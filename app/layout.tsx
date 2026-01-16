@@ -27,7 +27,6 @@ export const metadata: Metadata = {
       { url: '/icon.svg', type: 'image/svg+xml' },
     ],
     shortcut: '/favicon.ico',
-    apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
   openGraph: {
@@ -37,20 +36,13 @@ export const metadata: Metadata = {
     siteName: 'NepVerse',
     title: 'NepVerse - The Home of Nepali Stories',
     description: 'Unlimited Nepali Movies, Originals & Web Series. Stream premium Nepali content anytime, anywhere.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'NepVerse - The Home of Nepali Stories',
-      },
-    ],
+    images: [],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'NepVerse - The Home of Nepali Stories',
     description: 'Unlimited Nepali Movies, Originals & Web Series. Stream premium Nepali content anytime, anywhere.',
-    images: ['/og-image.jpg'],
+    images: [],
     creator: '@nepverse',
     site: '@nepverse',
   },
@@ -100,7 +92,6 @@ export default function RootLayout({
         )}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#e50914" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

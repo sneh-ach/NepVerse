@@ -10,8 +10,7 @@ const STATIC_ASSETS = [
   '/browse',
   '/pricing',
   '/offline',
-  '/icon-192x192.png',
-  '/icon-512x512.png',
+  '/icon.svg',
 ]
 
 // Install event - cache static assets
