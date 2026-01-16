@@ -182,6 +182,21 @@ export async function POST(request: NextRequest) {
 
       logger.info(`Movie created: ${movie.id}`, { userId: admin.id, movieId: movie.id })
 
+      // Create notifications if movie is published
+      if (isPublished) {
+        try {
+          const { notifyNewMovie } = await import('@/lib/notifications')
+          const notificationResult = await notifyNewMovie(movie.id, false) // Don't send emails by default
+          logger.info(`Notifications created for movie ${movie.id}`, {
+            created: notificationResult.created,
+            errors: notificationResult.errors.length,
+          })
+        } catch (error) {
+          logger.error('Error creating notifications for new movie', error)
+          // Don't fail the upload if notifications fail
+        }
+      }
+
       return NextResponse.json({
         message: 'Movie uploaded successfully',
         movie,
@@ -216,6 +231,21 @@ export async function POST(request: NextRequest) {
       })
 
       logger.info(`Series created: ${series.id}`, { userId: admin.id, seriesId: series.id })
+
+      // Create notifications if series is published
+      if (isPublished) {
+        try {
+          const { notifyNewSeries } = await import('@/lib/notifications')
+          const notificationResult = await notifyNewSeries(series.id, false) // Don't send emails by default
+          logger.info(`Notifications created for series ${series.id}`, {
+            created: notificationResult.created,
+            errors: notificationResult.errors.length,
+          })
+        } catch (error) {
+          logger.error('Error creating notifications for new series', error)
+          // Don't fail the upload if notifications fail
+        }
+      }
 
       return NextResponse.json({
         message: 'Series uploaded successfully',

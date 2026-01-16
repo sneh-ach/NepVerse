@@ -1,50 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, extractTokenFromHeader } from '@/lib/auth'
+import { getAuthUser } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+import { db } from '@/lib/db'
 
-// Force dynamic rendering - this route uses headers
 export const dynamic = 'force-dynamic'
 
-async function getUserId(request: NextRequest): Promise<string | null> {
-  const authHeader = request.headers.get('authorization')
-  const token = extractTokenFromHeader(authHeader) || request.cookies.get('auth-token')?.value
-
-  if (!token) return null
-
-  const payload = verifyToken(token)
-  return payload?.userId || null
-}
-
+// GET /api/notifications - Get user's notifications
 export async function GET(request: NextRequest) {
   try {
-    const userId = await getUserId(request)
-    if (!userId) {
-      return NextResponse.json(
-        { message: 'Not authenticated' },
-        { status: 401 }
-      )
+    const user = await getAuthUser(request)
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
-    // Mock notifications - in production, fetch from database
-    const notifications = [
-      {
-        id: '1',
-        title: 'Welcome to NepVerse!',
-        message: 'Start your free trial and explore unlimited Nepali content.',
-        type: 'info' as const,
-        read: false,
-        createdAt: new Date(Date.now() - 86400000), // 1 day ago
-      },
-      {
-        id: '2',
-        title: 'New Release',
-        message: 'Check out the latest episode of "Kathmandu Connection"',
-        type: 'info' as const,
-        read: false,
-        createdAt: new Date(Date.now() - 3600000), // 1 hour ago
-      },
-    ]
+    const { searchParams } = new URL(request.url)
+    const unreadOnly = searchParams.get('unread') === 'true'
+    const limit = parseInt(searchParams.get('limit') || '50')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    return NextResponse.json(notifications)
+    const where: any = { userId: user.id }
+    if (unreadOnly) {
+      where.read = false
+    }
+
+    const [notifications, total] = await Promise.all([
+      prisma.notification.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+      }),
+      prisma.notification.count({ where }),
+    ])
+
+    const unreadCount = await prisma.notification.count({
+      where: { userId: user.id, read: false },
+    })
+
+    return NextResponse.json({
+      notifications,
+      total,
+      unreadCount,
+    })
   } catch (error) {
     console.error('Get notifications error:', error)
     return NextResponse.json(
@@ -54,6 +51,42 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST /api/notifications - Mark notification as read
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getAuthUser(request)
+    if (!user) {
+      return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    }
 
+    const body = await request.json()
+    const { notificationId, markAllAsRead } = body
 
+    if (markAllAsRead) {
+      await prisma.notification.updateMany({
+        where: { userId: user.id, read: false },
+        data: { read: true, readAt: new Date() },
+      })
+      return NextResponse.json({ message: 'All notifications marked as read' })
+    }
 
+    if (notificationId) {
+      await prisma.notification.update({
+        where: { id: notificationId },
+        data: { read: true, readAt: new Date() },
+      })
+      return NextResponse.json({ message: 'Notification marked as read' })
+    }
+
+    return NextResponse.json(
+      { message: 'Invalid request' },
+      { status: 400 }
+    )
+  } catch (error) {
+    console.error('Mark notification as read error:', error)
+    return NextResponse.json(
+      { message: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

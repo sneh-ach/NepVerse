@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
@@ -16,6 +16,7 @@ model User {
   role                    UserRole                 @default(USER)
   emailVerified           Boolean                  @default(false)
   phoneVerified           Boolean                  @default(false)
+  emailNotifications      Boolean                  @default(true) // Opt-in for email notifications
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   comments                Comment[]
@@ -38,6 +39,7 @@ model User {
   watchList               WatchList[]
   watchParties            WatchParty[]
   watchPartyMembers       WatchPartyMember[]
+  notifications           Notification[]
 
   @@index([email])
   @@index([phone])
@@ -217,23 +219,23 @@ model Genre {
 }
 
 model WatchHistory {
-  id            String      @id @default(cuid())
+  id            String       @id @default(cuid())
   userId        String
-  profileId     String?     // Profile-specific history (optional for migration)
+  profileId     String? // Profile-specific history (optional for migration)
   movieId       String?
   seriesId      String?
   episodeId     String?
   progress      Float
   currentTime   Float
   duration      Float
-  completed     Boolean     @default(false)
-  lastWatchedAt DateTime    @default(now())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  episode       Episode?    @relation(fields: [episodeId], references: [id], onDelete: Cascade)
-  movie         Movie?      @relation(fields: [movieId], references: [id], onDelete: Cascade)
-  series        Series?     @relation(fields: [seriesId], references: [id], onDelete: Cascade)
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  completed     Boolean      @default(false)
+  lastWatchedAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  episode       Episode?     @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  movie         Movie?       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  series        Series?      @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   profile       UserProfile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([userId, movieId, profileId])
@@ -246,7 +248,7 @@ model WatchHistory {
 model WatchList {
   id        String       @id @default(cuid())
   userId    String
-  profileId String?      // Profile-specific watchlist (optional for migration)
+  profileId String? // Profile-specific watchlist (optional for migration)
   movieId   String?
   seriesId  String?
   createdAt DateTime     @default(now())
@@ -573,4 +575,24 @@ enum ReferralStatus {
   PENDING
   COMPLETED
   REWARDED
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String // 'new_movie', 'new_series', 'system', 'promotion'
+  title     String
+  message   String
+  link      String? // Optional link to content
+  imageUrl  String? // Optional image (poster for movies)
+  read      Boolean   @default(false)
+  emailSent Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([read])
+  @@index([createdAt])
+  @@index([type])
 }

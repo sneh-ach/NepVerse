@@ -256,6 +256,12 @@ export async function PATCH(
       }
     }
 
+    // Check if movie is being published (was unpublished, now published)
+    const existingMovie = await prisma.movie.findUnique({
+      where: { id: params.id },
+      select: { isPublished: true },
+    })
+
     const movie = await prisma.movie.update({
       where: { id: params.id },
       data: {
@@ -268,6 +274,22 @@ export async function PATCH(
     })
 
     logger.info(`Movie updated: ${movie.id}`, { movieId: movie.id })
+
+    // Create notifications if movie is being published for the first time
+    if (movie.isPublished && existingMovie && !existingMovie.isPublished) {
+      try {
+        const { notifyNewMovie } = await import('@/lib/notifications')
+        const notificationResult = await notifyNewMovie(movie.id, false) // Don't send emails by default
+        logger.info(`Notifications created for newly published movie ${movie.id}`, {
+          created: notificationResult.created,
+          errors: notificationResult.errors.length,
+        })
+      } catch (error) {
+        logger.error('Error creating notifications for newly published movie', error)
+        // Don't fail the update if notifications fail
+      }
+    }
+
     return NextResponse.json(movie)
   } catch (error) {
     logError(error, 'Update admin movie')

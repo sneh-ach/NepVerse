@@ -446,6 +446,96 @@ The NepVerse Team`
       `,
     })
   }
+
+  async sendNewMovieNotificationEmail(to: string, name: string, movie: { title: string; titleNepali?: string | null; posterUrl: string; id: string; description: string }): Promise<boolean> {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const movieUrl = `${baseUrl}/movie/${movie.id}`
+    const posterUrl = movie.posterUrl.startsWith('http') ? movie.posterUrl : `${baseUrl}${movie.posterUrl}`
+    
+    const textVersion = `Hi ${name},
+
+🎬 New Movie on NepVerse!
+
+${movie.title}${movie.titleNepali ? ` (${movie.titleNepali})` : ''} is now available to watch!
+
+${movie.description.substring(0, 150)}${movie.description.length > 150 ? '...' : ''}
+
+Watch now: ${movieUrl}
+
+Happy streaming!
+The NepVerse Team`
+    
+    return this.send({
+      to,
+      subject: `🎬 New Movie: ${movie.title}`,
+      text: textVersion,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <title>New Movie: ${movie.title}</title>
+          </head>
+          <body style="margin: 0; padding: 0; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; line-height: 1.6; color: #333333; background-color: #f4f4f4;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4; padding: 20px;">
+              <tr>
+                <td align="center">
+                  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #e50914 0%, #b20710 100%); padding: 30px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">🎬 New Movie Available!</h1>
+                      </td>
+                    </tr>
+                    <!-- Content -->
+                    <tr>
+                      <td style="background: #f9f9f9; padding: 30px;">
+                        <p style="margin: 0 0 20px 0; font-size: 16px;">Hi ${name},</p>
+                        <p style="margin: 0 0 30px 0; font-size: 18px; font-weight: bold; color: #e50914;">${movie.title}${movie.titleNepali ? ` (${movie.titleNepali})` : ''} is now available!</p>
+                        
+                        <!-- Movie Poster -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0;">
+                          <tr>
+                            <td align="center">
+                              <a href="${movieUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block;">
+                                <img src="${posterUrl}" alt="${movie.title}" style="max-width: 300px; width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <p style="margin: 20px 0; font-size: 16px; color: #666666;">${movie.description.substring(0, 200)}${movie.description.length > 200 ? '...' : ''}</p>
+                        
+                        <!-- Button -->
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 30px 0;">
+                          <tr>
+                            <td align="center">
+                              <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                  <td align="center" style="background: #e50914; border-radius: 5px;">
+                                    <a href="${movieUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: 14px 32px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 16px; border-radius: 5px;">Watch Now</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                        
+                        <p style="margin: 30px 0 15px 0; font-size: 16px;">Happy streaming!</p>
+                        <p style="margin: 0; font-size: 16px;">The NepVerse Team</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+        </html>
+      `,
+    })
+  }
 }
 
 export const emailService = new EmailService()
