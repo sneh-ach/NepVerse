@@ -80,22 +80,42 @@ export async function createNotification(options: CreateNotificationOptions) {
  */
 export async function notifyNewMovie(movieId: string, sendEmails = false) {
   try {
+    console.log('[Notifications] 🎬 Starting notification process for movie:', movieId)
+    
     const movie = await prisma.movie.findUnique({
       where: { id: movieId },
     })
 
-    if (!movie || !movie.isPublished) {
+    if (!movie) {
+      console.error('[Notifications] ❌ Movie not found:', movieId)
+      return { created: 0, errors: ['Movie not found'] }
+    }
+
+    if (!movie.isPublished) {
+      console.log('[Notifications] ⚠️ Movie is not published, skipping notifications:', movieId)
       return { created: 0, errors: [] }
     }
 
-    // Get all active users who want notifications
+    console.log('[Notifications] ✅ Movie found and published:', movie.title)
+
+    // Get all users (not just verified) - we'll send notifications to all users
+    // For emails, we'll only send to verified users who opted in
     const users = await prisma.user.findMany({
-      where: {
-        emailVerified: true, // Only verified users
-        emailNotifications: sendEmails ? true : undefined, // If sending emails, only to users who opted in
-      },
-      select: { id: true, emailNotifications: true },
+      where: sendEmails
+        ? {
+            emailVerified: true, // Only verified users for emails
+            emailNotifications: true, // Only users who opted in
+          }
+        : {}, // For in-app notifications, send to all users
+      select: { id: true, email: true, emailVerified: true, emailNotifications: true },
     })
+
+    console.log('[Notifications] 👥 Found users:', users.length)
+
+    if (users.length === 0) {
+      console.warn('[Notifications] ⚠️ No users found to notify')
+      return { created: 0, errors: ['No users found'] }
+    }
 
     const results = {
       created: 0,
@@ -111,19 +131,28 @@ export async function notifyNewMovie(movieId: string, sendEmails = false) {
           message: `${movie.title}${movie.titleNepali ? ` (${movie.titleNepali})` : ''} is now available to watch!`,
           link: `/movie/${movie.id}`,
           imageUrl: movie.posterUrl,
-          sendEmail: sendEmails && user.emailNotifications, // Only send email if user opted in
+          sendEmail: sendEmails && user.emailVerified && user.emailNotifications, // Only send email if user verified and opted in
         })
         results.created++
+        console.log('[Notifications] ✅ Created notification for user:', user.id)
       } catch (error: any) {
-        results.errors.push(`User ${user.id}: ${error.message}`)
+        const errorMsg = `User ${user.id}: ${error.message}`
+        results.errors.push(errorMsg)
+        console.error('[Notifications] ❌ Error creating notification:', errorMsg)
       }
     })
 
     await Promise.all(notificationPromises)
 
+    console.log('[Notifications] 📊 Results:', {
+      created: results.created,
+      errors: results.errors.length,
+      totalUsers: users.length,
+    })
+
     return results
   } catch (error) {
-    console.error('Error notifying new movie:', error)
+    console.error('[Notifications] ❌ Error notifying new movie:', error)
     return { created: 0, errors: [error instanceof Error ? error.message : 'Unknown error'] }
   }
 }

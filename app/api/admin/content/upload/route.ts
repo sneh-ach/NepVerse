@@ -185,16 +185,22 @@ export async function POST(request: NextRequest) {
       // Create notifications if movie is published
       if (isPublished) {
         try {
+          console.log('[Upload] 📢 Creating notifications for published movie:', movie.id)
           const { notifyNewMovie } = await import('@/lib/notifications')
           const notificationResult = await notifyNewMovie(movie.id, false) // Don't send emails by default
           logger.info(`Notifications created for movie ${movie.id}`, {
             created: notificationResult.created,
             errors: notificationResult.errors.length,
+            errorDetails: notificationResult.errors,
           })
+          console.log('[Upload] ✅ Notification result:', notificationResult)
         } catch (error) {
           logger.error('Error creating notifications for new movie', error)
+          console.error('[Upload] ❌ Notification error:', error)
           // Don't fail the upload if notifications fail
         }
+      } else {
+        console.log('[Upload] ⚠️ Movie not published, skipping notifications')
       }
 
       return NextResponse.json({
