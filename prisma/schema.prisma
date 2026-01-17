@@ -43,7 +43,7 @@ model User {
   achievements            UserAchievement[]
   activities              Activity[]
   playlists               Playlist[]
-  playlistItems           PlaylistItem[]
+  PlaylistItem            PlaylistItem[]
 
   @@index([email])
   @@index([phone])

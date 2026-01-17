@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get all watch history for this profile
-    const watchHistory = await prisma.watchHistory.findMany({
+    // Get all watch history for this profile  
+    const watchHistory: any = await prisma.watchHistory.findMany({
       where: {
         userId,
         profileId,
@@ -78,7 +78,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         lastWatchedAt: 'desc',
       },
-    })
+    });
 
     // Calculate statistics
     const totalItems = watchHistory.length
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
 
     // Genre analysis
     const genreCount: Record<string, number> = {}
-    watchHistory.forEach(h => {
+    watchHistory.forEach((h: any) => {
       const genres = h.movie?.genres || h.series?.genres || h.episode?.series?.genres || []
       genres.forEach((g: any) => {
         const genreName = g.name || g
