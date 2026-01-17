@@ -50,8 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all watch history for this profile
-    // @ts-expect-error - Prisma nested include type issue
-    const watchHistory: any = await prisma.watchHistory.findMany({
+    const watchHistoryQuery: any = {
       where: {
         userId,
         profileId,
@@ -65,6 +64,7 @@ export async function GET(request: NextRequest) {
         series: {
           include: {
             genres: true,
+          },
         },
         episode: {
           include: {
@@ -79,24 +79,26 @@ export async function GET(request: NextRequest) {
       orderBy: {
         lastWatchedAt: 'desc',
       },
-    });
+    };
+    
+    const watchHistory: any = await prisma.watchHistory.findMany(watchHistoryQuery);
 
     // Calculate statistics
     const totalItems = watchHistory.length
-    const completedItems = watchHistory.filter(h => h.completed).length
+    const completedItems = watchHistory.filter((h: any) => h.completed).length
     const completionRate = totalItems > 0 ? (completedItems / totalItems) * 100 : 0
 
     // Calculate total hours watched
     let totalSeconds = 0
-    watchHistory.forEach(h => {
+    watchHistory.forEach((h: any) => {
       // Use currentTime as the actual time watched
       totalSeconds += h.currentTime || 0
     })
     const totalHours = totalSeconds / 3600
 
     // Movies vs Series breakdown
-    const movies = watchHistory.filter(h => h.movieId).length
-    const series = watchHistory.filter(h => h.seriesId).length
+    const movies = watchHistory.filter((h: any) => h.movieId).length
+    const series = watchHistory.filter((h: any) => h.seriesId).length
     const moviesPercentage = totalItems > 0 ? (movies / totalItems) * 100 : 0
     const seriesPercentage = totalItems > 0 ? (series / totalItems) * 100 : 0
 
@@ -116,7 +118,7 @@ export async function GET(request: NextRequest) {
 
     // Watch streak calculation
     const watchDates = watchHistory
-      .map(h => new Date(h.lastWatchedAt).toISOString().split('T')[0])
+      .map((h: any) => new Date(h.lastWatchedAt).toISOString().split('T')[0])
       .filter((date, index, self) => self.indexOf(date) === index) // Unique dates
       .sort()
       .reverse()
@@ -144,7 +146,7 @@ export async function GET(request: NextRequest) {
 
     // Most watched month/year
     const monthYearCount: Record<string, number> = {}
-    watchHistory.forEach(h => {
+    watchHistory.forEach((h: any) => {
       const date = new Date(h.lastWatchedAt)
       const monthYear = `${date.toLocaleString('default', { month: 'long' })} ${date.getFullYear()}`
       monthYearCount[monthYear] = (monthYearCount[monthYear] || 0) + 1
@@ -157,13 +159,13 @@ export async function GET(request: NextRequest) {
     const averageWatchTimeMinutes = averageWatchTime / 60
 
     // Unique content watched
-    const uniqueMovies = new Set(watchHistory.filter(h => h.movieId).map(h => h.movieId)).size
-    const uniqueSeries = new Set(watchHistory.filter(h => h.seriesId).map(h => h.seriesId)).size
+    const uniqueMovies = new Set(watchHistory.filter((h: any) => h.movieId).map((h: any) => h.movieId)).size
+    const uniqueSeries = new Set(watchHistory.filter((h: any) => h.seriesId).map((h: any) => h.seriesId)).size
     const uniqueContent = uniqueMovies + uniqueSeries
 
     // Recent activity (last 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    const recentActivity = watchHistory.filter(h => 
+    const recentActivity = watchHistory.filter((h: any) => 
       new Date(h.lastWatchedAt) >= sevenDaysAgo
     ).length
 
