@@ -49,8 +49,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get all watch history for this profile  
-    // @ts-ignore - Prisma nested include type issue
+    // Get all watch history for this profile
+    // @ts-expect-error - Prisma nested include type issue
     const watchHistory: any = await prisma.watchHistory.findMany({
       where: {
         userId,
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-        },
+        } as any,
       },
       orderBy: {
         lastWatchedAt: 'desc',
