@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
               },
             },
           },
-        } as any,
+        },
       },
       orderBy: {
         lastWatchedAt: 'desc',
