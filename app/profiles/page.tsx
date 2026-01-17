@@ -696,10 +696,10 @@ function ProfilesPageContent() {
                 <Button
                   variant="primary"
                   onClick={confirmDeleteProfile}
-                  disabled={profileToDelete.pin && deletePinInput.length !== 4}
+                  disabled={Boolean(profileToDelete.pin) && deletePinInput.length !== 4}
                   className="flex-1 bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
                 >
-                  {profileToDelete.pin && deletePinInput.length !== 4 ? 'Enter PIN' : 'Delete Profile'}
+                  {Boolean(profileToDelete.pin) && deletePinInput.length !== 4 ? 'Enter PIN' : 'Delete Profile'}
                 </Button>
               </div>
             </div>
