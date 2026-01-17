@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Revalidate every 5 minutes
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -37,6 +39,19 @@ export async function GET(
   try {
     const userId = await getUserId(request)
 
+    // Check cache for GET requests
+    if (request.method === 'GET') {
+      const cacheKey = `playlist:${params.id}`
+      const cached = await cacheService.get(cacheKey)
+      if (cached) {
+        return NextResponse.json(cached, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          },
+        })
+      }
+    }
+
     const playlist = await prisma.playlist.findUnique({
       where: { id: params.id },
       include: {
@@ -47,8 +62,20 @@ export async function GET(
         },
         items: {
           include: {
-            movie: true,
-            series: true,
+            movie: {
+              select: {
+                id: true,
+                title: true,
+                posterUrl: true,
+              },
+            },
+            series: {
+              select: {
+                id: true,
+                title: true,
+                posterUrl: true,
+              },
+            },
           },
           orderBy: { order: 'asc' },
         },
@@ -70,7 +97,7 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({
+    const responseData = {
       id: playlist.id,
       name: playlist.name,
       description: playlist.description,
@@ -98,6 +125,18 @@ export async function GET(
         order: item.order,
         addedAt: item.addedAt.toISOString(),
       })),
+    }
+
+    // Cache for GET requests
+    if (request.method === 'GET') {
+      const cacheKey = `playlist:${params.id}`
+      await cacheService.set(cacheKey, responseData, { ttl: 300 })
+    }
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     })
   } catch (error) {
     const { logError, handleError } = await import('@/lib/errorHandler')
@@ -164,6 +203,10 @@ export async function PUT(
       },
     })
 
+    // Invalidate cache
+    await cacheService.delete(`playlist:${params.id}`)
+    await cacheService.delete(`playlists:${userId}:all`)
+
     return NextResponse.json({
       id: updated.id,
       name: updated.name,
@@ -222,6 +265,10 @@ export async function DELETE(
     await prisma.playlist.delete({
       where: { id: params.id },
     })
+
+    // Invalidate cache
+    await cacheService.delete(`playlist:${params.id}`)
+    await cacheService.delete(`playlists:${userId}:all`)
 
     return NextResponse.json({ message: 'Playlist deleted' })
   } catch (error) {

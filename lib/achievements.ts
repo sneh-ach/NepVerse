@@ -191,12 +191,38 @@ export async function checkAndAwardAchievements(userId: string) {
 
     // Check GENRE_EXPLORER
     if (!earnedTypes.has(AchievementType.GENRE_EXPLORER)) {
+      // Optimized: Only fetch what we need for genre checking
       const watchHistoryQuery: any = {
         where: { userId },
-        include: {
-          movie: { include: { genres: true } },
-          series: { include: { genres: true } },
-          episode: { include: { series: { include: { genres: true } } } },
+        select: {
+          movieId: true,
+          seriesId: true,
+          episodeId: true,
+          movie: {
+            select: {
+              genres: {
+                select: { name: true },
+              },
+            },
+          },
+          series: {
+            select: {
+              genres: {
+                select: { name: true },
+              },
+            },
+          },
+          episode: {
+            select: {
+              series: {
+                select: {
+                  genres: {
+                    select: { name: true },
+                  },
+                },
+              },
+            },
+          },
         },
       };
       const watchHistory: any = await prisma.watchHistory.findMany(watchHistoryQuery);

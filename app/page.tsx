@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { profileStorage } from '@/lib/localStorage'
@@ -291,83 +291,79 @@ export default function HomePage() {
   })
   const [contentLoading, setContentLoading] = useState(true)
 
-  // Load content from database
-  useEffect(() => {
-    const loadContent = async () => {
-      try {
-        setContentLoading(true)
-        const data = await getFeaturedContent()
-        console.log('Loaded content:', {
-          featured: !!data.featured,
-          trending: data.trending.length,
-          originals: data.originals.length,
-          newReleases: data.newReleases.length,
-          drama: data.drama.length,
-          comedy: data.comedy.length,
-          thriller: data.thriller.length,
-        })
-        setContent(data)
-      } catch (error) {
-        console.error('Failed to load content:', error)
-        // Set empty content on error
-        setContent({
-          featured: null,
-          trending: [],
-          originals: [],
-          newReleases: [],
-          drama: [],
-          comedy: [],
-          thriller: [],
-        })
-      } finally {
-        setContentLoading(false)
-      }
+  // Load content from database (memoized to prevent unnecessary re-fetches)
+  const loadContent = useCallback(async () => {
+    try {
+      setContentLoading(true)
+      const data = await getFeaturedContent()
+      setContent(data)
+    } catch (error) {
+      console.error('Failed to load content:', error)
+      // Set empty content on error
+      setContent({
+        featured: null,
+        trending: [],
+        originals: [],
+        newReleases: [],
+        drama: [],
+        comedy: [],
+        thriller: [],
+      })
+    } finally {
+      setContentLoading(false)
     }
-    loadContent()
   }, [])
 
-  // Load continue watching
   useEffect(() => {
+    loadContent()
+  }, [loadContent])
+
+  // Load continue watching (memoized and optimized)
+  const loadContinueWatching = useCallback(async () => {
     if (!user || loading) return
     
-    const loadContinueWatching = async () => {
-      try {
-        const history = await watchHistoryService.getAll()
-        // Filter out completed items and sort by last watched
-        const inProgress = (Array.isArray(history) ? history : [])
-          .filter((item: any) => {
-            // Only show items that are not completed and have some progress
-            return !item.completed && item.progress > 0 && (item.movieId || item.seriesId)
-          })
-          .sort((a: any, b: any) => {
-            // Sort by last watched date (most recent first)
-            const dateA = new Date(a.lastWatchedAt || a.updatedAt || a.createdAt || 0).getTime()
-            const dateB = new Date(b.lastWatchedAt || b.updatedAt || b.createdAt || 0).getTime()
-            return dateB - dateA
-          })
-          .slice(0, 10)
-          .map(async (item: any) => {
-            // Fetch movie or series from API
-            let movie = null
-            let series = null
-            
-            if (item.movieId) {
-              try {
-                const res = await fetch(`/api/content/movie/${item.movieId}`)
-                if (res.ok) movie = await res.json()
-              } catch (e) {
-                // Ignore errors
-              }
-            }
-            
-            if (item.seriesId) {
-              try {
-                const res = await fetch(`/api/content/series/${item.seriesId}`)
-                if (res.ok) series = await res.json()
-              } catch (e) {
-                // Ignore errors
-              }
-            }
+    try {
+      const history = await watchHistoryService.getAll()
+      // Filter out completed items and sort by last watched
+      const inProgress = (Array.isArray(history) ? history : [])
+        .filter((item: any) => {
+          // Only show items that are not completed and have some progress
+          return !item.completed && item.progress > 0 && (item.movieId || item.seriesId)
+        })
+        .sort((a: any, b: any) => {
+          // Sort by last watched date (most recent first)
+          const dateA = new Date(a.lastWatchedAt || a.updatedAt || a.createdAt || 0).getTime()
+          const dateB = new Date(b.lastWatchedAt || b.updatedAt || b.createdAt || 0).getTime()
+          return dateB - dateA
+        })
+        .slice(0, 10)
+      
+      // Batch fetch all content in parallel
+      const contentPromises = inProgress.map(async (item: any) => {
+        let movie = null
+        let series = null
+        
+        if (item.movieId) {
+          try {
+            const res = await fetch(`/api/content/movie/${item.movieId}`, {
+              headers: { 'Cache-Control': 'max-age=300' },
+            })
+            if (res.ok) movie = await res.json()
+          } catch (e) {
+            // Ignore errors
+          }
+        }
+        
+        if (item.seriesId) {
+          try {
+            const res = await fetch(`/api/content/series/${item.seriesId}`, {
+              headers: { 'Cache-Control': 'max-age=300' },
+            })
+            if (res.ok) series = await res.json()
+          } catch (e) {
+            // Ignore errors
+          }
+        }
             
             return {
               id: item.movieId || item.seriesId,

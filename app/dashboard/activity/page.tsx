@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Activity, Film, Tv, Star, Heart, Users, Award, Share2 } from 'lucide-react'
@@ -34,13 +34,16 @@ export default function ActivityPage() {
     }
 
     loadActivities()
-  }, [user, loading, router, followingOnly])
+  }, [user, loading, router, loadActivities])
 
-  const loadActivities = async () => {
+  const loadActivities = useCallback(async () => {
     try {
       setLoadingActivities(true)
       const response = await fetch(`/api/user/activity?following=${followingOnly}&limit=50`, {
         credentials: 'include',
+        headers: {
+          'Cache-Control': 'max-age=60', // Client-side cache for 1 minute
+        },
       })
       
       if (response.ok) {
@@ -52,7 +55,7 @@ export default function ActivityPage() {
     } finally {
       setLoadingActivities(false)
     }
-  }
+  }, [followingOnly])
 
   const getActivityIcon = (type: string) => {
     switch (type) {

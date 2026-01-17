@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, memo } from 'react'
 import { cn } from '@/lib/utils'
 import { ContentCard } from './ContentCard'
 import { ContentCardSkeleton } from '@/components/ui/Skeleton'
@@ -213,4 +213,4 @@ export function ContentGrid({
       </div>
     </div>
   )
-}
+})

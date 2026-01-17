@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useRef, useEffect, useState, useCallback, useMemo, memo } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ContentCard } from './ContentCard'
@@ -40,7 +40,7 @@ interface ContentCarouselProps {
   emptyMessage?: string // Custom message when empty
 }
 
-export function ContentCarousel({ title, items, className, showLoading = false, alwaysShow = false, emptyMessage }: ContentCarouselProps) {
+export const ContentCarousel = memo(function ContentCarousel({ title, items, className, showLoading = false, alwaysShow = false, emptyMessage }: ContentCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isLoading, setIsLoading] = useState(showLoading)
   const [watchlistItems, setWatchlistItems] = useState<Set<string>>(new Set())
@@ -308,5 +308,5 @@ export function ContentCarousel({ title, items, className, showLoading = false, 
       </div>
     </div>
   )
-}
+})
 

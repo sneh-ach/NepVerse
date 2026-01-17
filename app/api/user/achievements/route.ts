@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { checkAndAwardAchievements } from '@/lib/achievements'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 600 // Revalidate every 10 minutes
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -41,6 +43,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Check cache first
+    const cacheKey = `user:achievements:${userId}`
+    const cached = await cacheService.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+        },
+      })
+    }
+
     // Initialize achievements if they don't exist
     const achievementCount = await prisma.achievement.count()
     if (achievementCount === 0) {
@@ -52,10 +65,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get all achievements
-    const allAchievements = await prisma.achievement.findMany({
-      orderBy: { points: 'desc' },
-    })
+    // Get all achievements (cache this separately as it's shared)
+    const allAchievementsCacheKey = 'achievements:all'
+    const allAchievements = await cacheService.wrap(
+      allAchievementsCacheKey,
+      async () => {
+        return await prisma.achievement.findMany({
+          orderBy: { points: 'desc' },
+        })
+      },
+      { ttl: 3600 } // Cache for 1 hour
+    )
 
     // Get user's earned achievements
     const userAchievements = await prisma.userAchievement.findMany({
@@ -80,11 +100,20 @@ export async function GET(request: NextRequest) {
 
     const totalPoints = userAchievements.reduce((sum, ua) => sum + ua.achievement.points, 0)
 
-    return NextResponse.json({
+    const responseData = {
       achievements,
       totalPoints,
       earnedCount: userAchievements.length,
       totalCount: allAchievements.length,
+    }
+
+    // Cache for 10 minutes
+    await cacheService.set(cacheKey, responseData, { ttl: 600 })
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200',
+      },
     })
   } catch (error) {
     const { logError, handleError } = await import('@/lib/errorHandler')

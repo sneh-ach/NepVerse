@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Plus, Edit, Trash2, Share2, Lock, Globe, Eye, Film, Tv } from 'lucide-react'
@@ -39,13 +39,16 @@ export default function PlaylistsPage() {
     }
 
     loadPlaylists()
-  }, [user, loading, router])
+  }, [user, loading, router, loadPlaylists])
 
-  const loadPlaylists = async () => {
+  const loadPlaylists = useCallback(async () => {
     try {
       setLoadingPlaylists(true)
       const response = await fetch('/api/playlists', {
         credentials: 'include',
+        headers: {
+          'Cache-Control': 'max-age=300', // Client-side cache for 5 minutes
+        },
       })
       
       if (response.ok) {
@@ -57,7 +60,7 @@ export default function PlaylistsPage() {
     } finally {
       setLoadingPlaylists(false)
     }
-  }
+  }, [])
 
   const handleCreatePlaylist = async () => {
     if (!newPlaylistName.trim()) {

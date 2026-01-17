@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createActivity } from '@/lib/achievements'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Revalidate every 5 minutes
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -97,7 +99,19 @@ export async function GET(request: NextRequest) {
       isOwn: userId === playlist.userId,
     }))
 
-    return NextResponse.json({ playlists: formatted })
+    const responseData = { playlists: formatted }
+
+    // Cache for GET requests
+    if (request.method === 'GET') {
+      const cacheKey = `playlists:${userIdParam || userId || 'public'}:${visibility || 'all'}`
+      await cacheService.set(cacheKey, responseData, { ttl: 300 })
+    }
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch (error) {
     const { logError, handleError } = await import('@/lib/errorHandler')
     logError(error, 'Get playlists')
@@ -155,6 +169,9 @@ export async function POST(request: NextRequest) {
         },
       },
     })
+
+    // Invalidate cache
+    await cacheService.delete(`playlists:${userId}:all`)
 
     // Create activity
     await createActivity(userId, 'CREATED_PLAYLIST', null, null, {

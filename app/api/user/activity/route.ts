@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 60 // Revalidate every minute
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -95,13 +97,22 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({
+    const responseData = {
       activities: formatted,
       pagination: {
         total,
         limit,
         offset,
         hasMore: offset + limit < total,
+      },
+    }
+
+    // Cache for 1 minute (activity feed changes frequently)
+    await cacheService.set(cacheKey, responseData, { ttl: 60 })
+
+    return NextResponse.json(responseData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
       },
     })
   } catch (error) {

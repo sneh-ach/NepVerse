@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { apiRateLimiter, getClientIdentifier } from '@/lib/rateLimit'
 import { handleError, logError } from '@/lib/errorHandler'
+import { cacheService } from '@/lib/cache'
 
 // Force dynamic rendering - this route uses searchParams and headers
 export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Revalidate every 5 minutes
 
 /**
  * GET /api/content/movies
@@ -39,6 +41,17 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
+    // Check cache
+    const cacheKey = `movies:${featured}:${limit}:${offset}`
+    const cached = await cacheService.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      })
+    }
+
     const where: any = {
       isPublished: true,
     }
@@ -66,7 +79,14 @@ export async function GET(request: NextRequest) {
       throw prismaError
     })
 
-    return NextResponse.json(movies)
+    // Cache for 5 minutes
+    await cacheService.set(cacheKey, movies, { ttl: 300 })
+
+    return NextResponse.json(movies, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
+    })
   } catch (error) {
     console.error('Error in GET /api/content/movies:', error)
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'

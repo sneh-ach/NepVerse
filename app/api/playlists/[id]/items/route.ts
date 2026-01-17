@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,10 +104,29 @@ export async function POST(
         order: newOrder,
       },
       include: {
-        movie: true,
-        series: true,
+        movie: {
+          select: {
+            id: true,
+            title: true,
+            posterUrl: true,
+          },
+        },
+        series: {
+          select: {
+            id: true,
+            title: true,
+            posterUrl: true,
+          },
+        },
       },
     })
+
+    // Invalidate cache
+    await cacheService.delete(`playlist:${params.id}`)
+    const playlist = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
+    if (playlist) {
+      await cacheService.delete(`playlists:${playlist.userId}:all`)
+    }
 
     return NextResponse.json({
       id: item.id,
@@ -182,6 +202,13 @@ export async function DELETE(
     await prisma.playlistItem.delete({
       where: { id: itemId },
     })
+
+    // Invalidate cache
+    await cacheService.delete(`playlist:${params.id}`)
+    const playlist = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
+    if (playlist) {
+      await cacheService.delete(`playlists:${playlist.userId}:all`)
+    }
 
     return NextResponse.json({ message: 'Item removed from playlist' })
   } catch (error) {

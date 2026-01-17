@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Award, Trophy, Star, Zap, Target } from 'lucide-react'
@@ -36,11 +36,14 @@ export default function AchievementsPage() {
     loadAchievements()
   }, [user, loading, router])
 
-  const loadAchievements = async () => {
+  const loadAchievements = useCallback(async () => {
     try {
       setLoadingStats(true)
       const response = await fetch('/api/user/achievements', {
         credentials: 'include',
+        headers: {
+          'Cache-Control': 'max-age=600', // Client-side cache
+        },
       })
       
       if (response.ok) {
@@ -54,7 +57,7 @@ export default function AchievementsPage() {
     } finally {
       setLoadingStats(false)
     }
-  }
+  }, [])
 
   const checkAchievements = async () => {
     try {
@@ -87,8 +90,8 @@ export default function AchievementsPage() {
     )
   }
 
-  const earnedAchievements = achievements.filter(a => a.earned)
-  const unearnedAchievements = achievements.filter(a => !a.earned)
+  const earnedAchievements = useMemo(() => achievements.filter(a => a.earned), [achievements])
+  const unearnedAchievements = useMemo(() => achievements.filter(a => !a.earned), [achievements])
 
   return (
     <div className="min-h-screen bg-background py-8 px-4">

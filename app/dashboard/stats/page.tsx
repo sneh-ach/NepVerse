@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { Clock, Film, Tv, TrendingUp, Award, Calendar, Target, BarChart3, Zap, Star } from 'lucide-react'
@@ -41,13 +41,16 @@ export default function StatsPage() {
     }
 
     loadStats()
-  }, [user, loading, router])
+  }, [user, loading, router, loadStats])
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
       setLoadingStats(true)
       const response = await fetch('/api/user/stats', {
         credentials: 'include',
+        headers: {
+          'Cache-Control': 'max-age=300', // Client-side cache
+        },
       })
       
       if (response.ok) {
@@ -61,7 +64,7 @@ export default function StatsPage() {
     } finally {
       setLoadingStats(false)
     }
-  }
+  }, [])
 
   if (loading || loadingStats) {
     return (

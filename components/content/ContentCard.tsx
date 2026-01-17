@@ -157,11 +157,15 @@ export const ContentCard = memo(function ContentCard({
                 onError={() => setImageError(true)}
                 loading="lazy"
                 crossOrigin="anonymous"
+                decoding="async"
+                fetchPriority="low"
               />
             ) : (
               <Image
                 src={displayPosterUrl}
                 alt={title}
+                loading="lazy"
+                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 fill
                 className="object-cover transition-transform duration-500 ease-out group-hover/card:scale-105"
                 sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"

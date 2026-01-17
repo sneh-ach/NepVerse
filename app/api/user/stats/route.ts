@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getProfileId } from '@/lib/getProfileId'
+import { cacheService } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Revalidate every 5 minutes
 
 async function getUserId(request: NextRequest): Promise<string | null> {
   try {
@@ -49,7 +51,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get all watch history for this profile
+    // Check cache first
+    const cacheKey = `user:stats:${userId}:${profileId}`
+    const cached = await cacheService.get(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        },
+      })
+    }
+
+    // Get all watch history for this profile (optimized - only fetch what we need)
     const watchHistoryQuery: any = {
       where: {
         userId,
@@ -169,7 +182,7 @@ export async function GET(request: NextRequest) {
       new Date(h.lastWatchedAt) >= sevenDaysAgo
     ).length
 
-    return NextResponse.json({
+    const statsData = {
       totalHours: Math.round(totalHours * 10) / 10,
       totalMinutes: Math.round(totalSeconds / 60),
       totalItems,
@@ -187,6 +200,15 @@ export async function GET(request: NextRequest) {
       uniqueMovies,
       uniqueSeries,
       recentActivity,
+    }
+
+    // Cache for 5 minutes
+    await cacheService.set(cacheKey, statsData, { ttl: 300 })
+
+    return NextResponse.json(statsData, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     })
   } catch (error) {
     const { logError, handleError } = await import('@/lib/errorHandler')
