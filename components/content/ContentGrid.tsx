@@ -38,7 +38,7 @@ interface ContentGridProps {
   columns?: { mobile?: number; tablet?: number; desktop?: number } // Responsive columns
 }
 
-export function ContentGrid({ 
+export const ContentGrid = memo(function ContentGrid({ 
   title, 
   items, 
   className, 

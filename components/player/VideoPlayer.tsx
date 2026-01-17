@@ -62,6 +62,40 @@ export function VideoPlayer({
   const [showControls, setShowControls] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
   const [showSkipIndicator, setShowSkipIndicator] = useState<'forward' | 'back' | null>(null)
+  const [playbackRate, setPlaybackRate] = useState(1)
+  const [showSkipIntro, setShowSkipIntro] = useState(false)
+  const skipIntroTimeRef = useRef<number>(90) // Default 90 seconds (1.5 min) for intro
+
+  // Set playback rate
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = playbackRate
+    }
+  }, [playbackRate])
+
+  // Check for skip intro (first 90 seconds)
+  useEffect(() => {
+    if (!videoRef.current || !state.duration) return
+    
+    const checkSkipIntro = () => {
+      if (state.currentTime < skipIntroTimeRef.current && state.currentTime > 5) {
+        setShowSkipIntro(true)
+      } else {
+        setShowSkipIntro(false)
+      }
+    }
+
+    const interval = setInterval(checkSkipIntro, 1000)
+    return () => clearInterval(interval)
+  }, [state.currentTime, state.duration])
+
+  const handleSkipIntro = () => {
+    if (videoRef.current) {
+      seek(skipIntroTimeRef.current)
+      setShowSkipIntro(false)
+    }
+  }
+
   const [showTopBar, setShowTopBar] = useState(true) // Always show top bar with cast/watch party
   const [isHoveringTopBar, setIsHoveringTopBar] = useState(false)
   const [previewTime, setPreviewTime] = useState<number | null>(null)
@@ -640,6 +674,22 @@ export function VideoPlayer({
         }}
       />
 
+      {/* Skip Intro Button */}
+      {showSkipIntro && (
+        <div className="absolute top-20 right-4 z-50 pointer-events-auto">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSkipIntro()
+            }}
+            className="bg-black/80 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center space-x-2 hover:bg-black/90 transition-all shadow-lg"
+          >
+            <SkipForward size={20} className="text-white" />
+            <span className="text-white font-semibold">Skip Intro</span>
+          </button>
+        </div>
+      )}
+
       {/* Skip Indicator */}
       {showSkipIndicator && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
@@ -954,6 +1004,24 @@ export function VideoPlayer({
                         {videoUrl1080p && <option value="1080p">1080p</option>}
                         {videoUrl720p && <option value="720p">720p</option>}
                         {videoUrl360p && <option value="360p">360p</option>}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-white text-sm mb-2">Playback Speed</label>
+                      <select
+                        value={playbackRate}
+                        onChange={(e) => {
+                          setPlaybackRate(parseFloat(e.target.value))
+                        }}
+                        className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-white text-sm"
+                      >
+                        <option value="0.5">0.5x</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1">1x (Normal)</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
                       </select>
                     </div>
 

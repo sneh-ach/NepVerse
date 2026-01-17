@@ -32,17 +32,6 @@ export default function StatsPage() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loadingStats, setLoadingStats] = useState(true)
 
-  useEffect(() => {
-    if (loading) return
-    
-    if (!user) {
-      router.push('/login?redirect=/dashboard/stats')
-      return
-    }
-
-    loadStats()
-  }, [user, loading, router, loadStats])
-
   const loadStats = useCallback(async () => {
     try {
       setLoadingStats(true)
@@ -65,6 +54,17 @@ export default function StatsPage() {
       setLoadingStats(false)
     }
   }, [])
+
+  useEffect(() => {
+    if (loading) return
+    
+    if (!user) {
+      router.push('/login?redirect=/dashboard/stats')
+      return
+    }
+
+    loadStats()
+  }, [user, loading, router, loadStats])
 
   if (loading || loadingStats) {
     return (

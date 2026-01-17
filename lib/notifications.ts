@@ -257,3 +257,78 @@ export async function notifyNewSeries(seriesId: string, sendEmails = false) {
     return { created: 0, errors: [error instanceof Error ? error.message : 'Unknown error'] }
   }
 }
+
+/**
+ * Create notifications for users watching a series when a new episode is published
+ */
+export async function notifyNewEpisode(seriesId: string, episodeId: string, sendEmails = false) {
+  try {
+    const episode = await prisma.episode.findUnique({
+      where: { id: episodeId },
+      include: {
+        series: true,
+      },
+    })
+
+    if (!episode || !episode.isPublished || !episode.series.isPublished) {
+      return { created: 0, errors: [] }
+    }
+
+    // Get users who have watched this series (have watch history)
+    const watchHistory = await prisma.watchHistory.findMany({
+      where: {
+        seriesId,
+        completed: false, // Only notify users who haven't finished the series
+      },
+      select: {
+        userId: true,
+      },
+      distinct: ['userId'],
+    })
+
+    const userIds = watchHistory.map(wh => wh.userId)
+
+    if (userIds.length === 0) {
+      return { created: 0, errors: [] }
+    }
+
+    // Get user details for those who want notifications
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: userIds },
+        emailVerified: true,
+        emailNotifications: sendEmails ? true : undefined,
+      },
+      select: { id: true, emailNotifications: true },
+    })
+
+    const results = {
+      created: 0,
+      errors: [] as string[],
+    }
+
+    const notificationPromises = users.map(async (user) => {
+      try {
+        await createNotification({
+          userId: user.id,
+          type: 'new_series', // Reuse new_series type for episodes
+          title: `📺 New Episode: ${episode.series.title}`,
+          message: `Episode ${episode.episodeNumber}: ${episode.title} is now available!`,
+          link: `/series/${seriesId}?episode=${episodeId}`,
+          imageUrl: episode.thumbnailUrl || episode.series.posterUrl,
+          sendEmail: sendEmails && user.emailNotifications,
+        })
+        results.created++
+      } catch (error: any) {
+        results.errors.push(`User ${user.id}: ${error.message}`)
+      }
+    })
+
+    await Promise.all(notificationPromises)
+
+    return results
+  } catch (error) {
+    console.error('Error notifying new episode:', error)
+    return { created: 0, errors: [error instanceof Error ? error.message : 'Unknown error'] }
+  }
+}

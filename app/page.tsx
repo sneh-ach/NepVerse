@@ -96,10 +96,18 @@ async function getFeaturedContent() {
     
     console.log('Featured carousel items:', featuredItems.length)
 
-    // Trending (most viewed)
+    // Trending Now (most viewed in last 7 days - using viewCount as proxy, can be enhanced with actual date tracking)
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+    
     const trending = [...allMovies, ...allSeries]
       .filter((item: any) => item && item.id) // Filter out any invalid items
-      .sort((a: any, b: any) => (b.viewCount || 0) - (a.viewCount || 0))
+      .sort((a: any, b: any) => {
+        // Prioritize items with higher viewCount and recent updates
+        const aScore = (a.viewCount || 0) + (new Date(a.updatedAt || a.createdAt) > sevenDaysAgo ? 10 : 0)
+        const bScore = (b.viewCount || 0) + (new Date(b.updatedAt || b.createdAt) > sevenDaysAgo ? 10 : 0)
+        return bScore - aScore
+      })
       .slice(0, 10)
       .map((item: any) => ({
         id: item.id,
@@ -147,6 +155,32 @@ async function getFeaturedContent() {
         tags: item.tags,
         genres: Array.isArray(item.genres) ? item.genres : [],
         type: 'series' as const,
+      }))
+
+    // Recently Added (sorted by createdAt - when added to platform)
+    const recentlyAdded = [...allMovies, ...allSeries]
+      .sort((a: any, b: any) => new Date(b.createdAt || b.releaseDate).getTime() - new Date(a.createdAt || a.releaseDate).getTime())
+      .slice(0, 10)
+      .map((item: any) => ({
+        id: item.id,
+        title: item.title || 'Untitled',
+        titleNepali: item.titleNepali,
+        description: item.description || '',
+        descriptionNepali: item.descriptionNepali,
+        posterUrl: item.posterUrl || '',
+        backdropUrl: item.backdropUrl,
+        videoUrl: item.videoUrl,
+        trailerUrl: item.trailerUrl,
+        rating: item.rating ?? undefined,
+        year: item.releaseDate ? new Date(item.releaseDate).getFullYear() : undefined,
+        duration: item.duration,
+        quality: item.quality,
+        ageRating: item.ageRating,
+        cast: item.cast,
+        matureThemes: item.matureThemes,
+        tags: item.tags,
+        genres: Array.isArray(item.genres) ? item.genres : [],
+        type: (item.episodes && Array.isArray(item.episodes)) || 'episodeCount' in item ? ('series' as const) : ('movie' as const),
       }))
 
     // New releases (sorted by release date)
@@ -255,6 +289,7 @@ async function getFeaturedContent() {
       featured: featuredItems,
       trending,
       originals,
+      recentlyAdded,
       newReleases,
       drama,
       comedy,
@@ -263,11 +298,12 @@ async function getFeaturedContent() {
   } catch (error) {
     console.error('Error fetching content:', error)
     console.error('Error details:', error instanceof Error ? error.message : String(error))
-    // Return empty data on error
+      // Return empty data on error
     return {
       featured: [],
       trending: [],
       originals: [],
+      recentlyAdded: [],
       newReleases: [],
       drama: [],
       comedy: [],
@@ -284,6 +320,7 @@ export default function HomePage() {
     featured: [],
     trending: [],
     originals: [],
+    recentlyAdded: [],
     newReleases: [],
     drama: [],
     comedy: [],
@@ -304,6 +341,7 @@ export default function HomePage() {
         featured: null,
         trending: [],
         originals: [],
+        recentlyAdded: [],
         newReleases: [],
         drama: [],
         comedy: [],
@@ -362,47 +400,48 @@ export default function HomePage() {
             if (res.ok) series = await res.json()
           } catch (e) {
             // Ignore errors
-          }
-        }
-            
-            return {
-              id: item.movieId || item.seriesId,
-              title: movie?.title || series?.title || item.movieId || item.seriesId || 'Unknown',
-              titleNepali: movie?.titleNepali || series?.titleNepali,
-              description: movie?.description || series?.description,
-              descriptionNepali: movie?.descriptionNepali || series?.descriptionNepali,
-              posterUrl: movie?.posterUrl || series?.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500',
-              backdropUrl: movie?.backdropUrl || series?.backdropUrl,
-              videoUrl: movie?.videoUrl || series?.videoUrl,
-              trailerUrl: movie?.trailerUrl || series?.trailerUrl,
-              rating: movie?.rating || series?.rating,
-              year: movie?.releaseDate ? new Date(movie.releaseDate).getFullYear() : (series?.releaseDate ? new Date(series.releaseDate).getFullYear() : undefined),
-              duration: movie?.duration,
-              quality: movie?.quality || series?.quality,
-              ageRating: movie?.ageRating || series?.ageRating,
-              cast: movie?.cast || series?.cast,
-              matureThemes: movie?.matureThemes || series?.matureThemes,
-              tags: movie?.tags || series?.tags,
-              genres: movie?.genres || series?.genres || [],
-              type: item.movieId ? 'movie' : 'series',
-              progress: item.progress || 0,
             }
-          })
+        }
         
-        const resolved = await Promise.all(contentPromises)
-        setContinueWatching(resolved.filter((item: any) => item && item.id))
-      } catch (error) {
-        console.error('Failed to load continue watching:', error)
-        setContinueWatching([])
-      }
+        return {
+          id: item.movieId || item.seriesId,
+          title: movie?.title || series?.title || item.movieId || item.seriesId || 'Unknown',
+          titleNepali: movie?.titleNepali || series?.titleNepali,
+          description: movie?.description || series?.description,
+          descriptionNepali: movie?.descriptionNepali || series?.descriptionNepali,
+          posterUrl: movie?.posterUrl || series?.posterUrl || 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500',
+          backdropUrl: movie?.backdropUrl || series?.backdropUrl,
+          videoUrl: movie?.videoUrl || series?.videoUrl,
+          trailerUrl: movie?.trailerUrl || series?.trailerUrl,
+          rating: movie?.rating || series?.rating,
+          year: movie?.releaseDate ? new Date(movie.releaseDate).getFullYear() : (series?.releaseDate ? new Date(series.releaseDate).getFullYear() : undefined),
+          duration: movie?.duration,
+          quality: movie?.quality || series?.quality,
+          ageRating: movie?.ageRating || series?.ageRating,
+          cast: movie?.cast || series?.cast,
+          matureThemes: movie?.matureThemes || series?.matureThemes,
+          tags: movie?.tags || series?.tags,
+          genres: movie?.genres || series?.genres || [],
+          type: item.movieId ? 'movie' : 'series',
+          progress: item.progress || 0,
+        }
+      })
+      
+      const resolved = await Promise.all(contentPromises)
+      setContinueWatching(resolved.filter((item: any) => item && item.id))
+    } catch (error) {
+      console.error('Failed to load continue watching:', error)
+      setContinueWatching([])
     }
-    
+  }, [user, loading])
+
+  useEffect(() => {
     loadContinueWatching()
     
-    // Refresh every 30 seconds to show new watch history
-    const interval = setInterval(loadContinueWatching, 30000)
+    // Refresh every 60 seconds to show new watch history
+    const interval = setInterval(loadContinueWatching, 60000)
     return () => clearInterval(interval)
-  }, [user, loading])
+  }, [loadContinueWatching])
 
   useEffect(() => {
     // Only run on client side
@@ -467,14 +506,34 @@ export default function HomePage() {
 
       {/* Content Carousels - ALL NEPALI CONTENT */}
       <div className="py-8 space-y-8">
-        {/* Continue Watching - Always show, even if empty */}
-        {/* <ContentCarousel 
-          title="Continue Watching" 
-          items={continueWatching} 
-          showLoading={false}
-          alwaysShow={true}
-          emptyMessage="Start watching movies or series to see your progress here."
-        /> */}
+        {/* Continue Watching - Enhanced with progress bars */}
+        {continueWatching.length > 0 && (
+          <ContentCarousel 
+            title="Continue Watching" 
+            items={continueWatching} 
+            showLoading={false}
+            alwaysShow={true}
+            emptyMessage="Start watching movies or series to see your progress here."
+          />
+        )}
+        {/* Recently Added Section */}
+        {content.recentlyAdded.length > 0 && (
+          <ContentCarousel 
+            title="Recently Added" 
+            items={content.recentlyAdded} 
+            showLoading={false}
+          />
+        )}
+
+        {/* Trending Now Section */}
+        {content.trending.length > 0 && (
+          <ContentCarousel 
+            title="🔥 Trending Now" 
+            items={content.trending} 
+            showLoading={false}
+          />
+        )}
+        
         {content.trending.length > 0 && (
           <ContentGrid 
             title="Popular Nepali Movies" 

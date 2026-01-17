@@ -25,17 +25,6 @@ export default function ActivityPage() {
   const [followingOnly, setFollowingOnly] = useState(false)
   const [loadingActivities, setLoadingActivities] = useState(true)
 
-  useEffect(() => {
-    if (loading) return
-    
-    if (!user) {
-      router.push('/login?redirect=/dashboard/activity')
-      return
-    }
-
-    loadActivities()
-  }, [user, loading, router, loadActivities])
-
   const loadActivities = useCallback(async () => {
     try {
       setLoadingActivities(true)
@@ -56,6 +45,17 @@ export default function ActivityPage() {
       setLoadingActivities(false)
     }
   }, [followingOnly])
+
+  useEffect(() => {
+    if (loading) return
+    
+    if (!user) {
+      router.push('/login?redirect=/dashboard/activity')
+      return
+    }
+
+    loadActivities()
+  }, [user, loading, router, loadActivities])
 
   const getActivityIcon = (type: string) => {
     switch (type) {

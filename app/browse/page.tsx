@@ -22,6 +22,7 @@ function BrowsePageContent() {
   const [selectedAgeRating, setSelectedAgeRating] = useState<string>('all')
   const [selectedQuality, setSelectedQuality] = useState<string>('all')
   const [selectedContentType, setSelectedContentType] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<string>('relevance')
   const [results, setResults] = useState<any[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [genreSections, setGenreSections] = useState<Record<string, any[]>>({})
@@ -71,6 +72,16 @@ function BrowsePageContent() {
     { value: 'all', label: 'All Content' },
     { value: 'movie', label: 'Movies Only' },
     { value: 'series', label: 'Series Only' },
+  ]
+
+  // Sort options
+  const sortOptions = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'newest', label: 'Newest First' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'rating', label: 'Highest Rated' },
+    { value: 'title', label: 'Title A-Z' },
+    { value: 'views', label: 'Most Viewed' },
   ]
 
   // Load genres from API
@@ -137,7 +148,7 @@ function BrowsePageContent() {
       setResults([])
       setIsSearching(false)
     }
-  }, [debouncedSearchQuery, selectedGenre, selectedYear, selectedRating, selectedAgeRating, selectedQuality, selectedContentType])
+  }, [debouncedSearchQuery, selectedGenre, selectedYear, selectedRating, selectedAgeRating, selectedQuality, selectedContentType, sortBy])
 
   const fetchResults = async () => {
     try {
@@ -153,7 +164,22 @@ function BrowsePageContent() {
 
       const res = await fetch(`/api/content/search?${params.toString()}`)
       if (res.ok) {
-        const data = await res.json()
+        let data = await res.json()
+        
+        // Apply sorting
+        if (sortBy === 'newest') {
+          data = data.sort((a: any, b: any) => new Date(b.releaseDate || b.createdAt).getTime() - new Date(a.releaseDate || a.createdAt).getTime())
+        } else if (sortBy === 'oldest') {
+          data = data.sort((a: any, b: any) => new Date(a.releaseDate || a.createdAt).getTime() - new Date(b.releaseDate || b.createdAt).getTime())
+        } else if (sortBy === 'rating') {
+          data = data.sort((a: any, b: any) => (b.rating || 0) - (a.rating || 0))
+        } else if (sortBy === 'title') {
+          data = data.sort((a: any, b: any) => (a.title || '').localeCompare(b.title || ''))
+        } else if (sortBy === 'views') {
+          data = data.sort((a: any, b: any) => (b.viewCount || 0) - (a.viewCount || 0))
+        }
+        // 'relevance' keeps original order
+        
         setResults(data)
       } else {
         setResults([])
@@ -245,6 +271,14 @@ function BrowsePageContent() {
                 onChange={setSelectedContentType}
                 className="min-w-0 sm:min-w-[140px] text-sm"
                 placeholder="All Content"
+              />
+
+              <Dropdown
+                options={sortOptions}
+                value={sortBy}
+                onChange={setSortBy}
+                className="min-w-0 sm:min-w-[140px] text-sm"
+                placeholder="Sort By"
               />
             </div>
           </div>

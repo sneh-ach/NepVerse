@@ -123,9 +123,9 @@ export async function POST(
 
     // Invalidate cache
     await cacheService.delete(`playlist:${params.id}`)
-    const playlist = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
-    if (playlist) {
-      await cacheService.delete(`playlists:${playlist.userId}:all`)
+    const playlistOwner = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
+    if (playlistOwner) {
+      await cacheService.delete(`playlists:${playlistOwner.userId}:all`)
     }
 
     return NextResponse.json({
@@ -205,9 +205,9 @@ export async function DELETE(
 
     // Invalidate cache
     await cacheService.delete(`playlist:${params.id}`)
-    const playlist = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
-    if (playlist) {
-      await cacheService.delete(`playlists:${playlist.userId}:all`)
+    const playlistOwner = await prisma.playlist.findUnique({ where: { id: params.id }, select: { userId: true } })
+    if (playlistOwner) {
+      await cacheService.delete(`playlists:${playlistOwner.userId}:all`)
     }
 
     return NextResponse.json({ message: 'Item removed from playlist' })

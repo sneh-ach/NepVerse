@@ -30,17 +30,6 @@ export default function PlaylistsPage() {
   const [newPlaylistDescription, setNewPlaylistDescription] = useState('')
   const [newPlaylistVisibility, setNewPlaylistVisibility] = useState<'PUBLIC' | 'PRIVATE' | 'UNLISTED'>('PRIVATE')
 
-  useEffect(() => {
-    if (loading) return
-    
-    if (!user) {
-      router.push('/login?redirect=/dashboard/playlists')
-      return
-    }
-
-    loadPlaylists()
-  }, [user, loading, router, loadPlaylists])
-
   const loadPlaylists = useCallback(async () => {
     try {
       setLoadingPlaylists(true)
@@ -61,6 +50,17 @@ export default function PlaylistsPage() {
       setLoadingPlaylists(false)
     }
   }, [])
+
+  useEffect(() => {
+    if (loading) return
+    
+    if (!user) {
+      router.push('/login?redirect=/dashboard/playlists')
+      return
+    }
+
+    loadPlaylists()
+  }, [user, loading, router, loadPlaylists])
 
   const handleCreatePlaylist = async () => {
     if (!newPlaylistName.trim()) {

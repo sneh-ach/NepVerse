@@ -108,6 +108,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache for 1 minute (activity feed changes frequently)
+    const cacheKey = `user:activity:${userId}:${followingOnly}:${limit}:${offset}`
     await cacheService.set(cacheKey, responseData, { ttl: 60 })
 
     return NextResponse.json(responseData, {
