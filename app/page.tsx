@@ -389,8 +389,8 @@ export default function HomePage() {
             }
           })
         
-        const resolved = await Promise.all(inProgress)
-        setContinueWatching(resolved)
+        const resolved = await Promise.all(contentPromises)
+        setContinueWatching(resolved.filter((item: any) => item && item.id))
       } catch (error) {
         console.error('Failed to load continue watching:', error)
         setContinueWatching([])
