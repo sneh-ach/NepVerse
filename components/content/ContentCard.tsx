@@ -4,11 +4,10 @@ import React, { useState, useCallback, memo, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Play, Plus, Heart, MoreVertical, Star, Clock, Film, Share2 } from 'lucide-react'
+import { Play, Plus, Heart, MoreVertical, Star, Clock, Film } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { getImageUrl } from '@/lib/utils'
 import toast from 'react-hot-toast'
-import { ShareModal } from './ShareModal'
 
 interface ContentCardProps {
   id: string
@@ -70,7 +69,6 @@ export const ContentCard = memo(function ContentCard({
   const router = useRouter()
   const [isInWatchlist, setIsInWatchlist] = useState(inWatchlist)
   const [imageError, setImageError] = useState(false)
-  const [showShareModal, setShowShareModal] = useState(false)
   
   // Rewrite Vercel URLs to localhost in development
   const displayPosterUrl = getImageUrl(posterUrl)
@@ -260,28 +258,6 @@ export const ContentCard = memo(function ContentCard({
                     <Plus size={32} className="text-white relative z-10 group-hover/list:rotate-90 group-hover/list:scale-110 transition-all duration-300 drop-shadow-2xl" />
                   )}
                 </button>
-                <button
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    setShowShareModal(true)
-                  }}
-                  className="rounded-full bg-black/95 backdrop-blur-2xl flex items-center justify-center border-2 border-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transform-gpu group/share relative overflow-hidden shadow-2xl transition-all duration-300"
-                  style={{ width: '80px', height: '80px' }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.15)'
-                    e.currentTarget.style.backgroundColor = 'rgba(229,9,20,0.9)'
-                    e.currentTarget.style.borderColor = 'rgba(229,9,20,0.9)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)'
-                    e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.95)'
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'
-                  }}
-                  aria-label={`Share ${title}`}
-                >
-                  <Share2 size={32} className="text-white relative z-10 group-hover/share:scale-110 transition-transform duration-300" />
-                </button>
               </div>
             </div>
           )}
@@ -289,18 +265,6 @@ export const ContentCard = memo(function ContentCard({
         </div>
         </div>
       </div>
-
-      {/* Share Modal */}
-      <ShareModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        title={title}
-        contentId={id}
-        contentType={type}
-        rating={rating}
-        year={year}
-        description={description}
-      />
     </>
   )
 }, (prevProps, nextProps) => {

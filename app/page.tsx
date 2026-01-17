@@ -524,25 +524,6 @@ export default function HomePage() {
             showLoading={false}
           />
         )}
-
-        {/* Trending Now Section */}
-        {content.trending.length > 0 && (
-          <ContentCarousel 
-            title="🔥 Trending Now" 
-            items={content.trending} 
-            showLoading={false}
-          />
-        )}
-        
-        {content.trending.length > 0 && (
-          <ContentGrid 
-            title="Popular Nepali Movies" 
-            items={content.trending} 
-            showLoading={false}
-            rows={3}
-            columns={{ mobile: 2, tablet: 3, desktop: 4 }}
-          />
-        )}
         {/* {content.originals.length > 0 && (
           <ContentCarousel 
             title="Nepali Originals" 
