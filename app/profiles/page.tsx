@@ -29,6 +29,9 @@ function ProfilesPageContent() {
   const [showPinModal, setShowPinModal] = useState(false)
   const [selectedProfile, setSelectedProfile] = useState<UserProfile | null>(null)
   const [pinInput, setPinInput] = useState('')
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [profileToDelete, setProfileToDelete] = useState<UserProfile | null>(null)
+  const [deletePinInput, setDeletePinInput] = useState('')
 
   useEffect(() => {
     if (loading) return // Wait for auth to finish loading
@@ -249,19 +252,77 @@ function ProfilesPageContent() {
     }
   }, [pinInput, selectedProfile, showPinModal])
 
-  const handleDeleteProfile = async (profileId: string) => {
-    if (!confirm('Are you sure you want to delete this profile? All watch history and watchlist will be deleted.')) {
-      return
+  const handleDeleteProfile = (profile: UserProfile) => {
+    setProfileToDelete(profile)
+    setShowDeleteModal(true)
+    setDeletePinInput('')
+  }
+
+  const confirmDeleteProfile = async () => {
+    if (!profileToDelete) return
+
+    // If profile has PIN, verify it first
+    if (profileToDelete.pin) {
+      if (deletePinInput.length !== 4) {
+        toast.error('Please enter a 4-digit PIN', {
+          duration: 2500,
+        })
+        return
+      }
+
+      // Verify PIN via API
+      try {
+        const response = await fetch(`/api/profiles/${profileToDelete.id}/verify-pin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ pin: deletePinInput }),
+        })
+        
+        const data = await response.json()
+        
+        if (!response.ok || !data.valid) {
+          toast.error(data.message || 'Incorrect PIN. Please try again.', {
+            duration: 3000,
+          })
+          setDeletePinInput('')
+          setTimeout(() => {
+            const firstInput = document.getElementById('delete-pin-0')
+            firstInput?.focus()
+          }, 100)
+          return
+        }
+      } catch (error) {
+        console.error('PIN verification error:', error)
+        toast.error('Failed to verify PIN. Please try again.', {
+          duration: 3000,
+        })
+        setDeletePinInput('')
+        return
+      }
     }
 
+    // PIN verified (or no PIN), proceed with deletion
     try {
-      const response = await fetch(`/api/profiles/${profileId}`, {
+      const response = await fetch(`/api/profiles/${profileToDelete.id}`, {
         method: 'DELETE',
         credentials: 'include',
       })
       
       if (response.ok) {
+        // If this was the current profile, clear it
+        const currentProfile = profileStorage.getCurrentProfile(user?.id || '')
+        if (currentProfile?.id === profileToDelete.id) {
+          profileStorage.clearCurrentProfile(user?.id || '')
+          window.dispatchEvent(new Event('profile-change'))
+        }
+        
         loadProfiles()
+        setShowDeleteModal(false)
+        setProfileToDelete(null)
+        setDeletePinInput('')
         toast.success('Profile deleted successfully', {
           duration: 3000,
         })
@@ -272,13 +333,32 @@ function ProfilesPageContent() {
     } catch (error: any) {
       console.error('Failed to delete profile via API:', error)
       // Fallback to localStorage
-      profileStorage.delete(profileId)
+      profileStorage.delete(profileToDelete.id)
+      const currentProfile = profileStorage.getCurrentProfile(user?.id || '')
+      if (currentProfile?.id === profileToDelete.id) {
+        profileStorage.clearCurrentProfile(user?.id || '')
+        window.dispatchEvent(new Event('profile-change'))
+      }
       loadProfiles()
+      setShowDeleteModal(false)
+      setProfileToDelete(null)
+      setDeletePinInput('')
       toast.success('Profile deleted successfully', {
         duration: 3000,
       })
     }
   }
+
+  // Auto-submit delete PIN when 4 digits are entered
+  useEffect(() => {
+    if (deletePinInput.length === 4 && profileToDelete && showDeleteModal && profileToDelete.pin) {
+      const timer = setTimeout(() => {
+        confirmDeleteProfile()
+      }, 300)
+      return () => clearTimeout(timer)
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }
+  }, [deletePinInput, profileToDelete, showDeleteModal])
 
   if (loading) {
     return (
@@ -340,7 +420,7 @@ function ProfilesPageContent() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
-                      handleDeleteProfile(profile.id)
+                      handleDeleteProfile(profile)
                     }}
                     className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 transition-colors"
                     aria-label="Delete profile"
@@ -495,6 +575,133 @@ function ProfilesPageContent() {
               <p className="text-xs text-gray-500 text-center">
                 Forgot your PIN? Contact support to reset it.
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && profileToDelete && (
+        <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="bg-card rounded-xl shadow-2xl w-full max-w-md p-4 sm:p-6 md:p-8 my-4 sm:my-auto animate-scale-in border border-white/10 max-h-[90vh] overflow-y-auto">
+            <div className="text-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4 border-2 border-red-500/30">
+                <Trash2 size={32} className="text-red-500" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Delete Profile</h2>
+              <p className="text-gray-400 mb-4">
+                Are you sure you want to delete <span className="font-semibold text-white">{profileToDelete.name}</span>?
+              </p>
+              <p className="text-sm text-gray-500 mb-6">
+                This will permanently delete this profile and all associated watch history and watchlist. This action cannot be undone.
+              </p>
+              
+              {/* Profile Preview */}
+              <div className="flex items-center justify-center space-x-3 mb-6">
+                <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-red-500/30">
+                  {profileToDelete.avatarType === 'uploaded' && profileToDelete.avatar && (profileToDelete.avatar.startsWith('data:') || profileToDelete.avatar.startsWith('http')) ? (
+                    <img src={profileToDelete.avatar} alt={profileToDelete.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl bg-primary/10">
+                      {profileToDelete.avatar || '👤'}
+                    </div>
+                  )}
+                </div>
+                <span className="text-white font-semibold text-lg">{profileToDelete.name}</span>
+              </div>
+
+              {/* PIN Input (if profile has PIN) */}
+              {profileToDelete.pin && (
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-300 mb-3 text-center">
+                    Enter PIN to confirm deletion
+                  </label>
+                  <div className="flex justify-center space-x-3">
+                    {[0, 1, 2, 3].map((index) => (
+                      <input
+                        key={index}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={deletePinInput[index] || ''}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '')
+                          if (value) {
+                            const newPin = deletePinInput.split('')
+                            newPin[index] = value
+                            const updatedPin = newPin.join('').slice(0, 4)
+                            setDeletePinInput(updatedPin)
+                            
+                            // Auto-focus next input
+                            if (value && index < 3) {
+                              setTimeout(() => {
+                                const nextInput = document.getElementById(`delete-pin-${index + 1}`)
+                                nextInput?.focus()
+                              }, 10)
+                            }
+                          } else {
+                            // Handle backspace/delete
+                            const newPin = deletePinInput.split('')
+                            newPin[index] = ''
+                            setDeletePinInput(newPin.join(''))
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Backspace') {
+                            if (deletePinInput[index]) {
+                              // Clear current digit
+                              const newPin = deletePinInput.split('')
+                              newPin[index] = ''
+                              setDeletePinInput(newPin.join(''))
+                            } else if (index > 0) {
+                              // Move to previous input
+                              const prevInput = document.getElementById(`delete-pin-${index - 1}`)
+                              prevInput?.focus()
+                              const newPin = deletePinInput.split('')
+                              newPin[index - 1] = ''
+                              setDeletePinInput(newPin.join(''))
+                            }
+                          } else if (e.key === 'Enter' && deletePinInput.length === 4) {
+                            confirmDeleteProfile()
+                          }
+                        }}
+                        id={`delete-pin-${index}`}
+                        className="w-16 h-16 text-center text-2xl font-bold bg-gray-800 border-2 border-gray-700 rounded-lg text-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all duration-200"
+                        autoFocus={index === 0}
+                      />
+                    ))}
+                  </div>
+                  {deletePinInput.length === 4 && (
+                    <div className="flex items-center justify-center space-x-2 text-red-500 animate-pulse mt-3">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                      <p className="text-sm font-medium">Verifying...</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setProfileToDelete(null)
+                    setDeletePinInput('')
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={confirmDeleteProfile}
+                  disabled={profileToDelete.pin && deletePinInput.length !== 4}
+                  className="flex-1 bg-red-600 hover:bg-red-700 border-red-600 hover:border-red-700"
+                >
+                  {profileToDelete.pin && deletePinInput.length !== 4 ? 'Enter PIN' : 'Delete Profile'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
