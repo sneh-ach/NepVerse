@@ -315,7 +315,7 @@ function ProfilesPageContent() {
         // If this was the current profile, clear it
         const currentProfile = profileStorage.getCurrentProfile(user?.id || '')
         if (currentProfile?.id === profileToDelete.id) {
-          profileStorage.clearCurrentProfile(user?.id || '')
+          profileStorage.setCurrentProfile(null, user?.id || '')
           window.dispatchEvent(new Event('profile-change'))
         }
         
@@ -336,7 +336,7 @@ function ProfilesPageContent() {
       profileStorage.delete(profileToDelete.id)
       const currentProfile = profileStorage.getCurrentProfile(user?.id || '')
       if (currentProfile?.id === profileToDelete.id) {
-        profileStorage.clearCurrentProfile(user?.id || '')
+        profileStorage.setCurrentProfile(null, user?.id || '')
         window.dispatchEvent(new Event('profile-change'))
       }
       loadProfiles()
