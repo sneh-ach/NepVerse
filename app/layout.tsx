@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Toaster } from 'react-hot-toast'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://nepverse.com'),
@@ -148,6 +149,7 @@ export default function RootLayout({
             }}
           />
           <Analytics />
+          <SpeedInsights />
         </ErrorBoundary>
       </body>
     </html>
