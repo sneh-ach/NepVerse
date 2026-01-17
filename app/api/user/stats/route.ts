@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         lastWatchedAt: 'desc',
       },
+      // @ts-ignore - Prisma type issue
     });
 
     // Calculate statistics
