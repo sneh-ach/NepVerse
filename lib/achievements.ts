@@ -189,24 +189,25 @@ export async function checkAndAwardAchievements(userId: string) {
     }
   }
 
-  // Check GENRE_EXPLORER
-  if (!earnedTypes.has(AchievementType.GENRE_EXPLORER)) {
-    const watchHistory = await prisma.watchHistory.findMany({
-      where: { userId },
-      include: {
-        movie: { include: { genres: true } },
-        series: { include: { genres: true } },
-        episode: { series: { include: { genres: true } } },
-      },
-    })
+    // Check GENRE_EXPLORER
+    if (!earnedTypes.has(AchievementType.GENRE_EXPLORER)) {
+      const watchHistoryQuery: any = {
+        where: { userId },
+        include: {
+          movie: { include: { genres: true } },
+          series: { include: { genres: true } },
+          episode: { include: { series: { include: { genres: true } } } },
+        },
+      };
+      const watchHistory: any = await prisma.watchHistory.findMany(watchHistoryQuery);
 
-    const uniqueGenres = new Set<string>()
-    watchHistory.forEach(h => {
-      const genres = h.movie?.genres || h.series?.genres || h.episode?.series?.genres || []
-      genres.forEach((g: any) => {
-        uniqueGenres.add(g.name || g)
+      const uniqueGenres = new Set<string>()
+      watchHistory.forEach((h: any) => {
+        const genres = h.movie?.genres || h.series?.genres || h.episode?.series?.genres || []
+        genres.forEach((g: any) => {
+          uniqueGenres.add(g.name || g)
+        })
       })
-    })
 
     if (uniqueGenres.size >= 5) {
       await awardAchievement(userId, AchievementType.GENRE_EXPLORER)

@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
     // Watch streak calculation
     const watchDates = watchHistory
       .map((h: any) => new Date(h.lastWatchedAt).toISOString().split('T')[0])
-      .filter((date, index, self) => self.indexOf(date) === index) // Unique dates
+      .filter((date: string, index: number, self: string[]) => self.indexOf(date) === index) // Unique dates
       .sort()
       .reverse()
 
