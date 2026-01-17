@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { X, Copy, Facebook, Twitter, MessageCircle, Mail, Share2, Check, Linkedin, Link2, Globe } from 'lucide-react'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
+import { useAuth } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 
 interface ShareModalProps {
@@ -27,6 +28,7 @@ export function ShareModal({
   year,
   description 
 }: ShareModalProps) {
+  const { user } = useAuth()
   const [copied, setCopied] = useState(false)
   const [shareText, setShareText] = useState('')
   const [supportsNativeShare, setSupportsNativeShare] = useState(false)
@@ -89,6 +91,23 @@ export function ShareModal({
     }
   }
 
+  const trackShare = async (platform?: string) => {
+    if (!user) return
+    
+    try {
+      const { createActivity } = await import('@/lib/achievements')
+      await createActivity(
+        user.id,
+        'SHARED_CONTENT',
+        contentId,
+        contentType,
+        { platform: platform || 'native' }
+      )
+    } catch (error) {
+      console.error('Error tracking share:', error)
+    }
+  }
+
   const handleNativeShare = async () => {
     if (!navigator.share) {
       toast.error('Sharing is not supported on this device.', {
@@ -102,6 +121,7 @@ export function ShareModal({
         title: `${title}${year ? ` (${year})` : ''} - NepVerse`,
         url: shareUrl,
       })
+      await trackShare('native')
       toast.success('Shared successfully!', {
         duration: 2000,
       })
@@ -175,7 +195,10 @@ export function ShareModal({
               placeholder="Share text will be auto-filled..."
             />
             <Button
-              onClick={handleCopy}
+              onClick={async () => {
+                await handleCopy()
+                await trackShare('copy')
+              }}
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 group/btn"
             >
@@ -204,6 +227,7 @@ export function ShareModal({
               href={shareLinks.facebook}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackShare('facebook')}
               className="group relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#1877F2] to-[#0d5fcc] rounded-xl hover:scale-110 active:scale-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 shadow-lg hover:shadow-2xl hover:shadow-[#1877F2]/50 transform-gpu overflow-hidden"
               aria-label="Share on Facebook"
             >
@@ -216,6 +240,7 @@ export function ShareModal({
               href={shareLinks.twitter}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackShare('twitter')}
               className="group relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#1DA1F2] to-[#0c85d0] rounded-xl hover:scale-110 active:scale-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 shadow-lg hover:shadow-2xl hover:shadow-[#1DA1F2]/50 transform-gpu overflow-hidden"
               aria-label="Share on Twitter"
             >
@@ -228,6 +253,7 @@ export function ShareModal({
               href={shareLinks.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackShare('whatsapp')}
               className="group relative flex flex-col items-center justify-center p-4 bg-gradient-to-br from-[#25D366] to-[#1da851] rounded-xl hover:scale-110 active:scale-100 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 shadow-lg hover:shadow-2xl hover:shadow-[#25D366]/50 transform-gpu overflow-hidden"
               aria-label="Share on WhatsApp"
             >

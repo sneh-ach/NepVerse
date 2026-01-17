@@ -5,6 +5,7 @@ import { Play, Plus, Share2, Heart, Film } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { ShareModal } from '@/components/content/ShareModal'
 import { TrailerPlayer } from '@/components/content/TrailerPlayer'
+import { AddToPlaylistButton } from '@/components/content/AddToPlaylistButton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
@@ -158,6 +159,11 @@ export function SeriesDetailClient({ series }: SeriesDetailClientProps) {
         >
           <Share2 size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:rotate-12 transition-transform duration-300" />
         </Button>
+        {user && (
+          <div className="hidden sm:block">
+            <AddToPlaylistButton seriesId={series.id} />
+          </div>
+        )}
         <Button variant="ghost" size="lg" onClick={handleLike} className="group/btn w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/40 backdrop-blur-md border border-white/20 hover:bg-black/60 hover:border-white/40 transition-all duration-300">
           <Heart size={18} className={`sm:w-[22px] sm:h-[22px] group-hover/btn:scale-125 transition-transform duration-300 ${inWatchlist ? 'fill-primary text-primary' : ''}`} />
         </Button>

@@ -153,6 +153,18 @@ export async function POST(
       },
     })
 
+    // Create activity
+    try {
+      const { createActivity, checkAndAwardAchievements } = await import('@/lib/achievements')
+      await createActivity(userId, 'REVIEWED', params.id, 'movie', {
+        rating,
+        reviewId: review.id,
+      })
+      await checkAndAwardAchievements(userId)
+    } catch (error) {
+      console.error('Error creating activity:', error)
+    }
+
     return NextResponse.json({
       message: 'Review submitted successfully',
       review: {

@@ -40,6 +40,10 @@ model User {
   watchParties            WatchParty[]
   watchPartyMembers       WatchPartyMember[]
   notifications           Notification[]
+  achievements            UserAchievement[]
+  activities              Activity[]
+  playlists               Playlist[]
+  playlistItems           PlaylistItem[]
 
   @@index([email])
   @@index([phone])
@@ -135,6 +139,7 @@ model Movie {
   watchHistory       WatchHistory[]
   watchList          WatchList[]
   genres             Genre[]        @relation("GenreToMovie")
+  playlistItems      PlaylistItem[]
 
   @@index([isPublished])
   @@index([isFeatured])
@@ -170,6 +175,7 @@ model Series {
   watchHistory      WatchHistory[]
   watchList         WatchList[]
   genres            Genre[]        @relation("GenreToSeries")
+  playlistItems     PlaylistItem[]
 
   @@index([isPublished])
   @@index([isFeatured])
@@ -564,6 +570,119 @@ enum DownloadStatus {
   COMPLETED
   FAILED
   EXPIRED
+}
+
+enum AchievementType {
+  FIRST_WATCH
+  BINGE_WATCHER
+  GENRE_EXPLORER
+  CRITIC
+  SOCIAL_BUTTERFLY
+  PARTY_HOST
+  STREAK_MASTER
+  COMPLETIONIST
+  EARLY_ADOPTER
+  LOYAL_VIEWER
+}
+
+enum ActivityType {
+  WATCHED
+  REVIEWED
+  ADDED_TO_LIST
+  CREATED_PLAYLIST
+  FOLLOWED_USER
+  EARNED_ACHIEVEMENT
+  SHARED_CONTENT
+}
+
+enum PlaylistVisibility {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+// Achievement definitions
+model Achievement {
+  id               String            @id @default(cuid())
+  type             AchievementType   @unique
+  name             String
+  description      String
+  icon             String? // Emoji or icon identifier
+  points           Int               @default(10)
+  createdAt        DateTime          @default(now())
+  userAchievements UserAchievement[]
+
+  @@index([type])
+}
+
+// User achievements
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([achievementId])
+  @@index([earnedAt])
+}
+
+// User activity feed
+model Activity {
+  id          String       @id @default(cuid())
+  userId      String
+  type        ActivityType
+  contentId   String? // Movie/Series ID
+  contentType String? // 'movie' or 'series'
+  metadata    Json? // Additional data (review text, playlist name, etc.)
+  createdAt   DateTime     @default(now())
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([type])
+}
+
+// User playlists
+model Playlist {
+  id          String             @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  visibility  PlaylistVisibility @default(PRIVATE)
+  coverImage  String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       PlaylistItem[]
+
+  @@index([userId])
+  @@index([visibility])
+  @@index([createdAt])
+}
+
+// Playlist items
+model PlaylistItem {
+  id         String   @id @default(cuid())
+  playlistId String
+  movieId    String?
+  seriesId   String?
+  order      Int      @default(0)
+  addedAt    DateTime @default(now())
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  movie      Movie?   @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  series     Series?  @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  User       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+
+  @@unique([playlistId, movieId])
+  @@unique([playlistId, seriesId])
+  @@index([playlistId])
+  @@index([movieId])
+  @@index([seriesId])
 }
 
 enum DiscountType {

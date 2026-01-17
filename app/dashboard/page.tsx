@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { ContentCarousel } from '@/components/content/ContentCarousel'
 import Link from 'next/link'
-import { Settings, History, Heart, CreditCard, Crown, Zap, Star, BarChart3 } from 'lucide-react'
+import { Settings, History, Heart, CreditCard, Crown, Zap, Star, BarChart3, Award, Activity, ListMusic } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { profileStorage } from '@/lib/localStorage'
 import { watchHistoryService, watchListService } from '@/lib/clientStorage'
@@ -146,7 +146,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
           <Link
             href="/dashboard/settings"
             className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
@@ -181,6 +181,33 @@ export default function DashboardPage() {
             <BarChart3 size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
             <h3 className="text-white font-semibold text-sm sm:text-base">Statistics</h3>
             <p className="text-gray-400 text-xs sm:text-sm">View your stats</p>
+          </Link>
+
+          <Link
+            href="/dashboard/playlists"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
+          >
+            <ListMusic size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Playlists</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Create playlists</p>
+          </Link>
+
+          <Link
+            href="/dashboard/achievements"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
+          >
+            <Award size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Achievements</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">Unlock badges</p>
+          </Link>
+
+          <Link
+            href="/dashboard/activity"
+            className="bg-card p-4 sm:p-6 rounded-lg hover:bg-card-hover transition-colors"
+          >
+            <Activity size={24} className="sm:w-8 sm:h-8 text-primary mb-2" />
+            <h3 className="text-white font-semibold text-sm sm:text-base">Activity Feed</h3>
+            <p className="text-gray-400 text-xs sm:text-sm">See what's new</p>
           </Link>
 
           <Link

@@ -228,6 +228,28 @@ export async function POST(request: NextRequest) {
       watchHistory = await prisma.watchHistory.create({
         data,
       })
+
+      // Create activity for first watch
+      try {
+        const { createActivity } = await import('@/lib/achievements')
+        await createActivity(
+          userId,
+          'WATCHED',
+          movieId || seriesId || null,
+          movieId ? 'movie' : 'series',
+          { progress: data.progress }
+        )
+      } catch (error) {
+        console.error('Error creating activity:', error)
+      }
+
+      // Check achievements
+      try {
+        const { checkAndAwardAchievements } = await import('@/lib/achievements')
+        await checkAndAwardAchievements(userId)
+      } catch (error) {
+        console.error('Error checking achievements:', error)
+      }
     }
 
     return NextResponse.json(watchHistory)

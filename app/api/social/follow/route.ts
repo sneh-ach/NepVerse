@@ -65,6 +65,17 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Create activity
+    try {
+      const { createActivity, checkAndAwardAchievements } = await import('@/lib/achievements')
+      await createActivity(user.id, 'FOLLOWED_USER', followingId, null, {
+        followingUserId: followingId,
+      })
+      await checkAndAwardAchievements(user.id)
+    } catch (error) {
+      console.error('Error creating activity:', error)
+    }
+
     return NextResponse.json({ message: 'Followed successfully' })
   } catch (error) {
     console.error('Follow error:', error)

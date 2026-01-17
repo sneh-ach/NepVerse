@@ -180,6 +180,20 @@ export async function POST(request: NextRequest) {
       watchListItem = await prisma.watchList.create({
         data,
       })
+
+      // Create activity
+      try {
+        const { createActivity } = await import('@/lib/achievements')
+        await createActivity(
+          userId,
+          'ADDED_TO_LIST',
+          movieId || seriesId || null,
+          movieId ? 'movie' : 'series',
+          {}
+        )
+      } catch (error) {
+        console.error('Error creating activity:', error)
+      }
     }
 
     return NextResponse.json(watchListItem)

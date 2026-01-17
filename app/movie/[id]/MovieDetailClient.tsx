@@ -5,6 +5,7 @@ import { Play, Plus, Share2, Heart, Film } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { ShareModal } from '@/components/content/ShareModal'
 import { TrailerPlayer } from '@/components/content/TrailerPlayer'
+import { AddToPlaylistButton } from '@/components/content/AddToPlaylistButton'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
@@ -149,6 +150,11 @@ export function MovieDetailClient({ movie }: MovieDetailClientProps) {
         >
           <Share2 size={18} className="sm:w-[22px] sm:h-[22px] group-hover/btn:rotate-12 transition-transform duration-300" />
         </Button>
+        {user && (
+          <div className="hidden sm:block">
+            <AddToPlaylistButton movieId={movie.id} />
+          </div>
+        )}
         <Button 
           variant="ghost" 
           size="lg"
